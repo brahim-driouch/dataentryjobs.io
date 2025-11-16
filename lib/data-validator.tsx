@@ -25,14 +25,14 @@ export const validateNewUser = (
   if (password !== confirmPassword) {
     errors.push("Passwords do not match");
   }
-
+   console.log(errors);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     errors.push("Invalid email format");
   }
 
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+// More comprehensive special characters
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#^=+~_\-])[A-Za-z\d@$!%*?&.#^=+~_\-]{8,}$/;
   if (!passwordRegex.test(password)) {
     errors.push(
       "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character"
@@ -40,6 +40,8 @@ export const validateNewUser = (
   }
 
   if (errors.length > 0) {
+    console.log(password);
+    console.log(errors);
     return { errors, isValid: false };
   } else {
     return { errors: [], isValid: true };

@@ -15,6 +15,12 @@ export interface IUser extends Document {
   
   // Profile
   full_name: string;
+
+  //phone number
+  phone_number: string;
+
+  //location
+  location: string; 
   
   // Preferences
   job_preferences: IJobPreferences;
@@ -45,4 +51,5 @@ export interface IUserModel extends mongoose.Model<IUser> {
   findByEmailWithPassword(email: string): Promise<IUser | null>;
 }
 
-export type newUser = Omit<IUser, '_id' | 'createdAt' | 'updatedAt'| 'last_login' | 'password_hash'| 'saved_jobs'| 'email_alerts_enabled'| 'alert_frequency'>;
+export type newUser = Omit<IUser, '_id' | 'createdAt' | 'updatedAt'| 'last_login' | 'password_hash'| 'saved_jobs'| 'email_alerts_enabled'| 'alert_frequency'> & { password: string, confirmPassword: string };
+export type userLogin = { email: string, password: string };

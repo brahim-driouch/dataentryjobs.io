@@ -33,7 +33,17 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxlength: [100, 'Name cannot exceed 100 characters']
   },
-  
+  //phone number
+  phone_number: {
+    type: String,
+    trim: true
+  },
+
+  // location
+  location: {
+    type: String,
+    trim: true    
+  },
   // Preferences
   job_preferences: {
     categories: [{
@@ -105,14 +115,18 @@ userSchema.pre('save', async function(next) {
 });
 
 // Instance method - Compare password
-userSchema.methods.comparePassword = async function(candidatePassword:string) {
+userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   if (!this.password_hash) {
-    const user = await (this.constructor as IUserModel).findById(this._id).select('+password_hash');
-    this.password_hash = user?.password_hash;
+    console.error("⚠️ No password_hash found on user");
+    return false;
   }
-  return bcrypt.compare(candidatePassword, this.password_hash);
-};
 
+  
+  const result = await bcrypt.compare(candidatePassword, this.password_hash);
+  console.log("   Comparison result:", result);
+  
+  return result;
+};
 // Instance method - Save job
 userSchema.methods.saveJob = function(jobId: mongoose.Types.ObjectId) {
   if (!this.saved_jobs.includes(jobId)) {

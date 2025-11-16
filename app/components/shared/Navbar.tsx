@@ -17,7 +17,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <Link href="/" className="text-xl font-bold text-blue-600">
               DataEntryJobs.io
             </Link>
@@ -89,7 +89,7 @@ export default function Navbar() {
                   For Employers
                 </Link>
                 <Link
-                  href="/auth/login"
+                  href="/auth/users/login"
                   className="text-gray-700 hover:text-blue-600"
                 >
                   Sign In

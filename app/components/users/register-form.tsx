@@ -15,92 +15,56 @@ import {
   Briefcase
 } from 'lucide-react';
 import Link from 'next/link';
-
+import countries  from "@/assets/countries.json";
+import { validateNewUser } from '@/lib/data-validator';
+import { newUser } from '@/types/user';
+import { useUserRegistration } from '@/hooks/useUserRegistration';
 export const UserRegistrationForm = () => {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     password: '',
-    confirm_password: '',
-    phone: '',
+    confirmPassword: '',
     location: '',
-    job_preferences: [] as string[]
   });
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<string[]>([]);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const mutation = useUserRegistration();
 
-  const jobCategories = [
-    'Medical Data Entry',
-    'Legal Data Entry',
-    'E-commerce Data Entry',
-    'Financial Data Entry',
-    'General Data Entry',
-    'Logistics Data Entry',
-    'Remote Data Entry'
-  ];
 
-  const handleCategoryToggle = (category: string) => {
-    setFormData(prev => ({
-      ...prev,
-      job_preferences: prev.job_preferences.includes(category)
-        ? prev.job_preferences.filter(c => c !== category)
-        : [...prev.job_preferences, category]
-    }));
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    setErrors([]);
+    
+ 
 
-    // Basic validation
-    if (formData.password !== formData.confirm_password) {
-      setError('Passwords do not match');
-      setLoading(false);
+  // validation
+  const {isValid, errors:_errors} = validateNewUser(formData.email, formData.password, formData.confirmPassword);
+  if (!isValid) {
+    setErrors(_errors);
+    return;
+  }
+  if (!termsAccepted) {
+      setErrors(['Please accept the terms and conditions']);
       return;
     }
-
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Registration data:', formData);
-      
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/auth/register/user', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
-
-      // if (!response.ok) {
-      //   const data = await response.json();
-      //   throw new Error(data.error || 'Registration failed');
-      // }
-
-      setSuccess(true);
-      setTimeout(() => {
-        window.location.href = '/auth/login';
-      }, 2000);
+    await mutation.mutateAsync(formData as newUser);
+    setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'An error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+      mutation.isError ? setErrors([mutation.error.message]) : setErrors([err.message]);
+    } 
   };
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-10 h-10 text-green-600" />
@@ -117,7 +81,7 @@ export const UserRegistrationForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-lg w-full">
         {/* Header */}
         <div className="text-center mb-8">
@@ -134,10 +98,14 @@ export const UserRegistrationForm = () => {
 
         {/* Registration Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {error && (
+          {errors && errors.length > 0 && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-600">{error}</p>
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div className="text-sm text-red-600">
+                {errors.map((error, index) => (
+                  <p key={index}>{"- "}{error}</p>
+                ))}
+              </div>
             </div>
           )}
 
@@ -155,7 +123,7 @@ export const UserRegistrationForm = () => {
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                   placeholder="John Doe"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  required
+                  
                 />
               </div>
             </div>
@@ -173,7 +141,7 @@ export const UserRegistrationForm = () => {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="you@example.com"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  required
+                  
                 />
               </div>
             </div>
@@ -183,70 +151,32 @@ export const UserRegistrationForm = () => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Phone Number (Optional)
               </label>
-              <div className="relative">
-                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+1 (555) 123-4567"
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                />
-              </div>
+              
             </div>
 
-            {/* Location */}
-            <div>
+       
+          <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Location
               </label>
               <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
+                <select
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="City, Country"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                />
+                  
+                >
+                  <option value="">Select your location</option>
+                  {countries.map((country) => (
+                    <option key={country.name} value={country.name}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
+                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
             </div>
-
-            {/* Job Preferences */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Job Preferences (Select all that apply)
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {jobCategories.map((category) => (
-                  <label
-                    key={category}
-                    className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
-                      formData.job_preferences.includes(category)
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-blue-300'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.job_preferences.includes(category)}
-                      onChange={() => handleCategoryToggle(category)}
-                      className="hidden"
-                    />
-                    <div className={`w-4 h-4 border rounded mr-3 flex items-center justify-center ${
-                      formData.job_preferences.includes(category)
-                        ? 'bg-blue-500 border-blue-500'
-                        : 'border-gray-400'
-                    }`}>
-                      {formData.job_preferences.includes(category) && (
-                        <CheckCircle className="w-3 h-3 text-white" />
-                      )}
-                    </div>
-                    <span className="text-sm font-medium">{category}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+           
 
             {/* Password */}
             <div>
@@ -261,7 +191,7 @@ export const UserRegistrationForm = () => {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="Minimum 8 characters"
                   className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  required
+                  
                 />
                 <button
                   type="button"
@@ -282,11 +212,11 @@ export const UserRegistrationForm = () => {
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirm_password}
-                  onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   placeholder="Confirm your password"
                   className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  required
+                  
                 />
                 <button
                   type="button"
@@ -304,7 +234,9 @@ export const UserRegistrationForm = () => {
                 <input 
                   type="checkbox" 
                   className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-0.5" 
-                  required 
+                   
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
                 />
                 <span className="text-sm text-gray-600">
                   I agree to the{' '}
@@ -323,10 +255,10 @@ export const UserRegistrationForm = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={mutation.isPending || !termsAccepted}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
             >
-              {loading ? (
+              {mutation.isPending ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Creating Account...</span>

@@ -1,27 +1,42 @@
+import dbQueries from "@/db/queries/users";
 import { validateNewUser } from "@/lib/data-validator";
 import { IAPIResponse } from "@/types/api";
+import { newUser } from "@/types/user";
 import { NextResponse } from "next/server";
-import { success } from "zod";
 
 
 
 
 
-export async function POST(req: Request): Promise<NextResponse<IAPIResponse<string[]>>> {
-    const { email, password , confirmPassword} = await req.json();
+export async function POST(req: Request): Promise<NextResponse<IAPIResponse<string[] |[]>>> {
+    const  user = await req.json() as newUser;
     
     try {
-      
-        const {isValid, errors} = validateNewUser(email, password, confirmPassword);
+        if(!user){
+            return NextResponse.json({ success: false, message: "Failed to register user",data:["Please provide user details"] }, { status: 400 });
+        }
+        const {isValid, errors} = validateNewUser(user.email, user.password, user.confirmPassword);
         if(!isValid){
             return NextResponse.json({ success: false, message: "Failed to register user",data:errors }, { status: 400 });
         }
        // check if user already exists
+       const emailExists = await dbQueries.checkEmailExists(user.email);
 
+       if(emailExists){
+        return NextResponse.json({ success: false, message: "Email already registered",data:["Email already registered, please login"] }, { status: 400 });
+       }
 
-        return NextResponse.json({ success: true, message: "User registered successfully",data:true }, { status: 201 });
+        // register user in database
+        const queryResult = await dbQueries.registerUser(user);
+
+        if(!queryResult){
+            return NextResponse.json({ success: false, message: "Failed to register user",data:["Failed to register user"] }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true, message: "User registered successfully",data:[queryResult.toString()] }, { status: 201 });
         
     } catch (error) {
-        return NextResponse.json({ success: false, message: "Failed to register user",data:false }, { status: 500 });
+        console.log(error);
+        return NextResponse.json({ success: false, message: "Failed to register user",data:[] }, { status: 500 });
     }
 }
