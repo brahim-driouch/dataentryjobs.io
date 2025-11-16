@@ -11,8 +11,7 @@ import {
   CheckCircle,
   Loader2,
   MapPin,
-  Phone,
-  Briefcase
+
 } from 'lucide-react';
 import Link from 'next/link';
 import countries  from "@/assets/countries.json";
@@ -45,11 +44,13 @@ export const UserRegistrationForm = () => {
  
 
   // validation
-  const {isValid, errors:_errors} = validateNewUser(formData.email, formData.password, formData.confirmPassword);
+  const {isValid, errors:_errors} = validateNewUser(formData.email, formData.password, formData.confirmPassword, formData.location);
   if (!isValid) {
     setErrors(_errors);
     return;
   }
+  
+
   if (!termsAccepted) {
       setErrors(['Please accept the terms and conditions']);
       return;
@@ -73,7 +74,7 @@ export const UserRegistrationForm = () => {
             Welcome to DataEntryJobs.io!
           </h2>
           <p className="text-gray-600 mb-4">
-            Your account has been created successfully. Redirecting to login...
+            Your account has been created successfully. Please check your email for verification.
           </p>
         </div>
       </div>

@@ -1,6 +1,5 @@
 import mongoose, { ObjectId } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { IUserModel } from '@/types/user';
 
 
 const userSchema = new mongoose.Schema({
@@ -76,6 +75,13 @@ const userSchema = new mongoose.Schema({
     ref: 'Job'
   }],
   
+  //email verified
+  email_verified: {
+    type: Boolean,
+    default: false
+  },
+
+
   // Email Alerts
   email_alerts_enabled: {
     type: Boolean,

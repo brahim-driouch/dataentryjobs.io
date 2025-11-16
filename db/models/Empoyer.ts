@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import {  IEmployerModel, IPaymentHistory } from '@/types/employer';
-import { getOrCreateModel } from '@/lib/model-registry';
+import {  IEmployer, IEmployerModel, IPaymentHistory } from '@/types/employer';
 
 
 const employerSchema = new mongoose.Schema({
@@ -180,6 +179,6 @@ employerSchema.statics.findByEmailWithPassword = function(email) {
   return this.findOne({ email }).select('+password_hash');
 };
 
-const Employer = mongoose.models.Employer || getOrCreateModel<IEmployerModel>('Employer', employerSchema);
+const Employer = mongoose.models.Employer || mongoose.model<IEmployer, IEmployerModel>('Employer', employerSchema);
 
 export default Employer;

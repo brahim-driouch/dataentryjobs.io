@@ -27,6 +27,9 @@ export interface IUser extends Document {
   
   // Saved Jobs
   saved_jobs: Types.ObjectId[];
+
+  // email verification
+  email_verified: boolean;
   
   // Email Alerts
   email_alerts_enabled: boolean;

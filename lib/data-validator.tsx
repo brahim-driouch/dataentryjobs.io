@@ -1,3 +1,4 @@
+import countries from "@/assets/countries.json";
 type ValidationResult = {
   errors: string[];
   isValid: boolean;
@@ -13,7 +14,8 @@ type ValidationResult = {
 export const validateNewUser = (
   email: string,
   password: string,
-  confirmPassword: string
+  confirmPassword: string,
+  location: string
 ) : ValidationResult => {
   const errors: string[] = [];
   if (!email || !password) {
@@ -37,6 +39,12 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#^=+~_\-])[A
     errors.push(
       "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character"
     );
+  }
+  // validate location
+  
+  if (!countries.find((country) => country.name === location)) {
+    errors.push('Please enter your location');
+    
   }
 
   if (errors.length > 0) {
