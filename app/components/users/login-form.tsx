@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { useUserLogging } from '@/hooks/useUserLogging';
 import { validateNewUser } from '@/lib/data-validator';
-import { useRouter } from 'next/navigation';
 
 // Login Component
 export const LoginForm = () => {
@@ -28,7 +27,7 @@ export const LoginForm = () => {
    
     try {
 
-      const {isValid, errors:_errors} = validateNewUser(formData.email, formData.password,formData.password);
+      const {isValid, errors:_errors} = validateNewUser(formData.email, formData.password);
        
       if (!isValid) {
         console.log(isValid);

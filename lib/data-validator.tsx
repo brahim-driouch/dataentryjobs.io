@@ -14,8 +14,8 @@ type ValidationResult = {
 export const validateNewUser = (
   email: string,
   password: string,
-  confirmPassword: string,
-  location: string
+  confirmPassword?: string,
+  location?: string
 ) : ValidationResult => {
   const errors: string[] = [];
   if (!email || !password) {
@@ -24,7 +24,7 @@ export const validateNewUser = (
   if (password.length < 8) {
     errors.push("Password must be at least 8 characters");
   }
-  if (password !== confirmPassword) {
+  if (confirmPassword && password !== confirmPassword) {
     errors.push("Passwords do not match");
   }
    console.log(errors);
@@ -42,7 +42,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#^=+~_\-])[A
   }
   // validate location
   
-  if (!countries.find((country) => country.name === location)) {
+  if (location && !countries.find((country) => country.name === location)) {
     errors.push('Please enter your location');
     
   }

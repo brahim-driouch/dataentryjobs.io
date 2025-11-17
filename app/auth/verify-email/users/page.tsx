@@ -49,13 +49,13 @@ export default async function UsersEmailVerificationPage({ searchParams }: Searc
           </p>
           <div className="space-y-3">
             <Link 
-              href="/login" 
+              href="/auth/login/users" 
               className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors"
             >
               Go to Login
             </Link>
             <Link 
-              href="/resend-verification" 
+              href="/resend-verification/users" 
               className="block w-full border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 rounded-lg transition-colors"
             >
               Resend Verification Email

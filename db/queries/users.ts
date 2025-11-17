@@ -20,8 +20,21 @@ import { HydratedDocument } from "mongoose";
     return result;
 };
 
+
+// get user by email
+
+const getUserByEmail = async (email: string) => {
+    await connectDB();
+    const result : HydratedDocument<IUser> | null = await User.findOne({ email });
+    return result;
+};  
+
+
 const dbQueries = {
     checkEmailExists,
-    registerUser
+    registerUser,
+    getUserByEmail
 };
 export default dbQueries;
+
+
