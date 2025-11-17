@@ -4,14 +4,50 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { mainNavigation } from '@/constants/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Loader2 } from 'lucide-react';
+import { LoggedInUserLinks } from './logged-in-user-links';
+import { X } from 'lucide-react';
 
+
+
+const AuthLinks =()=>{
+  return (
+  
+  <>
+       <Link
+                      href="/getting-started/employer"
+                      className="text-gray-700 hover:text-blue-600"
+                    >
+                      For Employers
+                    </Link>
+                    <Link
+                      href="/auth/login/user"
+                      className="text-gray-700 hover:text-blue-600"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/auth/register/user"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                    >
+                      Sign Up
+                    </Link>
+  
+  </>
+  )
+}
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession();
-  
+  const [showUserMenu,setShowUserMenu]=useState(false)
   const isLoading = status === 'loading';
   const isAuthenticated = status === 'authenticated';
+
+  const getUserNameInitials = (name:string)=>{
+  const nameArray = name.split(" ")
+  console.log(nameArray)
+  const initals = `${nameArray[0][0]}${nameArray[1][0]}`
+  return initals.toUpperCase()
+  }
 
   return (
     <nav className="bg-white shadow-lg">
@@ -61,49 +97,15 @@ export default function Navbar() {
                         </Link>
                       </>
                     ) : (
-                      <>
-                        <Link
-                          href="/in/user/profile"
-                          className="text-gray-700 hover:text-blue-600"
-                        >
-                          My Profile
-                        </Link>
-                        <Link
-                          href="/in/user/saved-jobs"
-                          className="text-gray-700 hover:text-blue-600"
-                        >
-                          Saved Jobs
-                        </Link>
-                      </>
+                      <div onClick={()=>setShowUserMenu(!showUserMenu)} className='relative w-10 h-10 rounded-full border border-gray-300 hover:border-gray-400 cursor-pointer text-blue-500 font-bold flex justify-center items-center bg-gray-200'>
+                          {showUserMenu ? <X color='red' size={24}/> : getUserNameInitials(session.user.name)}
+                          {showUserMenu && <LoggedInUserLinks/>}
+                      </div>
                     )}
-                    <button
-                      onClick={() => signOut({ callbackUrl: '/' })}
-                      className="text-gray-700 hover:text-blue-600"
-                    >
-                      Sign Out
-                    </button>
+                    
                   </>
                 ) : (
-                  <>
-                    <Link
-                      href="/auth/login/employer"
-                      className="text-gray-700 hover:text-blue-600"
-                    >
-                      For Employers
-                    </Link>
-                    <Link
-                      href="/auth/login/user"
-                      className="text-gray-700 hover:text-blue-600"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      href="/auth/register/user"
-                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                    >
-                      Sign Up
-                    </Link>
-                  </>
+                  <AuthLinks/>
                 )}
               </div>
 
@@ -190,7 +192,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link
-                    href="/auth/login/employer"
+                    href="/getting-started/emplyer"
                     className="block px-3 py-2 text-gray-700 hover:text-blue-600"
                     onClick={() => setIsOpen(false)}
                   >

@@ -14,15 +14,15 @@ export default auth((req) => {
   const publicRoutes = [
     "/",
     "/jobs",
-    "/resources", // Fixed typo: "ressources" → "resources"
+    "/resources",
   ];
 
-  const authRoutes = {
-    employerLogin: "/auth/login/employer",
-    employerRegister: "/auth/register/employer",
-    userLogin: "/auth/login/user",
-    userRegister: "/auth/register/user",
-  };
+  const authRoutes = [
+    "/auth/login/employer",
+    "/auth/register/employer", 
+    "/auth/login/user",
+    "/auth/register/user",
+  ];
 
   const protectedRoutes = {
     employer: "/in/employer",
@@ -35,14 +35,25 @@ export default auth((req) => {
   };
 
   // Check route types
-  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route));
-  const isEmployerAuthRoute = pathname.startsWith("/auth/login/employer") || pathname.startsWith("/auth/register/employer");
-  const isUserAuthRoute = pathname.startsWith("/auth/login/user") || pathname.startsWith("/auth/register/user");
-  const isAnyAuthRoute = isEmployerAuthRoute || isUserAuthRoute;
+  const isPublicRoute = publicRoutes.some(route => 
+    pathname === route || pathname.startsWith(route + "/")
+  );
+  const isAuthRoute = authRoutes.some(route => 
+    pathname === route || pathname.startsWith(route + "/")
+  );
   const isEmployerProtectedRoute = pathname.startsWith(protectedRoutes.employer);
   const isUserProtectedRoute = pathname.startsWith(protectedRoutes.user);
   const isAnyProtectedRoute = isEmployerProtectedRoute || isUserProtectedRoute;
-  const isVerificationRoute = pathname.startsWith("/resend-verification-link");
+  const isVerificationRoute = pathname.startsWith("/auth/resend-verification-link");
+
+  console.log('Middleware Debug:', {
+    pathname,
+    isLoggedIn,
+    isPublicRoute,
+    isAuthRoute,
+    isEmployerProtectedRoute,
+    isUserProtectedRoute
+  });
 
   // ========================================
   // 2. PUBLIC ROUTES - Allow everyone
@@ -52,22 +63,34 @@ export default auth((req) => {
   }
 
   // ========================================
-  // 3. NOT LOGGED IN - Redirect to home
+  // 3. HANDLE NOT LOGGED IN USERS
   // ========================================
-  if (!isLoggedIn && isAnyProtectedRoute) {
+  if (!isLoggedIn) {
+    // Allow access to auth routes
+    if (isAuthRoute) {
+      return NextResponse.next();
+    }
+    
+    // Redirect protected routes to home
+    if (isAnyProtectedRoute) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+    
+    // For any other non-public routes, redirect to home
     return NextResponse.redirect(new URL("/", req.url));
   }
 
+  // From this point, user IS logged in
   // ========================================
-  // 4. LOGGED IN BUT NOT VERIFIED
+  // 4. HANDLE VERIFICATION STATUS
   // ========================================
-  if (isLoggedIn && !isVerified(session)) {
-    // Don't redirect if already on verification page
+  if (!isVerified(session)) {
+    // Allow verification routes
     if (isVerificationRoute) {
       return NextResponse.next();
     }
 
-    // Redirect to appropriate verification page
+    // Redirect to verification page based on user type
     if (isEmployer(session)) {
       return NextResponse.redirect(new URL(verificationRoutes.employer, req.url));
     } else {
@@ -75,51 +98,50 @@ export default auth((req) => {
     }
   }
 
+  // From this point, user IS logged in AND verified
   // ========================================
-  // 5. LOGGED IN - Redirect away from auth routes
+  // 5. REDIRECT AWAY FROM AUTH ROUTES
   // ========================================
-  if (isLoggedIn && isAnyAuthRoute) {
+  if (isAuthRoute) {
     if (isEmployer(session) && hasCompany(session)) {
-      return NextResponse.redirect(new URL(protectedRoutes.employer, req.url));
+      return NextResponse.redirect(new URL("/in/employer", req.url));
     } else if (isUser(session)) {
-      return NextResponse.redirect(new URL(protectedRoutes.user, req.url));
+      return NextResponse.redirect(new URL("/in/user", req.url));
     }
+    // If employer doesn't have company yet, let them continue to auth
+    return NextResponse.next();
   }
 
   // ========================================
   // 6. PROTECT EMPLOYER ROUTES
   // ========================================
   if (isEmployerProtectedRoute) {
-    const userIsEmployer = isEmployer(session);
-    const userHasCompany = hasCompany(session);
-
-    if (!isLoggedIn || !userIsEmployer || !userHasCompany) {
-      // Wrong user type or not authorized
-      if (isLoggedIn && isUser(session)) {
-        // Logged in as user, redirect to user area
-        return NextResponse.redirect(new URL(protectedRoutes.user, req.url));
-      } else {
-        // Not logged in or invalid session
-        return NextResponse.redirect(new URL(authRoutes.employerLogin, req.url));
+    if (!isEmployer(session)) {
+      // Wrong user type - redirect based on actual user type
+      if (isUser(session)) {
+        return NextResponse.redirect(new URL("/in/user", req.url));
       }
+      // Not an employer at all
+      return NextResponse.redirect(new URL("/auth/login/employer", req.url));
+    }
+    
+    // Employer but no company - redirect to company setup
+    if (!hasCompany(session)) {
+      return NextResponse.redirect(new URL("/auth/register/employer/company", req.url));
     }
   }
 
   // ========================================
-  // 7. PROTECT USER ROUTES
+  // 7. PROTECT USER ROUTES  
   // ========================================
   if (isUserProtectedRoute) {
-    const userIsRegularUser = isUser(session);
-
-    if (!isLoggedIn || !userIsRegularUser) {
-      // Wrong user type or not authorized
-      if (isLoggedIn && isEmployer(session)) {
-        // Logged in as employer, redirect to employer area
-        return NextResponse.redirect(new URL(protectedRoutes.employer, req.url));
-      } else {
-        // Not logged in or invalid session
-        return NextResponse.redirect(new URL(authRoutes.userLogin, req.url));
+    if (!isUser(session)) {
+      // Wrong user type - redirect based on actual user type
+      if (isEmployer(session)) {
+        return NextResponse.redirect(new URL("/in/employer", req.url));
       }
+      // Not a user at all
+      return NextResponse.redirect(new URL("/auth/login/user", req.url));
     }
   }
 
