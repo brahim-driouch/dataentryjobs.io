@@ -9,6 +9,9 @@ export interface IJobPreferences {
 }
 
 export interface IUser extends Document {
+
+  
+  _id:string;
   // Auth
   email: string;
   password_hash: string;

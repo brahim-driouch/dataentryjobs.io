@@ -1,22 +1,26 @@
 import { IUser, newUser } from "@/types/user";
 import connectDB from "../connection";
 import User from "../models/User";
-import { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument, Model } from "mongoose";
 
 
 
 // check if email already exists
- const checkEmailExists = async (email: string) => {
+ const checkUserExists = async (email: string) => {
     await connectDB();
     const result = await User.findOne({ email });
-    return result ? result.email === email : false;
+    return !!result;
 };
 
 // register user in database
  const registerUser = async (user: newUser) => {
     await connectDB();
-    const result : HydratedDocument<IUser>  = await User.create({...user, password_hash: user.password});
-    console.log(result);
+    const result = new User({
+        email: user.email,
+        password_hash: user.password,
+        location: user.location
+    });
+    await result.save();
     return result;
 };
 
@@ -30,11 +34,12 @@ const getUserByEmail = async (email: string) => {
 };  
 
 
-const dbQueries = {
-    checkEmailExists,
+
+const userQueries = {
+    checkUserExists,
     registerUser,
     getUserByEmail
 };
-export default dbQueries;
+export default userQueries;
 
 

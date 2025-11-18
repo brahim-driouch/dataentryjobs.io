@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import connectDB from "@/db/connection";
 import bcrypt from "bcryptjs";
 import User from "@/db/models/User";
-import Employer from "@/db/models/Empoyer";
+import Employer from "@/db/models/Employer";
 
 export const authConfig: NextAuthConfig = {
   providers: [

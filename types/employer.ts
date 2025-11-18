@@ -60,3 +60,11 @@ export interface IEmployerModel extends Model<IEmployer> {
   
   // Inherit all default Mongoose static methods like findById, findOne, etc.
 }
+
+export type NewEmployer = {
+  fullName:string;
+  email:string;
+  company:string;
+  password:string;
+  confirmPassword:string
+}

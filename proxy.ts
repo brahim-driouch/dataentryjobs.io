@@ -15,6 +15,8 @@ export default auth((req) => {
     "/",
     "/jobs",
     "/resources",
+    "/getting-started/employer"
+    
   ];
 
   const authRoutes = [

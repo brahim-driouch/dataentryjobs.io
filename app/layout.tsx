@@ -5,6 +5,7 @@ import Header from "./components/shared/Header";
 import Footer from "./components/shared/Footer";
 import QueryProvider from "@/providers/query-provider";
 import { SessionProvider } from "next-auth/react";
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProvider>
+          <ToastContainer  position="top-center" />
       <QueryProvider>
           <Header />
         {children}

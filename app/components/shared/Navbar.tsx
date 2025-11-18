@@ -192,7 +192,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link
-                    href="/getting-started/emplyer"
+                    href="/getting-started/employer"
                     className="block px-3 py-2 text-gray-700 hover:text-blue-600"
                     onClick={() => setIsOpen(false)}
                   >

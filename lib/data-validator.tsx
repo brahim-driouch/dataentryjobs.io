@@ -55,3 +55,52 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#^=+~_\-])[A
     return { errors: [], isValid: true };
   }
 };
+
+export const validateNewEmployer = (
+  fullName:string,
+  email:string,
+  password:string,
+  confirmPassword:string,
+  company:string,
+
+)=>{
+  const errors :string[]= []
+
+  if(!fullName || !email || !password || !confirmPassword || !company){
+    errors.push("All fields are required");
+  }
+
+  if(fullName.length>100){
+    errors.push("Full name cannot exceed 100 characters");
+  }
+  if(company.length>150){
+    errors.push("Company name cannot exceed 150 characters");
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    errors.push("Invalid email format");
+  }
+
+  if (password.length < 8) {
+    errors.push("Password must be at least 8 characters");
+  }
+
+  // More comprehensive special characters
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#^=+~_\-])[A-Za-z\d@$!%*?&.#^=+~_\-]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      errors.push(
+        "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character"
+      );
+    }
+
+  if(password !== confirmPassword){
+    errors.push("Passwords do not match");
+  }
+
+  if(errors.length>0){
+    return {errors,isValid:false};
+  }else{
+    return {errors:[],isValid:true};
+  }
+}
