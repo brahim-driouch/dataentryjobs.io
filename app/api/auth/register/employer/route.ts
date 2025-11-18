@@ -43,7 +43,7 @@ export async function POST(req: Request): Promise<NextResponse<IAPIResponse<stri
 
         if (emailExists) {
             return NextResponse.json(
-                { success: false, message: "Email already registered", data: ""},
+                { success: false, message: "Email already registered, try to login", data: ""},
                 { status: 400 }
             );
         }

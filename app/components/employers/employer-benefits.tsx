@@ -11,7 +11,7 @@ const EmployerBenefits = () => {
   ];
 
   return (
-    <div className="text-white">
+    <div className="text-white h-full flex flex-col justify-start  items-start ">
       <h2 className="text-3xl font-bold mb-6">
         Hire Top Data Entry Talent Faster
       </h2>
