@@ -104,3 +104,27 @@ export const validateNewEmployer = (
     return {errors:[],isValid:true};
   }
 }
+
+
+export const validateEmployerLogin = (email:string,password:string)=>{
+  const errors :string[]= []
+
+  if(!email || !password){
+    errors.push("All fields are required");
+  }
+  if(password.length<8){
+    errors.push("Password must be at least 8 characters");
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    errors.push("Invalid email format");
+  }
+
+  if(errors.length>0){
+    return {errors,isValid:false};
+  }else{
+    return {errors:[],isValid:true};
+  }
+}
+  

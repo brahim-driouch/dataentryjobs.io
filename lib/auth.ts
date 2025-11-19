@@ -5,6 +5,7 @@ import connectDB from "@/db/connection";
 import bcrypt from "bcryptjs";
 import User from "@/db/models/User";
 import Employer from "@/db/models/Employer";
+import { validateEmployerLogin } from "./data-validator";
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -12,13 +13,14 @@ export const authConfig: NextAuthConfig = {
     CredentialsProvider({
       id: "employer-login",
       name: "Employer-Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
+     
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
+          const {isValid} = validateEmployerLogin(credentials.email as string,credentials.password as string);
+          if(!isValid){
             return null;
           }
 
@@ -27,13 +29,13 @@ export const authConfig: NextAuthConfig = {
           const employer = await Employer.findOne({ 
             email: credentials.email 
           }).select('+password_hash');
-
+ 
           if (!employer) {
             return null;
           }
 
           const isPasswordValid = await employer.comparePassword(
-            credentials.password 
+            credentials.password as string
           );
 
           if (!isPasswordValid) {
@@ -61,54 +63,73 @@ export const authConfig: NextAuthConfig = {
     }),
 
     // USER LOGIN PROVIDER
-    CredentialsProvider({
-      id: "user-login",
-      name: "User-Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        try {
-          if (!credentials?.email || !credentials?.password) {
-            return null;
-          }
-
-          await connectDB();
-
-          const user = await User.findOne({ 
-            email: credentials.email 
-          }).select('+password_hash');
-
-          if (!user) {
-            return null;
-          }
-
-          const isPasswordValid = await user.comparePassword(
-            credentials.password as string
-          );
-
-          if (!isPasswordValid) {
-            return null;
-          }
-
-          user.last_login = new Date();
-          await user.save();
-
-          // ✅ Use isVerified consistently
-          return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.full_name,
-            isVerified: user.email_verified || false, // ✅ Changed from email_verified
-            userType: "user" as const,
-          };
-        } catch (error) {
-          console.error("User authorization error:", error);
-          return null; // ✅ Return null, don't throw
-        }
+   CredentialsProvider({
+  id: "employer-login",
+  name: "Employer-Credentials",
+ 
+  async authorize(credentials) {
+    try {
+      console.log("🔍 Step 1: Checking credentials exist");
+      if (!credentials?.email || !credentials?.password) {
+        console.log("❌ Missing credentials");
+        return null;
       }
-    })
+      
+      console.log("🔍 Step 2: Validating credentials format");
+      const {isValid, errors} = validateEmployerLogin(credentials.email as string, credentials.password as string);
+      if(!isValid){
+        console.log("❌ Validation failed:", errors);
+        return null;
+      }
+
+      console.log("🔍 Step 3: Connecting to database");
+      await connectDB();
+
+      console.log("🔍 Step 4: Finding employer with email:", credentials.email);
+      const employer = await Employer.findOne({ 
+        email: credentials.email 
+      }).select('+password_hash');
+
+      if (!employer) {
+        console.log("❌ No employer found with this email");
+        return null;
+      }
+      console.log("✅ Employer found:", employer.email);
+
+      console.log("🔍 Step 5: Comparing passwords");
+      const isPasswordValid = await employer.comparePassword(
+        credentials.password as string
+      );
+
+      if (!isPasswordValid) {
+        console.log("❌ Password is invalid");
+        return null;
+      }
+      console.log("✅ Password is valid");
+
+      console.log("🔍 Step 6: Updating last login");
+      employer.last_login = new Date();
+      await employer.save();
+
+      console.log("🔍 Step 7: Returning user object");
+      const userObject = {
+        id: employer._id.toString(),
+        email: employer.email,
+        name: employer.full_name,
+        isVerified: employer.email_verified || false,
+        userType: "employer" as const,
+        companyId: employer.company_id?.toString(),
+        subscription: employer.subscription
+      };
+      console.log("✅ Returning user:", userObject);
+      
+      return userObject;
+    } catch (error) {
+      console.error("❌ Employer authorization error:", error);
+      return null;
+    }
+  }
+}),
   ],
 
   callbacks: {

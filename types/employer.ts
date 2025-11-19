@@ -68,3 +68,8 @@ export type NewEmployer = {
   password:string;
   confirmPassword:string
 }
+
+export type EmployerLogin = {
+  email:string;
+  password:string;
+}

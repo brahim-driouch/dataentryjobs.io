@@ -8,26 +8,22 @@ const jobSchema = new mongoose.Schema({
     required: [true, 'Job title is required'],
     trim: true,
     maxlength: [200, 'Title cannot exceed 200 characters'],
-    index: true
   },
   
   slug: {
     type: String,
     unique: true,
-    index: true
   },
   
   company_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
-    index: true
   },
   
   company_name: {
     type: String,
     required: [true, 'Company name is required'],
     trim: true,
-    index: true
   },
   
   company_logo: {
@@ -60,7 +56,6 @@ const jobSchema = new mongoose.Schema({
       values: ['Medical', 'General', 'Legal', 'Ecommerce', 'Finance', 'Logistics', 'Other'],
       message: '{VALUE} is not a valid category'
     },
-    index: true
   },
   
   subcategory: {
@@ -91,7 +86,6 @@ const jobSchema = new mongoose.Schema({
       type: String,
       required: [true, 'Country is required'],
       trim: true,
-      index: true
     },
     country_code: {
       type: String,
@@ -114,7 +108,6 @@ const jobSchema = new mongoose.Schema({
     is_remote: {
       type: Boolean,
       required: true,
-      index: true
     },
     remote_regions: [{
       type: String,
@@ -225,32 +218,27 @@ const jobSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'filled', 'expired', 'pending_approval', 'draft', 'rejected'],
     default: 'pending_approval',
-    index: true
   },
   
   featured: {
     type: Boolean,
     default: false,
-    index: true
   },
   
   featured_until: {
     type: Date,
     default: null,
-    index: true
   },
   
   // Timestamps
   posted_date: {
     type: Date,
     default: Date.now,
-    index: true
   },
   
   expires_date: {
     type: Date,
     required: true,
-    index: true,
     default: function() {
       // Default to 30 days from now
       return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);

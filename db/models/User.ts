@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Please provide a valid email address'
     },
-    index: true,
   },
   
   password_hash: {

@@ -17,7 +17,6 @@ const employerSchema = new mongoose.Schema({
       },
       message: 'Please provide a valid email address'
     },
-    index: true
   },
   
   password_hash: {
@@ -38,7 +37,6 @@ const employerSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
     required: [true, 'Company is required'],
-    index: true
   },
   
   role: {
@@ -139,6 +137,10 @@ employerSchema.pre('save', async function(next) {
 
 // Instance method - Compare password
 employerSchema.methods.comparePassword = async function(candidatePassword : string) {
+    if (!this.password_hash) {
+    console.error("⚠️ No password_hash found on employer account");
+    return false;
+  }
   // Need to explicitly select password_hash since it's not selected by default
   if (!this.password_hash) {
     const employer = await (this.constructor as IEmployerModel).findById(this._id).select('+password_hash');

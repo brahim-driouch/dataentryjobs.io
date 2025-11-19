@@ -9,13 +9,11 @@ const companySchema = new mongoose.Schema({
     trim: true,
     unique: true,
     maxlength: [200, 'Company name cannot exceed 200 characters'],
-    index: true
   },
   
   slug: {
     type: String,
     unique: true,
-    index: true
   },
   
   logo: {

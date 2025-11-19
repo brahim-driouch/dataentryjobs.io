@@ -86,19 +86,19 @@ export default auth((req) => {
   // ========================================
   // 4. HANDLE VERIFICATION STATUS
   // ========================================
-  if (!isVerified(session)) {
-    // Allow verification routes
-    if (isVerificationRoute) {
-      return NextResponse.next();
-    }
+  // if (!isVerified(session)) {
+  //   // Allow verification routes
+  //   if (isVerificationRoute) {
+  //     return NextResponse.next();
+  //   }
 
-    // Redirect to verification page based on user type
-    if (isEmployer(session)) {
-      return NextResponse.redirect(new URL(verificationRoutes.employer, req.url));
-    } else {
-      return NextResponse.redirect(new URL(verificationRoutes.user, req.url));
-    }
-  }
+  //   // Redirect to verification page based on user type
+  //   if (isEmployer(session)) {
+  //     return NextResponse.redirect(new URL(verificationRoutes.employer, req.url));
+  //   } else {
+  //     return NextResponse.redirect(new URL(verificationRoutes.user, req.url));
+  //   }
+  // }
 
   // From this point, user IS logged in AND verified
   // ========================================

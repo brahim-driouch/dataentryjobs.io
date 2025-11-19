@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import FormInput from './form-input';
+import { validateEmployerLogin } from '@/lib/data-validator';
+import { showErrors } from '@/utils/show-errors';
+import { useUserLogging } from '@/hooks/useUserLogging';
+import { toast } from 'react-toastify';
+import { useEmployerLogin } from '@/hooks/useEmployerLogin';
 
 interface EmployerLoginFormProps {
   setIsLogin: (isLogin: boolean) => void;
@@ -17,21 +22,8 @@ const EmployerLoginForm = ({ setIsLogin }: EmployerLoginFormProps) => {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Login hit');
-    // Add login validation logic here
-    try {
-      // Validate login data
-      // const { isValid, errors: _errors } = validateEmployerLogin(formData.email, formData.password);
-      // if (!isValid) {
-      //   setErrors(_errors);
-      //   return;
-      // }
-    } catch (error) {
-      console.error('Login error:', error);
-    }
-  };
+  // mutation
+  const mutation = useEmployerLogin();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -40,13 +32,54 @@ const EmployerLoginForm = ({ setIsLogin }: EmployerLoginFormProps) => {
     });
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const {isValid, errors: validationErrors} = validateEmployerLogin(formData.email, formData.password);
+      if(!isValid){
+        setErrors(validationErrors);
+        showErrors(validationErrors, setErrors); // ✅ Show immediately
+        return;
+      }
+
+      console.log("🔵 About to call mutation"); // Debug log
+      await mutation.mutateAsync(formData);
+      console.log("🔵 Mutation completed successfully"); // Debug log
+      
+      // ✅ Toast will show on successful login
+      toast.success("Logged in successfully", {
+        autoClose: 5000,
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+
+    } catch (error: any | Error) {
+      console.log("🔴 Error in handleSubmit:", error); // Debug log
+      const errorMessages = [error instanceof Error ? error.message : typeof error === "string" ? error : "Something bad happened, try again later"];
+      setErrors(errorMessages);
+      showErrors(errorMessages, setErrors); // ✅ Show immediately
+    }
+  };
+
+  // ✅ Fixed: depend on errors array, not length
+  useEffect(() => {
+    if(errors.length > 0){
+      showErrors(errors, setErrors);
+    }
+  }, [errors]); // Changed from errors.length
+
   return (
     <div className="bg-white rounded-3xl shadow-2xl p-8">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
         <p className="text-gray-600 mt-2">Sign in to your employer account</p>
       </div>
-
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormInput
@@ -82,10 +115,11 @@ const EmployerLoginForm = ({ setIsLogin }: EmployerLoginFormProps) => {
         </div>
 
         <button
+          disabled={mutation.isPending}
           type="submit"
-          className="w-full bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
-          Sign In to Account
+          {mutation.isPending ? 'Logging in...' : 'Sign In to Account'}
           <ArrowRight className="w-5 h-5" />
         </button>
 
