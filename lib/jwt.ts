@@ -1,3 +1,4 @@
+import userQueries from '@/db/queries/users';
 import { SignJWT, jwtVerify } from 'jose';
 
 // Your secret key (store in environment variables)
@@ -26,7 +27,24 @@ export const verifyToken = async (token: string) => {
     const { payload } = await jwtVerify(token, JWT_SECRET, {
       algorithms: ['HS256'] // Only accept HS256 algorithm
     });
+    // 
+    const user = await userQueries.getUserById(payload.userId as string);
 
+    if (!user) {
+      return {
+        isValid: false,
+        userId: null,
+        issuedAt: null,
+        expiresAt: null
+      };
+    }
+
+    if(user.email_verified){
+      throw new Error('User is already verified');
+    }
+    user.email_verified = true;
+    await user.save();
+    
     return {
       isValid: true,
       userId: payload.userId as string,
@@ -39,7 +57,8 @@ export const verifyToken = async (token: string) => {
       isValid: false,
       userId: null,
       issuedAt: null,
-      expiresAt: null
+      expiresAt: null,
+      message: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 };

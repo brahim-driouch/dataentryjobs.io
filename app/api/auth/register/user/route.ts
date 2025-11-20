@@ -7,6 +7,7 @@ import { IAPIResponse } from "@/types/api";
 import { newUser } from "@/types/user";
 import { Types } from "mongoose";
 import { NextResponse } from "next/server";
+import { CreateEmailResponseSuccess } from "resend";
 
 
 
@@ -41,7 +42,9 @@ export async function POST(req: Request): Promise<NextResponse<IAPIResponse<stri
         const token = await generateToken(userId.toString());
         const email = queryResult.email;
         const verificationUrl = `http://localhost:3000/auth/verify-email/users?token=${token}`;
-        await sendEmailVerificationLink(email, verificationUrl);
+       const emailSent :CreateEmailResponseSuccess =  await sendEmailVerificationLink(email, verificationUrl);
+
+      
         
         // return success response
         return NextResponse.json({ success: true, message: "User registered successfully",data:[queryResult.toString()] }, { status: 201 });

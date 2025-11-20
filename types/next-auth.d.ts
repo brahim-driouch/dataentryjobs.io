@@ -1,4 +1,5 @@
 // types/next-auth.d.ts
+import { isVerified } from "@/utils/auth";
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {

@@ -2,39 +2,39 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import connectDB from "@/db/connection";
-import bcrypt from "bcryptjs";
 import User from "@/db/models/User";
 import Employer from "@/db/models/Employer";
-import { validateEmployerLogin } from "./data-validator";
+import { validateLoginCredentials } from "./data-validator";
+import { ISubscription } from "@/types/employer";
+import employerQueries from "@/db/queries/employer";
 
 export const authConfig: NextAuthConfig = {
   providers: [
     // EMPLOYER LOGIN PROVIDER
     CredentialsProvider({
-      id: "employer-login",
-      name: "Employer-Credentials",
+      id: "user-login",
+      name: "User-Credentials",
      
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
             return null;
           }
-          const {isValid} = validateEmployerLogin(credentials.email as string,credentials.password as string);
+          const {isValid} = validateLoginCredentials(credentials.email as string,credentials.password as string);
           if(!isValid){
             return null;
           }
 
           await connectDB();
 
-          const employer = await Employer.findOne({ 
+          const user = await User.findOne({ 
             email: credentials.email 
           }).select('+password_hash');
  
-          if (!employer) {
+          if (!user) {
             return null;
           }
-
-          const isPasswordValid = await employer.comparePassword(
+          const isPasswordValid = await user.comparePassword(
             credentials.password as string
           );
 
@@ -42,18 +42,16 @@ export const authConfig: NextAuthConfig = {
             return null;
           }
 
-          employer.last_login = new Date();
-          await employer.save();
+          user.last_login = new Date();
+          await user.save();
 
           // ✅ Use isVerified consistently
           return {
-            id: employer._id.toString(),
-            email: employer.email,
-            name: employer.full_name,
-            isVerified: employer.email_verified || false, // ✅ Changed from email_verified
-            userType: "employer" as const,
-            companyId: employer.company_id?.toString(),
-            subscription: employer.subscription
+            id: user._id.toString(),
+            email: user.email,
+            name: user.full_name,
+            isVerified: user.email_verified || false, // ✅ Changed from email_verified
+            userType: "user" as const,
           };
         } catch (error) {
           console.error("Employer authorization error:", error);
@@ -76,7 +74,7 @@ export const authConfig: NextAuthConfig = {
       }
       
       console.log("🔍 Step 2: Validating credentials format");
-      const {isValid, errors} = validateEmployerLogin(credentials.email as string, credentials.password as string);
+      const {isValid, errors} = validateLoginCredentials(credentials.email as string, credentials.password as string);
       if(!isValid){
         console.log("❌ Validation failed:", errors);
         return null;
@@ -119,7 +117,7 @@ export const authConfig: NextAuthConfig = {
         isVerified: employer.email_verified || false,
         userType: "employer" as const,
         companyId: employer.company_id?.toString(),
-        subscription: employer.subscription
+        subscription: employer.subscription as ISubscription
       };
       console.log("✅ Returning user:", userObject);
       
@@ -133,7 +131,7 @@ export const authConfig: NextAuthConfig = {
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user,trigger, session }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -143,6 +141,9 @@ export const authConfig: NextAuthConfig = {
         token.companyId = user.companyId;
         token.subscription = user.subscription;
       }
+      if(trigger === 'update' && session.user){
+        token.isVerified = session.user.isVerified;
+      }
       return token;
     },
     
@@ -151,11 +152,33 @@ export const authConfig: NextAuthConfig = {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
-        session.user.isVerified = token.isVerified as boolean; // ✅ Changed
         session.user.userType = token.userType as "user" | "employer";
-        session.user.companyId = token.companyId as string | undefined;
-        session.user.subscription = token.subscription as any;
+  
       }
+
+      if(session.user && token){
+
+        if(session.user.userType === "user"){
+          const user = await User.findById(token.id);
+          if(user){
+            session.user.isVerified = user.email_verified;
+          }
+        }
+
+        if(session.user.userType === "employer"){
+          session.user.companyId = token.companyId as string;
+             session.user.subscription = token.subscription as ISubscription;
+
+          const employer = await employerQueries.getEmployerById(token.id as string);
+          if(employer){
+            session.user.isVerified = employer.email_verified;
+          }
+        }
+
+         
+      }
+
+      
       return session;
     }
   },

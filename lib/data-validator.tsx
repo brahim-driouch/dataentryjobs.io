@@ -42,7 +42,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#^=+~_\-])[A
   }
   // validate location
   
-  if (location && !countries.find((country) => country.name === location)) {
+  if (!location || !countries.find((country) => country.name === location)) {
     errors.push('Please enter your location');
     
   }
@@ -106,7 +106,7 @@ export const validateNewEmployer = (
 }
 
 
-export const validateEmployerLogin = (email:string,password:string)=>{
+export const validateLoginCredentials = (email:string,password:string)=>{
   const errors :string[]= []
 
   if(!email || !password){
@@ -127,4 +127,6 @@ export const validateEmployerLogin = (email:string,password:string)=>{
     return {errors:[],isValid:true};
   }
 }
+
+
   

@@ -1,6 +1,6 @@
 "use client";
 
-import  { useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { 
   Mail, 
   Lock, 
@@ -9,8 +9,9 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { useUserLogging } from '@/hooks/useUserLogging';
-import { validateNewUser } from '@/lib/data-validator';
+import { validateLoginCredentials, validateNewUser } from '@/lib/data-validator';
+import { useUserLogin } from '@/hooks/useUserLogging';
+import { showErrors } from '@/utils/show-errors';
 
 // Login Component
 export const LoginForm = () => {
@@ -20,32 +21,34 @@ export const LoginForm = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const mutation = useUserLogging();
-  const handleSubmit = async (e: React.FormEvent) => {
+  const mutation = useUserLogin();
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors([]);
-   
-    try {
 
-      const {isValid, errors:_errors} = validateNewUser(formData.email, formData.password);
-       
-      if (!isValid) {
-        console.log(isValid);
-        setErrors(_errors);
+    try {
+      const {isValid, errors: validationErrors} = validateLoginCredentials(formData.email, formData.password);
+      if(!isValid){
+        setErrors(validationErrors);
         return;
       }
-      await mutation.mutateAsync(formData);
-      setFormData({
-        email: '',
-        password: ''
-      }); 
-      setErrors([]);
 
-     
-    } catch (err) {
-      setErrors([err instanceof Error ? err.message : 'An error occurred. Please try again.']);
-    } 
+      await mutation.mutateAsync(formData);
+      
+    
+
+    } catch (error: any | Error) {
+      console.log("🔴 Error in handleSubmit:", error); // Debug log
+      const errorMessages = [error instanceof Error ? error.message : typeof error === "string" ? error : "Something bad happened, try again later"];
+      setErrors(errorMessages);
+    }
   };
+
+  // ✅ Fixed: depend on errors array, not length
+  useEffect(() => {
+    if(errors.length > 0){
+      showErrors(errors, setErrors);
+    }
+  }, [errors]);
 
   return (
     <div className="w-full flex items-center justify-center p-4">
@@ -63,20 +66,7 @@ export const LoginForm = () => {
 
         {/* Login Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {errors && errors.length > 0 && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-              <div className='flex flex-col justify-start'> 
-
-   {errors.map((error, index) => (
-                <p key={index} className="text-sm text-red-600 ">
-                  {"- "}{error}
-                </p>
-              ))}
-                </div>
-            </div>
-          )}
-
+          
           <div className="space-y-5">
             {/* Email Input */}
             <div>

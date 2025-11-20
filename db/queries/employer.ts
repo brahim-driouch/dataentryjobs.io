@@ -74,10 +74,18 @@ const registerEmployer = async (employerData: NewEmployer, session: ClientSessio
     }
 }
 
+// GET EMPLOYER BY ID
+const getEmployerById = async (id: string) => {
+    await connectDB();
+    const result = await Employer.findById(id);
+    return result;
+}
+
 const employerQueries = {
     registerCompany,
     checkEmployerExists,
-    registerEmployer
+    registerEmployer,
+    getEmployerById
 };
 
 export default employerQueries;

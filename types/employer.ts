@@ -40,6 +40,9 @@ export interface IEmployer extends Document {
   
   // Timestamps
   last_login?: Date;
+
+  //email verification
+  email_verified: boolean;
   
   // Methods
   comparePassword(candidatePassword: string): Promise<boolean>;

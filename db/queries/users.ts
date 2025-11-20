@@ -17,6 +17,7 @@ import mongoose, { HydratedDocument, Model } from "mongoose";
     await connectDB();
     const result = new User({
         email: user.email,
+        full_name: user.full_name,
         password_hash: user.password,
         location: user.location
     });
@@ -34,11 +35,36 @@ const getUserByEmail = async (email: string) => {
 };  
 
 
+// get user by id
+const getUserById = async (id: string) => {
+    await connectDB();
+    const result : HydratedDocument<IUser> | null = await User.findById(id);
+    return result;
+};
+
+// updqte user 
+
+const updateUser = async (email: string, user: typeof User) => {
+    await connectDB();
+    const result = await User.findOneAndUpdate({ email }, user, { new: true });
+    return result;
+};
+
+// DELETE USER BY ID  
+
+ const deleteUserById= async (id:string)=>{
+    await connectDB()
+    const result = await User.findOneAndDelete({_id:id})
+    return result
+ }
 
 const userQueries = {
     checkUserExists,
     registerUser,
-    getUserByEmail
+    getUserByEmail,
+    getUserById,
+    updateUser,
+    deleteUserById
 };
 export default userQueries;
 

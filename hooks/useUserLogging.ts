@@ -1,37 +1,46 @@
 // hooks/useUserLogging.ts
-import { userLogin } from '@/types/user';
+import { UserLogin } from '@/types/user';
 import { useMutation } from '@tanstack/react-query';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-export const useUserLogging = () => {
+export const useUserLogin = () => {
   const router = useRouter();
   
-  return useMutation<any, Error, userLogin>({
+  return useMutation<any, Error, UserLogin>({
     mutationFn: async (userData) => {
-      const response = await signIn('user-login', { // ✅ Correct ID
+      console.log("🟢 Step 1: Calling signIn with email:", userData.email);
+      
+      const response = await signIn('user-login', { 
         email: userData.email,
         password: userData.password,
         redirect: false,
       });
 
+      console.log("🟢 Step 2: SignIn response:", response);
 
       if (response?.error) {
+        console.log("🔴 SignIn error:", response.error);
         throw new Error("Invalid email or password");
       }
 
       if (!response?.ok) {
+        console.log("🔴 SignIn not OK");
         throw new Error('Invalid email or password');
       }
 
+      console.log("✅ SignIn successful!");
       return response;
     },
     onSuccess: () => {
-      router.push('/in/jobs'); // User dashboard
+      console.log("✅ Mutation onSuccess - redirecting to dashboard");
+      router.push('/in/user');
       router.refresh();
     },
     onError: (error) => {
-     throw new Error(error.message || 'Login failed');
+      console.log("🔴 Mutation onError:", error.message);
+      // ❌ DON'T re-throw here - just log it
+      // The error is already handled in the component's catch block
     }
   });
 };

@@ -58,4 +58,4 @@ export interface IUserModel extends mongoose.Model<IUser> {
 }
 
 export type newUser = Omit<IUser, '_id' | 'createdAt' | 'updatedAt'| 'last_login' | 'password_hash'| 'saved_jobs'| 'email_alerts_enabled'| 'alert_frequency'> & { password: string, confirmPassword: string };
-export type userLogin = { email: string, password: string };
+export type UserLogin = { email: string, password: string };

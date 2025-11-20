@@ -20,13 +20,13 @@ const AuthLinks =()=>{
                       For Employers
                     </Link>
                     <Link
-                      href="/auth/login/user"
+                      href="/auth/login/users"
                       className="text-gray-700 hover:text-blue-600"
                     >
                       Sign In
                     </Link>
                     <Link
-                      href="/auth/register/user"
+                      href="/auth/register/users"
                       className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
                     >
                       Sign Up

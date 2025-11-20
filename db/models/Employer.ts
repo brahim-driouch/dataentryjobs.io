@@ -45,6 +45,11 @@ const employerSchema = new mongoose.Schema({
     default: 'owner'
   },
   
+  //email verification
+  email_verified: {
+    type: Boolean,
+    default: false
+  },
   // Subscription
   subscription: {
     plan: {

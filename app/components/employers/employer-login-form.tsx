@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import FormInput from './form-input';
-import { validateEmployerLogin } from '@/lib/data-validator';
 import { showErrors } from '@/utils/show-errors';
-import { useUserLogging } from '@/hooks/useUserLogging';
 import { toast } from 'react-toastify';
 import { useEmployerLogin } from '@/hooks/useEmployerLogin';
+import { validateLoginCredentials } from '@/lib/data-validator';
 
 interface EmployerLoginFormProps {
   setIsLogin: (isLogin: boolean) => void;
@@ -36,7 +35,7 @@ const EmployerLoginForm = ({ setIsLogin }: EmployerLoginFormProps) => {
     e.preventDefault();
 
     try {
-      const {isValid, errors: validationErrors} = validateEmployerLogin(formData.email, formData.password);
+      const {isValid, errors: validationErrors} = validateLoginCredentials(formData.email, formData.password);
       if(!isValid){
         setErrors(validationErrors);
         showErrors(validationErrors, setErrors); // ✅ Show immediately

@@ -15,15 +15,17 @@ export default auth((req) => {
     "/",
     "/jobs",
     "/resources",
-    "/getting-started/employer"
+    "/getting-started/employer",
+    "/auth/verify-email/users",
+    "/auth/verify-email/employers"
     
   ];
 
   const authRoutes = [
     "/auth/login/employer",
     "/auth/register/employer", 
-    "/auth/login/user",
-    "/auth/register/user",
+    "/auth/login/users",
+    "/auth/register/users",
   ];
 
   const protectedRoutes = {
