@@ -14,9 +14,11 @@ export default auth((req) => {
     "/",
     "/jobs",
     "/resources",
-    "/getting-started/employer",
+    "/getting-started/employers",
     "/auth/verify-email/users",
-    "/auth/verify-email/employers"
+    "/auth/verify-email/employers",
+    "/auth/logout/employers",
+    "/auth/logout/users",
     
   ];
 
@@ -36,6 +38,13 @@ export default auth((req) => {
     employer: "/auth/resend-verification-link/employer",
     user: "/auth/resend-verification-link/user",
   };
+   const logoutRoutes = [
+    "/auth/verify-email/employers",
+    "/auth/verify-email/users",
+    "/api/auth/logout/employers",
+    "/api/auth/logout/users",
+  ];
+
 
   // Check route types
   const isPublicRoute = publicRoutes.some(route => 
@@ -51,15 +60,29 @@ export default auth((req) => {
 
  
 
+
+  const isLogoutRoute = logoutRoutes.some(route => 
+    pathname === route || pathname.startsWith(route + "/")
+  );
+
+
+
   // ========================================
-  // 2. PUBLIC ROUTES - Allow everyone
+  // 2. ALLOW LOGOUT/VERIFICATION ROUTES - Bypass all checks
+  // ========================================
+  if (isLogoutRoute) {
+    return NextResponse.next();
+  }
+
+  // ========================================
+  // 3. PUBLIC ROUTES - Allow everyone
   // ========================================
   if (isPublicRoute) {
     return NextResponse.next();
   }
 
   // ========================================
-  // 3. HANDLE NOT LOGGED IN USERS
+  // 4. HANDLE NOT LOGGED IN USERS
   // ========================================
   if (!isLoggedIn) {
     // Allow access to auth routes
@@ -77,24 +100,6 @@ export default auth((req) => {
   }
 
   // From this point, user IS logged in
-  // ========================================
-  // 4. HANDLE VERIFICATION STATUS
-  // ========================================
-  // if (!isVerified(session)) {
-  //   // Allow verification routes
-  //   if (isVerificationRoute) {
-  //     return NextResponse.next();
-  //   }
-
-  //   // Redirect to verification page based on user type
-  //   if (isEmployer(session)) {
-  //     return NextResponse.redirect(new URL(verificationRoutes.employer, req.url));
-  //   } else {
-  //     return NextResponse.redirect(new URL(verificationRoutes.user, req.url));
-  //   }
-  // }
-
-  // From this point, user IS logged in AND verified
   // ========================================
   // 5. REDIRECT AWAY FROM AUTH ROUTES
   // ========================================
@@ -118,12 +123,12 @@ export default auth((req) => {
         return NextResponse.redirect(new URL("/in/user", req.url));
       }
       // Not an employer at all
-      return NextResponse.redirect(new URL("/auth/login/employer", req.url));
+      return NextResponse.redirect(new URL("/auth/getting-started/employers", req.url));
     }
     
     // Employer but no company - redirect to company setup
     if (!hasCompany(session)) {
-      return NextResponse.redirect(new URL("/auth/register/employer", req.url));
+      return NextResponse.redirect(new URL("/auth/getting-started/employers", req.url));
     }
   }
 

@@ -9,7 +9,6 @@ export const useEmployerLogin = () => {
   
   return useMutation<any, Error, EmployerLogin>({
     mutationFn: async (userData) => {
-      console.log("🟢 Step 1: Calling signIn with email:", userData.email);
       
       const response = await signIn('employer-login', { 
         email: userData.email,
@@ -17,24 +16,19 @@ export const useEmployerLogin = () => {
         redirect: false,
       });
 
-      console.log("🟢 Step 2: SignIn response:", response);
 
       if (response?.error) {
-        console.log("🔴 SignIn error:", response.error);
         throw new Error("Invalid email or password");
       }
 
       if (!response?.ok) {
-        console.log("🔴 SignIn not OK");
         throw new Error('Invalid email or password');
       }
 
-      console.log("✅ SignIn successful!");
       return response;
     },
     onSuccess: () => {
-      console.log("✅ Mutation onSuccess - redirecting to dashboard");
-      router.push('/in/employer');
+      router.push('/in/employers');
       router.refresh();
     },
     onError: (error) => {

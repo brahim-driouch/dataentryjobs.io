@@ -14,7 +14,7 @@ const AuthLinks =()=>{
   
   <>
        <Link
-                      href="/getting-started/employer"
+                      href="/getting-started/employers"
                       className="text-gray-700 hover:text-blue-600"
                     >
                       For Employers
@@ -187,7 +187,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link
-                    href="/getting-started/employer"
+                    href="/getting-started/employers"
                     className="block px-3 py-2 text-gray-700 hover:text-blue-600"
                     onClick={() => setIsOpen(false)}
                   >

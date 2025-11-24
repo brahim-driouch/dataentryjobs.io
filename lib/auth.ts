@@ -134,66 +134,73 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
 
-  callbacks: {
-    async jwt({ token, user, trigger, session }) {
-     
-      
-      // ✅ When user first logs in, populate token
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.isVerified = user.isVerified;
-        token.userType = user.userType;
-        
-        if (user.userType === "employer") {
-          // Cast to avoid TypeScript errors
-          const employerUser = user as typeof user & {
-            company: { companyId: string; name: string };
-            subscription: ISubscription;
-          };
-          
-          token.company = employerUser.company;
-          token.subscription = employerUser.subscription;
-        }
-      }
-
-      
-      if (trigger === 'update' && token.id) {
-
-        if(session.user.userType === "employer"){
-          const employer = await employerQueries.getEmployerById(token.id as string);
-          token.isVerified = employer.email_verified || false;
-        }else {
-          const normalUser = await userQueries.getUserById(token.id as string);
-          token.isVerified = normalUser?.email_verified || false;
-        }
-      }
-      
-      return token;
-    },
+callbacks: {
+  async jwt({ token, user, trigger }) {
+    console.log("🔄 JWT Callback - Trigger:", trigger, "User ID:", token.id);
     
-    async session({ session, token }) {
-     
+    // Initial login
+    if (user) {
+      token.id = user.id;
+      token.email = user.email;
+      token.name = user.name;
+      token.isVerified = user.isVerified;
+      token.userType = user.userType;
       
-      // ✅ Populate session from token (no DB calls!)
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string;
-        session.user.isVerified = token.isVerified as boolean;
-        session.user.userType = token.userType as "user" | "employer";
-        
-        // ✅ Add employer-specific fields if present
-        if (token.userType === "employer") {
-          session.user.company = token.company as { companyId: string; name: string };
-          session.user.subscription = token.subscription as ISubscription;
-        }
+      if (user.userType === "employer") {
+        const employerUser = user as typeof user & {
+          company: { companyId: string; name: string };
+          subscription: ISubscription;
+        };
+        token.company = employerUser.company;
+        token.subscription = employerUser.subscription;
       }
-      
-      return session;
     }
+
+    // ALWAYS check verification status from DB (not just on update)
+    if (token.id && trigger === 'update') {
+      try {
+        await connectDB();
+        
+        if (token.userType === "employer") {
+          const employer = await employerQueries.getEmployerById(token.id as string);
+          if (employer) {
+            console.log("🔍 Employer verification status:", employer.email_verified);
+            token.isVerified = employer.email_verified || false;
+          }
+        } else {
+          const normalUser = await userQueries.getUserById(token.id as string);
+          if (normalUser) {
+            console.log("🔍 User verification status:", normalUser.email_verified);
+            token.isVerified = normalUser.email_verified || false;
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error checking verification status:", error);
+      }
+    }
+    
+    return token;
   },
+  
+  async session({ session, token }) {
+    console.log("🔐 Session Callback - Token isVerified:", token.isVerified);
+    
+    if (token && session.user) {
+      session.user.id = token.id as string;
+      session.user.email = token.email as string;
+      session.user.name = token.name as string;
+      session.user.isVerified = token.isVerified as boolean;
+      session.user.userType = token.userType as "user" | "employer";
+      
+      if (token.userType === "employer") {
+        session.user.company = token.company as { companyId: string; name: string };
+        session.user.subscription = token.subscription as ISubscription;
+      }
+    }
+    
+    return session;
+  }
+},
   
   session: {
     strategy: "jwt",
@@ -201,7 +208,7 @@ export const authConfig: NextAuthConfig = {
   },
   
   pages: {
-    signIn: "/login", // Your login page
+    signIn: "/login",
   },
   
   secret: process.env.NEXTAUTH_SECRET!,

@@ -42,9 +42,7 @@ const EmployerLoginForm = ({ setIsLogin }: EmployerLoginFormProps) => {
         return;
       }
 
-      console.log("🔵 About to call mutation"); // Debug log
       await mutation.mutateAsync(formData);
-      console.log("🔵 Mutation completed successfully"); // Debug log
       
       // ✅ Toast will show on successful login
       toast.success("Logged in successfully", {
@@ -59,14 +57,12 @@ const EmployerLoginForm = ({ setIsLogin }: EmployerLoginFormProps) => {
       });
 
     } catch (error: any | Error) {
-      console.log("🔴 Error in handleSubmit:", error); // Debug log
       const errorMessages = [error instanceof Error ? error.message : typeof error === "string" ? error : "Something bad happened, try again later"];
       setErrors(errorMessages);
-      showErrors(errorMessages, setErrors); // ✅ Show immediately
+      showErrors(errorMessages, setErrors); 
     }
   };
 
-  // ✅ Fixed: depend on errors array, not length
   useEffect(() => {
     if(errors.length > 0){
       showErrors(errors, setErrors);

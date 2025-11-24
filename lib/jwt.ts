@@ -7,6 +7,14 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-min-32-chars'
 );
 
+export interface TokenVerificationResult {
+  isValid: boolean;
+  userId: string | null;
+  issuedAt: Date | null;
+  expiresAt: Date | null;
+  message?: string;
+}
+
 export const generateUserToken = async (userId: string) => {
   try {
     const token = await new SignJWT({ userId })
@@ -39,7 +47,7 @@ export const generateEmployerToken = async (employerId: string) => {
   }
 };
 
-export const verifyUserToken = async (token: string) => {
+export const verifyUserToken = async (token: string): Promise<TokenVerificationResult> => {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET, {
       algorithms: ['HS256'] // Only accept HS256 algorithm
@@ -97,7 +105,13 @@ export const verifyEmployerToken = async (token: string) => {
     }
 
     if(employer.email_verified){
-      throw new Error('Employer is already verified');
+      return {
+        isValid: false,
+        employerId: null,
+        issuedAt: null,
+        expiresAt: null,
+        message: 'Employer is already verified'
+      };
     }
     employer.email_verified = true;
     await employer.save();
@@ -115,7 +129,6 @@ export const verifyEmployerToken = async (token: string) => {
       employerId: null,
       issuedAt: null,
       expiresAt: null,
-      message: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 };
