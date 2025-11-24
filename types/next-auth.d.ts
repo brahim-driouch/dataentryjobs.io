@@ -1,5 +1,4 @@
 // types/next-auth.d.ts
-import { isVerified } from "@/utils/auth";
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
@@ -8,9 +7,12 @@ declare module "next-auth" {
       id: string;
       email: string;
       name: string;
-      isVerified: boolean; 
+      isVerified: boolean;
       userType: "user" | "employer";
-      companyId?: string;
+      company?: {
+        companyId: string;
+        name: string;
+      };
       subscription?: {
         plan: "free" | "basic" | "premium" | "enterprise";
         status: "active" | "cancelled" | "expired" | "trial";
@@ -20,7 +22,7 @@ declare module "next-auth" {
         stripe_customer_id?: string;
         stripe_subscription_id?: string;
       };
-    } & DefaultSession["user"]; // ✅ Exclude isVerified from DefaultSession
+    } & DefaultSession["user"];
   }
 
   interface User {
@@ -29,7 +31,10 @@ declare module "next-auth" {
     name: string;
     isVerified: boolean;
     userType: "user" | "employer";
-    companyId?: string;
+    company?: {
+      companyId: string;
+      name: string;
+    };
     subscription?: {
       plan: "free" | "basic" | "premium" | "enterprise";
       status: "active" | "cancelled" | "expired" | "trial";
@@ -49,7 +54,19 @@ declare module "next-auth/jwt" {
     name: string;
     isVerified: boolean;
     userType: "user" | "employer";
-    companyId?: string;
-    subscription?: any;
+    company?: {
+      companyId: string;
+      name: string;
+    };
+ 
+    subscription?: {
+      plan: "free" | "basic" | "premium" | "enterprise";
+      status: "active" | "cancelled" | "expired" | "trial";
+      jobs_remaining: number;
+      jobs_total: number;
+      renews_at?: Date;
+      stripe_customer_id?: string;
+      stripe_subscription_id?: string;
+    };
   }
 }

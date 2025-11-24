@@ -6,11 +6,14 @@ import User from "@/db/models/User";
 import Employer from "@/db/models/Employer";
 import { validateLoginCredentials } from "./data-validator";
 import { ISubscription } from "@/types/employer";
+import Company from "@/db/models/Company";
+import companyQueries from "@/db/queries/companies";
 import employerQueries from "@/db/queries/employer";
+import userQueries from "@/db/queries/users";
 
 export const authConfig: NextAuthConfig = {
   providers: [
-    // EMPLOYER LOGIN PROVIDER
+    // USER LOGIN PROVIDER
     CredentialsProvider({
       id: "user-login",
       name: "User-Credentials",
@@ -20,7 +23,12 @@ export const authConfig: NextAuthConfig = {
           if (!credentials?.email || !credentials?.password) {
             return null;
           }
-          const {isValid} = validateLoginCredentials(credentials.email as string,credentials.password as string);
+          
+          const {isValid} = validateLoginCredentials(
+            credentials.email as string,
+            credentials.password as string
+          );
+          
           if(!isValid){
             return null;
           }
@@ -34,6 +42,7 @@ export const authConfig: NextAuthConfig = {
           if (!user) {
             return null;
           }
+          
           const isPasswordValid = await user.comparePassword(
             credentials.password as string
           );
@@ -45,139 +54,142 @@ export const authConfig: NextAuthConfig = {
           user.last_login = new Date();
           await user.save();
 
-          // ✅ Use isVerified consistently
           return {
             id: user._id.toString(),
             email: user.email,
             name: user.full_name,
-            isVerified: user.email_verified || false, // ✅ Changed from email_verified
+            isVerified: user.email_verified || false,
             userType: "user" as const,
           };
         } catch (error) {
-          console.error("Employer authorization error:", error);
-          return null; // ✅ Return null, don't throw
+          console.error("User authorization error:", error);
+          return null;
         }
       }
     }),
 
-    // USER LOGIN PROVIDER
-   CredentialsProvider({
-  id: "employer-login",
-  name: "Employer-Credentials",
- 
-  async authorize(credentials) {
-    try {
-      console.log("🔍 Step 1: Checking credentials exist");
-      if (!credentials?.email || !credentials?.password) {
-        console.log("❌ Missing credentials");
-        return null;
+    // EMPLOYER LOGIN PROVIDER
+    CredentialsProvider({
+      id: "employer-login",
+      name: "Employer-Credentials",
+     
+      async authorize(credentials) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
+          
+          const {isValid, errors} = validateLoginCredentials(
+            credentials.email as string, 
+            credentials.password as string
+          );
+          
+          if(!isValid){
+            return null;
+          }
+
+          await connectDB();
+
+          const employer = await Employer.findOne({ 
+            email: credentials.email 
+          }).select('+password_hash');
+
+          if (!employer) {
+            return null;
+          }
+
+          const isPasswordValid = await employer.comparePassword(
+            credentials.password as string
+          );
+
+          if (!isPasswordValid) {
+            return null;
+          }
+
+          employer.last_login = new Date();
+          await employer.save();
+
+          const company = await companyQueries.getCompanyById(employer.company_id as string);
+
+          const userObject = {
+            id: employer._id.toString(),
+            email: employer.email,
+            name: employer.full_name,
+            isVerified: employer.email_verified || false,
+            userType: "employer" as const,
+            company: {
+              companyId: employer.company_id.toString() as string,
+              name: company?.name as string,
+            },
+            subscription: employer.subscription as ISubscription
+          };
+          
+          
+          return userObject;
+        } catch (error) {
+          console.error("❌ Employer authorization error:", error);
+          return null;
+        }
       }
-      
-      console.log("🔍 Step 2: Validating credentials format");
-      const {isValid, errors} = validateLoginCredentials(credentials.email as string, credentials.password as string);
-      if(!isValid){
-        console.log("❌ Validation failed:", errors);
-        return null;
-      }
-
-      console.log("🔍 Step 3: Connecting to database");
-      await connectDB();
-
-      console.log("🔍 Step 4: Finding employer with email:", credentials.email);
-      const employer = await Employer.findOne({ 
-        email: credentials.email 
-      }).select('+password_hash');
-
-      if (!employer) {
-        console.log("❌ No employer found with this email");
-        return null;
-      }
-      console.log("✅ Employer found:", employer.email);
-
-      console.log("🔍 Step 5: Comparing passwords");
-      const isPasswordValid = await employer.comparePassword(
-        credentials.password as string
-      );
-
-      if (!isPasswordValid) {
-        console.log("❌ Password is invalid");
-        return null;
-      }
-      console.log("✅ Password is valid");
-
-      console.log("🔍 Step 6: Updating last login");
-      employer.last_login = new Date();
-      await employer.save();
-
-      console.log("🔍 Step 7: Returning user object");
-      const userObject = {
-        id: employer._id.toString(),
-        email: employer.email,
-        name: employer.full_name,
-        isVerified: employer.email_verified || false,
-        userType: "employer" as const,
-        companyId: employer.company_id?.toString(),
-        subscription: employer.subscription as ISubscription
-      };
-      console.log("✅ Returning user:", userObject);
-      
-      return userObject;
-    } catch (error) {
-      console.error("❌ Employer authorization error:", error);
-      return null;
-    }
-  }
-}),
+    }),
   ],
 
   callbacks: {
-    async jwt({ token, user,trigger, session }) {
+    async jwt({ token, user, trigger, session }) {
+     
+      
+      // ✅ When user first logs in, populate token
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
-        token.isVerified = user.isVerified; // ✅ Changed
+        token.isVerified = user.isVerified;
         token.userType = user.userType;
-        token.companyId = user.companyId;
-        token.subscription = user.subscription;
+        
+        if (user.userType === "employer") {
+          // Cast to avoid TypeScript errors
+          const employerUser = user as typeof user & {
+            company: { companyId: string; name: string };
+            subscription: ISubscription;
+          };
+          
+          token.company = employerUser.company;
+          token.subscription = employerUser.subscription;
+        }
       }
-      if(trigger === 'update' && session.user){
-        token.isVerified = session.user.isVerified;
+
+      
+      if (trigger === 'update' && token.id) {
+
+        if(session.user.userType === "employer"){
+          const employer = await employerQueries.getEmployerById(token.id as string);
+          token.isVerified = employer.email_verified || false;
+        }else {
+          const normalUser = await userQueries.getUserById(token.id as string);
+          token.isVerified = normalUser?.email_verified || false;
+        }
       }
+      
       return token;
     },
     
     async session({ session, token }) {
-      if (session.user) {
+     
+      
+      // ✅ Populate session from token (no DB calls!)
+      if (token && session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
+        session.user.isVerified = token.isVerified as boolean;
         session.user.userType = token.userType as "user" | "employer";
-  
-      }
-
-      if(session.user && token){
-
-        if(session.user.userType === "user"){
-          const user = await User.findById(token.id);
-          if(user){
-            session.user.isVerified = user.email_verified;
-          }
+        
+        // ✅ Add employer-specific fields if present
+        if (token.userType === "employer") {
+          session.user.company = token.company as { companyId: string; name: string };
+          session.user.subscription = token.subscription as ISubscription;
         }
-
-        if(session.user.userType === "employer"){
-          session.user.companyId = token.companyId as string;
-             session.user.subscription = token.subscription as ISubscription;
-
-          const employer = await employerQueries.getEmployerById(token.id as string);
-          if(employer){
-            session.user.isVerified = employer.email_verified;
-          }
-        }
-
-         
       }
-
       
       return session;
     }
@@ -185,11 +197,15 @@ export const authConfig: NextAuthConfig = {
   
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  
+  pages: {
+    signIn: "/login", // Your login page
   },
   
   secret: process.env.NEXTAUTH_SECRET!,
-  debug: process.env.NODE_ENV === 'development', // ✅ Add debug mode
+  debug: process.env.NODE_ENV === 'development',
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);

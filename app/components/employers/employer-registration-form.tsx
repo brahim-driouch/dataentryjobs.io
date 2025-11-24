@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import FormInput from './form-input';
 import { validateNewEmployer } from '@/lib/data-validator';
@@ -13,6 +13,7 @@ interface EmployerSignupFormProps {
 }
 
 const EmployerSignupForm = ({ setIsLogin }: EmployerSignupFormProps) => {
+  const toastRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -143,8 +144,8 @@ const EmployerSignupForm = ({ setIsLogin }: EmployerSignupFormProps) => {
 
   // Side effect show error toast
   useEffect(() => {
-    if (errors.length > 0) {
-      showErrors(errors, setErrors);
+    if (errors.length > 0 ) {
+      showErrors( errors, setErrors);
     }
   }, [errors]);
 

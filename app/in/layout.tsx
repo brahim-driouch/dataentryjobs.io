@@ -9,7 +9,6 @@ export default async function InLayout({
 }>) {
   const session = await auth();
   const showBanner = session?.user && !session.user.isVerified;
-  console.log("layout")
   return (
     <>
       {showBanner && <VerificationBanner userType={session?.user?.userType} />}

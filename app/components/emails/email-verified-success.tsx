@@ -1,27 +1,50 @@
 "use client";
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { useEffect } from "react";
-
-
-
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export const EmailVerifiedSuccess = () => {
-     const {data: session,update} =useSession();
+  const { data: session, update, status } = useSession();
+  const router = useRouter();
+  const hasUpdatedRef = useRef(false);
 
-  useEffect(()=>{
-    if(session){
-        update({
-            user:{
-                ...session.user,
-                isVerified:true,
-               
-            }
-         })
-    }
-  },[])
+  useEffect(() => {
+    const forceSessionUpdate = async () => {
+      if (status === "authenticated" && !hasUpdatedRef.current) {
+        hasUpdatedRef.current = true;
+        
+        console.log("🔄 Forcing session update...");
+        
+        // Force a session update with a custom flag
+        await update({ 
+          refresh: true,
+          timestamp: Date.now() 
+        });
+        
+        // Wait a bit and refresh the page to update server components
+        setTimeout(() => {
+          console.log("🔄 Refreshing page...");
+          router.refresh(); // This will trigger server components to re-render
+        }, 1000);
+      }
+    };
 
-        return (
+    forceSessionUpdate();
+  }, [status, update, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Updating your session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -35,10 +58,10 @@ export const EmailVerifiedSuccess = () => {
         </p>
         <div className="space-y-3">
           <Link 
-            href={session?.user?.userType === 'employer' ? '/getting-started/employer' : '/auth/login/users'}
+            href={session?.user?.userType === 'employer' ? '/in/employer' : '/in/user'}
             className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors"
           >
-            Log in to your account
+            Go to Dashboard
           </Link>
           <Link 
             href="/jobs" 
@@ -49,7 +72,5 @@ export const EmailVerifiedSuccess = () => {
         </div>
       </div>
     </div>
-
-        )
-    }
-    
+  );
+}

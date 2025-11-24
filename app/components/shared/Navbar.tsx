@@ -84,17 +84,12 @@ export default function Navbar() {
                     {session.user.userType === 'employer' ? (
                       <>
                         <Link
-                          href="/in/employer/dashboard"
+                          href="/in/employers"
                           className="text-gray-700 hover:text-blue-600"
                         >
                           Dashboard
                         </Link>
-                        <Link
-                          href="/in/employer/post-job"
-                          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                        >
-                          Post a Job
-                        </Link>
+                     
                       </>
                     ) : (
                       <div onClick={()=>setShowUserMenu(!showUserMenu)} className='relative w-10 h-10 rounded-full border border-gray-300 hover:border-gray-400 cursor-pointer text-blue-500 font-bold flex justify-center items-center bg-gray-200'>
@@ -147,7 +142,7 @@ export default function Navbar() {
                   {session.user.userType === 'employer' ? (
                     <>
                       <Link
-                        href="/in/employer/dashboard"
+                        href="/in/employers"
                         className="block px-3 py-2 text-gray-700 hover:text-blue-600"
                         onClick={() => setIsOpen(false)}
                       >

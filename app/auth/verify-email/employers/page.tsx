@@ -1,6 +1,5 @@
 import { EmailVerifiedSuccess } from "@/app/components/emails/email-verified-success";
-import { auth } from "@/lib/auth";
-import { verifyUserToken } from "@/lib/jwt";
+import { verifyEmployerToken } from "@/lib/jwt";
 import { CheckCircleIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -8,7 +7,7 @@ type SearchParams = {
  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 };
 
-export default async function UsersEmailVerificationPage({ searchParams }: SearchParams) {
+export default async function EmployerEmailVerificationPage({ searchParams }: SearchParams) {
   const { token } = (await searchParams) ;
   if (!token) {
     return (
@@ -34,7 +33,7 @@ export default async function UsersEmailVerificationPage({ searchParams }: Searc
     );
   }
 
-  const result = await verifyUserToken(token as string);
+  const result = await verifyEmployerToken(token as string);
 
   if(!result.isValid && result.message){
     return (

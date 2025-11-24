@@ -81,11 +81,18 @@ const getEmployerById = async (id: string) => {
     return result;
 }
 
+
+export const getEmployerByEmail = async (email: string) => {
+    await connectDB();
+    const result = await Employer.findOne({ email });
+    return result;
+}
 const employerQueries = {
     registerCompany,
     checkEmployerExists,
     registerEmployer,
-    getEmployerById
+    getEmployerById,
+    getEmployerByEmail
 };
 
 export default employerQueries;

@@ -7,7 +7,7 @@ import { useState } from "react";
 
 
 
-export const ResendVerificationLinkForm =()=>{
+export const ResendVerificationLinkForm =({userType}: {userType: 'user' | 'employer'})=>{
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const mutation = useResendVerificationLink();
@@ -19,9 +19,9 @@ export const ResendVerificationLinkForm =()=>{
         if (!email || email.trim() === '' || !emailREgex.test(email)) {
           setMessage({ type: 'error', text: 'Please enter a valid email address' });
           return;
-        }
+        }  
 
-      await mutation.mutateAsync(email.trim().toLowerCase());
+      await mutation.mutateAsync({email:email.trim().toLowerCase(),userType});
                   
 
       setMessage({ type: 'success', text: 'Verification email sent successfully' });

@@ -2,7 +2,7 @@ import connectDB from "@/db/connection";
 import employerQueries from "@/db/queries/employer";
 import { validateNewEmployer } from "@/lib/data-validator";
 import { sendEmailVerificationLink } from "@/lib/emails";
-import { generateToken } from "@/lib/jwt";
+import { generateEmployerToken } from "@/lib/jwt";
 import { IAPIResponse } from "@/types/api";
 import { IEmployer, NewEmployer } from "@/types/employer";
 import mongoose, { Types } from "mongoose";
@@ -78,8 +78,8 @@ export async function POST(req: Request): Promise<NextResponse<IAPIResponse<stri
 
         // Generate token and send email (after successful transaction)
         const employerId = queryResult._id as unknown as Types.ObjectId;
-        const token = await generateToken(employerId.toString());
-        const verificationUrl = `http://localhost:3000/auth/verify-email/employer?token=${token}`;
+        const token = await generateEmployerToken(employerId.toString());
+        const verificationUrl = `http://localhost:3000/auth/verify-email/employers?token=${token}`;
         
         // Send email asynchronously (don't await to avoid blocking response)
         sendEmailVerificationLink(queryResult.email, verificationUrl).catch(error => {

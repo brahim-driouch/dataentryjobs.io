@@ -2,7 +2,7 @@ import User from "@/db/models/User";
 import userQueries from "@/db/queries/users";
 import { validateNewUser } from "@/lib/data-validator";
 import { sendEmailVerificationLink } from "@/lib/emails";
-import { generateToken } from "@/lib/jwt";
+import { generateUserToken } from "@/lib/jwt";
 import { IAPIResponse } from "@/types/api";
 import { newUser } from "@/types/user";
 import { Types } from "mongoose";
@@ -39,7 +39,7 @@ export async function POST(req: Request): Promise<NextResponse<IAPIResponse<stri
         }
         // generate token and send email 
         const userId = queryResult._id as unknown as Types.ObjectId;
-        const token = await generateToken(userId.toString());
+        const token = await generateUserToken(userId.toString());
         const email = queryResult.email;
         const verificationUrl = `http://localhost:3000/auth/verify-email/users?token=${token}`;
        const emailSent :CreateEmailResponseSuccess =  await sendEmailVerificationLink(email, verificationUrl);

@@ -7,7 +7,6 @@ export default auth((req) => {
   const session = req.auth;
   const isLoggedIn = !!session;
   const pathname = req.nextUrl.pathname;
-
   // ========================================
   // 1. DEFINE ROUTE TYPES
   // ========================================
@@ -50,14 +49,7 @@ export default auth((req) => {
   const isAnyProtectedRoute = isEmployerProtectedRoute || isUserProtectedRoute;
   const isVerificationRoute = pathname.startsWith("/auth/resend-verification-link");
 
-  console.log('Middleware Debug:', {
-    pathname,
-    isLoggedIn,
-    isPublicRoute,
-    isAuthRoute,
-    isEmployerProtectedRoute,
-    isUserProtectedRoute
-  });
+ 
 
   // ========================================
   // 2. PUBLIC ROUTES - Allow everyone
@@ -131,7 +123,7 @@ export default auth((req) => {
     
     // Employer but no company - redirect to company setup
     if (!hasCompany(session)) {
-      return NextResponse.redirect(new URL("/auth/register/employer/company", req.url));
+      return NextResponse.redirect(new URL("/auth/register/employer", req.url));
     }
   }
 
