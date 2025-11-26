@@ -10,7 +10,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { validateLoginCredentials, validateNewUser } from '@/lib/data-validator';
-import { useUserLogin } from '@/hooks/useUserLogging';
+import { useUserLogin } from '@/hooks/users/useUserLogging';
 import { showErrors } from '@/utils/show-errors';
 
 // Login Component

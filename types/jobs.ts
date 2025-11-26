@@ -26,6 +26,11 @@ export interface IApplication {
   instructions?: string;
 }
 
+export interface ITypingSpeed {
+  min?: number;
+  required: boolean;
+}
+
 export interface ISource {
   platform: 'Manual' | 'Indeed' | 'LinkedIn' | 'Glassdoor' | 'Company Website' | 'Other';
   original_url?: string;
@@ -39,6 +44,7 @@ export interface IJob extends Document {
   company_id: Types.ObjectId;
   company_name: string;
   company_logo?: string;
+  employer_id: Types.ObjectId;
   
   // Job Details
   description: string;
@@ -60,10 +66,7 @@ export interface IJob extends Document {
   // Requirements
   skills: string[];
   certifications: string[];
-  typing_speed?: {
-    min?: number;
-    required: boolean;
-  };
+  typing_speed?: ITypingSpeed;
   language_requirements: string[];
   
   // Application
@@ -90,6 +93,13 @@ export interface IJob extends Document {
   // SEO
   meta_title?: string;
   meta_description?: string;
+  
+  // Other company hiring
+  hiring_for_other_company: 'yes' | 'no';
+  other_company_name?: string;
+  other_company_description?: string;
+  other_company_logo?: string;
+  other_company_website?: string;
   
   // Flags
   is_verified: boolean;
@@ -119,4 +129,81 @@ export interface IJobModel extends mongoose.Model<IJob> {
   expireOldJobs(): Promise<number>;
   removeExpiredFeatured(): Promise<number>;
   resetWeeklyViews(): Promise<number>;
+}
+
+/**
+ * Form data interface that matches the model structure
+ * Arrays are kept as strings in the form and converted before saving
+ */
+export interface JobFormData {
+  // Draft/Job ID (for updates)
+  _id?: string;
+  
+  // Employer ID
+  employer_id?: string;
+  
+  // Basic Info
+  title: string;
+  company_id?: string; // ObjectId as string
+  company_name: string;
+  company_logo?: File | null;
+  
+  // Job Details (strings in form, converted to arrays before saving)
+  description: string;
+  responsibilities: string; // textarea content, split by newlines
+  requirements: string; // textarea content, split by newlines
+  
+  // Classification
+  category: 'Medical' | 'General' | 'Legal' | 'Ecommerce' | 'Finance' | 'Logistics' | 'Other';
+  subcategory?: string;
+  experience_level: 'Entry Level' | 'Mid Level' | 'Senior' | 'Not Specified';
+  employment_type: 'Full-time' | 'Part-time' | 'Contract' | 'Freelance' | 'Internship';
+  
+  // Location (flat structure in form, converted to nested before saving)
+  locationType: 'remote' | 'onsite' | 'hybrid';
+  country: string;
+  country_code?: string;
+  city?: string;
+  state?: string;
+  timezone?: string;
+  is_remote: boolean;
+  remote_regions?: string; // comma-separated, converted to array
+  
+  // Salary (flat structure in form, converted to nested before saving)
+  salary_min?: number;
+  salary_max?: number;
+  salary_currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'PHP' | 'PKR' | 'BDT' | 'NGN' | 'CAD' | 'AUD';
+  salary_period: 'year' | 'month' | 'hour' | 'project';
+  salary_is_disclosed: boolean;
+  
+  // Requirements (strings in form, converted to arrays before saving)
+  skills: string; // comma-separated or newline-separated
+  certifications?: string; // comma-separated or newline-separated
+  typing_speed_min?: number;
+  typing_speed_required: boolean;
+  language_requirements?: string; // comma-separated or newline-separated
+  
+  // Application
+  application: IApplication;
+  
+  // Metadata
+  status: 'active' | 'filled' | 'expired' | 'pending_approval' | 'draft' | 'rejected';
+  featured?: boolean;
+  featured_until?: Date;
+  
+  // Timestamps
+  expires_date?: Date;
+  
+  // Other company hiring
+  hiring_for_other_company: 'yes' | 'no';
+  other_company_name?: string;
+  other_company_description?: string;
+  other_company_logo?: File | null;
+  other_company_website?: string;
+  
+  // Flags
+  urgent_hiring?: boolean;
+  is_verified?: boolean;
+  is_remote_friendly?: boolean;
+  is_entry_level_friendly?: boolean;
 }

@@ -3,9 +3,10 @@ import Link from "next/link";
 
 interface AlreadyVerifiedProps {
   message: string;
+  userType: "user" | "employer";
 }
 
-export function AlreadyVerified({ message }: AlreadyVerifiedProps) {
+export function AlreadyVerified({ message,userType }: AlreadyVerifiedProps) {
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
@@ -20,7 +21,7 @@ export function AlreadyVerified({ message }: AlreadyVerifiedProps) {
         </p>
         <div className="space-y-3 mt-4">
           <Link 
-            href="/getting-started/employers" 
+            href={userType === "user" ? "/auth/login/users" : "/getting-started/employers"} 
             className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors"
           >
             Go to Login Now

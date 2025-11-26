@@ -43,3 +43,6 @@ next-env.d.ts
 #shell scripts
 db-replicat.sh
 
+#assets folder
+/assets
+

@@ -17,7 +17,7 @@ import Link from 'next/link';
 import countries  from "@/assets/countries.json";
 import { validateNewUser } from '@/lib/data-validator';
 import { newUser } from '@/types/user';
-import { useUserRegistration } from '@/hooks/useUserRegistration';
+import { useUserRegistration } from '@/hooks/users/useUserRegistration';
 export const UserRegistrationForm = () => {
   const [formData, setFormData] = useState({
     full_name: '',

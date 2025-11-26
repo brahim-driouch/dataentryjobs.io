@@ -6,7 +6,7 @@ import Link from 'next/link';
 import FormInput from './form-input';
 import { showErrors } from '@/utils/show-errors';
 import { toast } from 'react-toastify';
-import { useEmployerLogin } from '@/hooks/useEmployerLogin';
+import { useEmployerLogin } from '@/hooks/employers/useEmployerLogin';
 import { validateLoginCredentials } from '@/lib/data-validator';
 
 interface EmployerLoginFormProps {

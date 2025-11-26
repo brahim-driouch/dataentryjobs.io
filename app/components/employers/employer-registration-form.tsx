@@ -5,7 +5,7 @@ import { ArrowRight, ArrowLeft } from 'lucide-react';
 import FormInput from './form-input';
 import { validateNewEmployer } from '@/lib/data-validator';
 import { showErrors } from '@/utils/show-errors';
-import { useEmployerRegistration } from '@/hooks/useEmployerRegistration';
+import { useEmployerRegistration } from '@/hooks/employers/useEmployerRegistration';
 import { toast } from 'react-toastify';
 
 interface EmployerSignupFormProps {

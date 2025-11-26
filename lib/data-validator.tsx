@@ -129,4 +129,383 @@ export const validateLoginCredentials = (email:string,password:string)=>{
 }
 
 
-  
+  export interface JobValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+  missingFields: string[];
+}
+
+import { JobFormData } from '@/types/jobs';
+
+export interface JobValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+  missingFields: string[];
+}
+
+export const validateJobRequiredFields = (data: JobFormData): JobValidationResult => {
+  const errors: Record<string, string> = {};
+  const missingFields: string[] = [];
+
+  // Basic Info - Required
+  if (!data.title?.trim()) {
+    errors.title = 'Job title is required';
+    missingFields.push('title');
+  } else if (data.title.length > 200) {
+    errors.title = 'Title cannot exceed 200 characters';
+  }
+
+  if (!data.company_name?.trim()) {
+    errors.company_name = 'Company name is required';
+    missingFields.push('company_name');                                                                                  
+  }
+
+  if (!data.description?.trim()) {
+    errors.description = 'Job description is required';
+    missingFields.push('description');
+  }
+
+  // Category - Required
+  const validCategories = ['Medical', 'General', 'Legal', 'Ecommerce', 'Finance', 'Logistics', 'Other'];
+  if (!data.category) {
+    errors.category = 'Category is required';
+    missingFields.push('category');
+  } else if (!validCategories.includes(data.category)) {
+    errors.category = `${data.category} is not a valid category`;
+  }
+
+  // Employment Type - Required
+  const validEmploymentTypes = ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'];
+  if (!data.employment_type) {
+    errors.employment_type = 'Employment type is required';
+    missingFields.push('employment_type');
+  } else if (!validEmploymentTypes.includes(data.employment_type)) {
+    errors.employment_type = `${data.employment_type} is not a valid employment type`;
+  }
+
+  // Location - Required
+  if (!data.locationType) {
+    errors.locationType = 'Location type is required (remote/onsite/hybrid)';
+    missingFields.push('locationType');
+  } else if (!['remote', 'onsite', 'hybrid'].includes(data.locationType)) {
+    errors.locationType = 'Invalid location type';
+  }
+
+  if (!data.country?.trim()) {
+    errors.country = 'Country is required';
+    missingFields.push('country');
+  }
+
+  // City required for onsite/hybrid
+  if (data.locationType !== 'remote' && !data.city?.trim()) {
+    errors.city = 'City is required for onsite/hybrid positions';
+    missingFields.push('city');
+  }
+
+  // Salary validation (using flattened salary fields)
+  if (data.salary_min !== undefined && data.salary_min < 0) {
+    errors.salary_min = 'Minimum salary cannot be negative';
+  }
+
+  if (data.salary_max !== undefined) {
+    if (data.salary_max < 0) {
+      errors.salary_max = 'Maximum salary cannot be negative';
+    }
+    if (data.salary_min !== undefined && data.salary_max < data.salary_min) {
+      errors.salary_max = 'Maximum salary must be greater than or equal to minimum salary';
+    }
+  }
+
+  if (data.salary_currency) {
+    const validCurrencies = ['USD', 'EUR', 'GBP', 'INR', 'PHP', 'PKR', 'BDT', 'NGN', 'CAD', 'AUD'];
+    if (!validCurrencies.includes(data.salary_currency)) {
+      errors.salary_currency = 'Invalid currency';
+    }
+  }
+
+  if (data.salary_period) {
+    const validPeriods = ['year', 'month', 'hour', 'project'];
+    if (!validPeriods.includes(data.salary_period)) {
+      errors.salary_period = 'Invalid salary period';
+    }
+  }
+
+  // Application Method - Required
+  const validMethods = ['external', 'email', 'internal'];
+  if (!data.application?.method) {
+    errors.application_method = 'Application method is required';
+    missingFields.push('application_method');
+  } else if (!validMethods.includes(data.application.method)) {
+    errors.application_method = 'Invalid application method';
+  }
+
+  // Validate based on application method
+  if (data.application?.method === 'external' && !data.application.url?.trim()) {
+    errors.application_url = 'Application URL is required for external applications';
+    missingFields.push('application_url');
+  }
+
+  if (data.application?.method === 'email') {
+    if (!data.application.email?.trim()) {
+      errors.application_email = 'Email is required for email applications';
+      missingFields.push('application_email');
+    } else if (!/^\S+@\S+\.\S+$/.test(data.application.email)) {
+      errors.application_email = 'Invalid email address';
+    }
+  }
+
+  if (data.application?.instructions && data.application.instructions.length > 1000) {
+    errors.application_instructions = 'Instructions cannot exceed 1000 characters';
+  }
+
+  // Experience Level validation
+  if (data.experience_level) {
+    const validExperienceLevels = ['Entry Level', 'Mid Level', 'Senior', 'Not Specified'];
+    if (!validExperienceLevels.includes(data.experience_level)) {
+      errors.experience_level = 'Invalid experience level';
+    }
+  }
+
+  // Skills validation (comma or newline-separated string)
+  if (data.skills) {
+    const skillsArray = data.skills.split(/[,\n]/).filter(skill => skill.trim() !== '');
+    if (skillsArray.length > 50) {
+      errors.skills = 'Cannot have more than 50 skills';
+    }
+  }
+
+  // Responsibilities validation (newline-separated string)
+  if (data.responsibilities) {
+    const responsibilitiesArray = data.responsibilities.split('\n').filter(item => item.trim() !== '');
+    if (responsibilitiesArray.length > 100) {
+      errors.responsibilities = 'Cannot have more than 100 responsibility items';
+    }
+  }
+
+  // Requirements validation (newline-separated string)
+  if (data.requirements) {
+    const requirementsArray = data.requirements.split('\n').filter(item => item.trim() !== '');
+    if (requirementsArray.length > 100) {
+      errors.requirements = 'Cannot have more than 100 requirement items';
+    }
+  }
+
+  // Typing speed validation
+  if (data.typing_speed_min !== undefined && data.typing_speed_min < 0) {
+    errors.typing_speed_min = 'Typing speed cannot be negative';
+  }
+
+  // Company website validation (if provided)
+  if (data.other_company_website && !isValidUrl(data.other_company_website)) {
+    errors.other_company_website = 'Invalid company website URL';
+  }
+
+  // Application URL validation (if provided)
+  if (data.application?.url && !isValidUrl(data.application.url)) {
+    errors.application_url = 'Invalid application URL';
+  }
+
+  // Other company validation if hiring for other company
+  if (data.hiring_for_other_company === 'yes') {
+    if (!data.other_company_name?.trim()) {
+      errors.other_company_name = 'Company name is required when hiring for another company';
+      missingFields.push('other_company_name');
+    }
+    if (!data.other_company_description?.trim()) {
+      errors.other_company_description = 'Company description is required when hiring for another company';
+      missingFields.push('other_company_description');
+    }
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+    missingFields,
+  };
+};
+
+/**
+ * Validates if a job draft has minimum fields to be saved
+ * (Less strict than full validation)
+ */
+export const validateJobDraft = (data: Partial<JobFormData>): JobValidationResult => {
+  const errors: Record<string, string> = {};
+  const missingFields: string[] = [];
+
+  // For drafts, only title and employer_id are required
+  if (!data.title?.trim()) {
+    errors.title = 'Job title is required to save draft';
+    missingFields.push('title');
+  } else if (data.title.length > 200) {
+    errors.title = 'Title cannot exceed 200 characters';
+  }
+
+  if (!data.employer_id?.trim()) {
+    errors.employer_id = 'Employer ID is required';
+    missingFields.push('employer_id');
+  }
+
+  // Validate data types if provided (but don't require them)
+  if (data.category) {
+    const validCategories = ['Medical', 'General', 'Legal', 'Ecommerce', 'Finance', 'Logistics', 'Other'];
+    if (!validCategories.includes(data.category)) {
+      errors.category = `${data.category} is not a valid category`;
+    }
+  }
+
+  if (data.employment_type) {
+    const validEmploymentTypes = ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'];
+    if (!validEmploymentTypes.includes(data.employment_type)) {
+      errors.employment_type = `${data.employment_type} is not a valid employment type`;
+    }
+  }
+
+  if (data.locationType) {
+    if (!['remote', 'onsite', 'hybrid'].includes(data.locationType)) {
+      errors.locationType = 'Invalid location type';
+    }
+  }
+
+  if (data.salary_min !== undefined && data.salary_min < 0) {
+    errors.salary_min = 'Minimum salary cannot be negative';
+  }
+
+  if (data.salary_max !== undefined && data.salary_min !== undefined && data.salary_max < data.salary_min) {
+    errors.salary_max = 'Maximum salary must be greater than or equal to minimum salary';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+    missingFields,
+  };
+};
+
+/**
+ * Get completion percentage for a job draft
+ */
+export const getJobCompletionPercentage = (data: Partial<JobFormData>): number => {
+  const requiredFields = [
+    'title',
+    'company_name',
+    'description',
+    'category',
+    'employment_type',
+    'locationType',
+    'country',
+    'application.method',
+  ];
+
+  let completedFields = 0;
+  let totalFields = requiredFields.length;
+
+  if (data.title?.trim()) completedFields++;
+  if (data.company_name?.trim()) completedFields++;
+  if (data.description?.trim()) completedFields++;
+  if (data.category) completedFields++;
+  if (data.employment_type) completedFields++;
+  if (data.locationType) completedFields++;
+  if (data.country?.trim()) completedFields++;
+  if (data.application?.method) completedFields++;
+
+  // Check conditional fields
+  if (data.application?.method === 'external') {
+    totalFields++;
+    if (data.application.url?.trim()) completedFields++;
+  }
+  if (data.application?.method === 'email') {
+    totalFields++;
+    if (data.application.email?.trim()) completedFields++;
+  }
+  if (data.locationType !== 'remote') {
+    totalFields++;
+    if (data.city?.trim()) completedFields++;
+  }
+
+  return Math.round((completedFields / totalFields) * 100);
+};
+
+/**
+ * Get user-friendly field names for error messages
+ */
+export const getFieldLabel = (fieldName: string): string => {
+  const labels: Record<string, string> = {
+    title: 'Job Title',
+    company_name: 'Company Name',
+    description: 'Job Description',
+    responsibilities: 'Responsibilities',
+    requirements: 'Requirements',
+    category: 'Category',
+    employment_type: 'Employment Type',
+    locationType: 'Location Type',
+    country: 'Country',
+    city: 'City',
+    application_method: 'Application Method',
+    application_url: 'Application URL',
+    application_email: 'Application Email',
+    salary_min: 'Minimum Salary',
+    salary_max: 'Maximum Salary',
+    skills: 'Required Skills',
+    other_company_name: 'Other Company Name',
+    other_company_description: 'Other Company Description',
+  };
+
+  return labels[fieldName] || fieldName;
+};
+
+/**
+ * Check which tabs have validation errors
+ */
+export const getTabValidationStatus = (data: Partial<JobFormData>) => {
+  const tabErrors = {
+    company: [] as string[],
+    details: [] as string[],
+    description: [] as string[],
+    application: [] as string[],
+  };
+
+  // Company tab fields
+  if (!data.company_name?.trim()) tabErrors.company.push('company_name');
+  if (data.hiring_for_other_company === 'yes') {
+    if (!data.other_company_name?.trim()) tabErrors.company.push('other_company_name');
+    if (!data.other_company_description?.trim()) tabErrors.company.push('other_company_description');
+  }
+
+  // Details tab fields
+  if (!data.title?.trim()) tabErrors.details.push('title');
+  if (!data.category) tabErrors.details.push('category');
+  if (!data.employment_type) tabErrors.details.push('employment_type');
+  if (!data.locationType) tabErrors.details.push('locationType');
+  if (!data.country?.trim()) tabErrors.details.push('country');
+  if (data.locationType !== 'remote' && !data.city?.trim()) tabErrors.details.push('city');
+
+  // Description tab fields
+  if (!data.description?.trim()) tabErrors.description.push('description');
+
+  // Application tab fields
+  if (!data.application?.method) tabErrors.application.push('application_method');
+  if (data.application?.method === 'external' && !data.application.url?.trim()) {
+    tabErrors.application.push('application_url');
+  }
+  if (data.application?.method === 'email' && !data.application.email?.trim()) {
+    tabErrors.application.push('application_email');
+  }
+
+  return {
+    company: tabErrors.company.length === 0,
+    details: tabErrors.details.length === 0,
+    description: tabErrors.description.length === 0,
+    application: tabErrors.application.length === 0,
+    errors: tabErrors,
+  };
+};
+
+// Helper function for URL validation
+function isValidUrl(string: string): boolean {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}

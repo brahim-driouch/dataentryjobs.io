@@ -1,75 +1,50 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import CompanyInfoTab from './company-info-tab';
 import JobDetailsTab from './job-details-tab';
 import JobDescriptionTab from './job-description-tab';
 import ApplicationTab from './job-application-tab';
+import {  JobFormData } from '@/types/jobs';
+import { useJobPosting } from '@/hooks/jobs/useJobPosting';
+import { validateJobRequiredFields } from '@/lib/data-validator';
+import { showErrors } from '@/utils/show-errors';
+import { useSession } from 'next-auth/react';
 
-export interface JobFormData {
-  // Company Information
-  companyName: string;
-  companyWebsite: string;
-  companyLogo: File | null;
-  companyDescription: string;
-  
-   hiringForOtherCompany: 'yes' | 'no';
-  otherCompanyName: string;
-  otherCompanyDescription: string;
-  otherCompanyLogo: File | null;
-  // Job Details
-  jobTitle: string;
-  jobType: string;
-  locationType: string;
-  hybridLocation: string;
-  salaryType: string;
-  salaryMin: string;
-  salaryMax: string;
-  salaryFixed: string;
-  salaryRate: string;
-  currency: string;
-  
-  // Job Description
-  jobDescription: string;
-  responsibilities: string;
-  requirements: string;
-  preferredSkills: string;
-  
-  // Application Process
-  contactEmail: string;
-  applicationLink: string;
-}
 
 const JobPostingForm = () => {
+  const {data: session} = useSession()
+
   const [activeTab, setActiveTab] = useState('company');
-  const [formData, setFormData] = useState<JobFormData>({
-  hiringForOtherCompany: 'no',  // Changed from 'yes' to 'no' to match your error message
-  otherCompanyName: "",
-  otherCompanyDescription: "",
-  otherCompanyLogo: null,  // Add this line
-  companyName: '',
-  companyWebsite: '',
-  companyLogo: null,
-  companyDescription: '',
-  jobTitle: '',
-  jobType: '',
-  locationType: 'remote',
-  hybridLocation: '',
-  salaryType: 'range',
-  salaryMin: '',
-  salaryMax: '',
-  salaryFixed: '',
-  salaryRate: '',
-  currency: 'USD',
-  jobDescription: '',
+const [formData, setFormData] = useState<JobFormData>({
+  employer_id: session?.user?.id,
+  title: '',
+  company_name: '',
+  company_logo: null,
+  description: '',
   responsibilities: '',
   requirements: '',
-  preferredSkills: '',
-  contactEmail: '',
-  applicationLink: '',
+  category: 'Other',
+  experience_level: 'Not Specified',
+  employment_type: 'Full-time',
+  locationType: 'remote',
+  country: '',
+  is_remote: true,
+  salary_currency: 'USD',
+  salary_period: 'month',
+  salary_is_disclosed: false,
+  skills: '',
+  typing_speed_required: false,
+  application: {
+    method: 'internal',
+    url: '',
+    email: '',
+    instructions: ''
+  },
+  status: 'draft',
+  hiring_for_other_company: 'no',
 });
 
 
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const tabs = [
     { id: 'company', label: 'Company Info' },
@@ -78,57 +53,46 @@ const JobPostingForm = () => {
     { id: 'application', label: 'Application' },
   ];
 
-  // Load draft on component mount
-  useEffect(() => {
-    loadDraft();
-  }, []);
 
   const updateFormData = (newData: Partial<JobFormData>) => {
     setFormData(prev => ({ ...prev, ...newData }));
   };
+ const mutation = useJobPosting()
 
-  const saveDraft = () => {
-    try {
-      localStorage.setItem('jobPostingDraft', JSON.stringify({
-        ...formData,
-        // Convert File to string for storage (in real app, you'd upload to server)
-        companyLogo: formData.companyLogo ? 'saved' : null
-      }));
-      setLastSaved(new Date());
-      console.log('Draft auto-saved:', formData);
-    } catch (error) {
-      console.error('Failed to save draft:', error);
-    }
-  };
-
-  const loadDraft = () => {
-    try {
-      const draft = localStorage.getItem('jobPostingDraft');
-      if (draft) {
-        const parsedDraft = JSON.parse(draft);
-        setFormData(parsedDraft);
-        setLastSaved(new Date());
-        console.log('Draft loaded:', parsedDraft);
-      }
-    } catch (error) {
-      console.error('Failed to load draft:', error);
-    }
-  };
-
-  const clearDraft = () => {
-    localStorage.removeItem('jobPostingDraft');
-    setLastSaved(null);
-  };
-
+  
+const saveDraft = () => {}
+  
+ 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    clearDraft(); // Clear draft after successful submission
-    // Handle form submission logic here
+          e.preventDefault();
+
+    try {
+
+      if(!formData.company_name &&  formData.hiring_for_other_company === 'no'){
+         const company = session?.user?.company;
+         if(company){
+           formData.company_name = company.name;
+           formData.company_id = company.companyId;
+         }
+        return;
+      }
+    const validation = validateJobRequiredFields(formData);
+    if(!validation.isValid){
+      const errors = Object.values(validation.errors);
+      showErrors(errors,()=>{});
+      return;
+    }
+    if(validation.isValid){
+    mutation.mutate(formData);
+    }
+    } catch (error:any | Error) {
+      showErrors(["message" in error ? error.message : "Something went wrong"],()=>{})
+      console.log(error)
+    }
+
   };
 
   const nextTab = () => {
-    saveDraft(); // Auto-save when moving to next tab
     const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
     if (currentIndex < tabs.length - 1) {
       setActiveTab(tabs[currentIndex + 1].id);
@@ -136,7 +100,6 @@ const JobPostingForm = () => {
   };
 
   const prevTab = () => {
-    saveDraft(); // Auto-save when going back
     const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
     if (currentIndex > 0) {
       setActiveTab(tabs[currentIndex - 1].id);
@@ -144,7 +107,6 @@ const JobPostingForm = () => {
   };
 
   const goToTab = (tabId: string) => {
-    saveDraft(); // Auto-save when switching tabs directly
     setActiveTab(tabId);
   };
 
@@ -158,12 +120,7 @@ const JobPostingForm = () => {
           Find your next great hire! Your progress is automatically saved as you go.
         </p>
         
-        {/* Auto-save status indicator */}
-        {lastSaved && (
-          <div className="mt-3 text-sm text-green-600">
-            ✓ Draft auto-saved {lastSaved.toLocaleTimeString()}
-          </div>
-        )}
+       
       </div>
 
       {/* Tab Navigation */}
@@ -234,24 +191,11 @@ const JobPostingForm = () => {
             Previous
           </button>
 
-          {/* Optional: Keep a small "Save Draft" button for power users */}
-          <button
-            type="button"
-            onClick={saveDraft}
-            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 underline"
-          >
-            Save Draft Now
-          </button>
+         
 
           {activeTab === 'application' ? (
             <div className="flex space-x-4">
-              <button
-                type="button"
-                onClick={clearDraft}
-                className="px-6 py-3 text-gray-600 font-semibold rounded-lg border border-gray-300 hover:bg-gray-50"
-              >
-                Clear Draft
-              </button>
+              
               <button
                 type="submit"
                 className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"

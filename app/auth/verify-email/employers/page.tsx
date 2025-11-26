@@ -31,15 +31,18 @@ useEffect(() => {
       showErrors(["Failed to verify token"],()=>{})   
     }
 
+
     const data : TokenVerificationResult = await response.json(); 
     setTokenVerificationResult(data);
+        console.log(data)
+
   }
   getTokenVerificationResult();
     
 },[])
 
 if(!tokenVerificationResult?.isValid && tokenVerificationResult?.message){
-   return <AlreadyVerified message={tokenVerificationResult?.message || ""}/>
+   return <AlreadyVerified userType="employer" message={tokenVerificationResult?.message || ""}/>
 }
 
 if(!tokenVerificationResult?.isValid){
@@ -47,7 +50,7 @@ if(!tokenVerificationResult?.isValid){
 }
 
 if(tokenVerificationResult?.isValid){
-   return <ValidVerificationToken/>
+   return <ValidVerificationToken userType="employer"/>
 }
 
 return <></>

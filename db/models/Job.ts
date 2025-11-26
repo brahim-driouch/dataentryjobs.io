@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 import slugify from "@/utils/slugify";
 
 const jobSchema = new mongoose.Schema({
-  // Basic Info
-  title: {
+title: {
     type: String,
     required: [true, 'Job title is required'],
     trim: true,
@@ -18,6 +17,7 @@ const jobSchema = new mongoose.Schema({
   company_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
+    required: [true, 'Company is required'],
   },
   
   company_name: {
@@ -29,6 +29,11 @@ const jobSchema = new mongoose.Schema({
   company_logo: {
     type: String,
     default: null
+  },
+  employer_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Employer',
+    required: [true, 'Employer is required'],
   },
   
   // Job Details
@@ -125,8 +130,8 @@ const jobSchema = new mongoose.Schema({
       type: Number,
       min: [0, 'Maximum salary cannot be negative'],
       validate: {
-        validator: function(value: number) {
-          return !this.salary.min || value >= this.salary.min;
+        validator: function(this: any, value: number) {
+          return !this.salary?.min || value >= this.salary.min;
         },
         message: 'Maximum salary must be greater than or equal to minimum salary'
       }
@@ -186,8 +191,8 @@ const jobSchema = new mongoose.Schema({
       type: String,
       trim: true,
       validate: {
-        validator: function(value) {
-          if (this.application.method === 'external' && !value) return false;
+        validator: function(this: any, value: string) {
+          if (this.application?.method === 'external' && !value) return false;
           return true;
         },
         message: 'Application URL is required for external applications'
@@ -198,8 +203,8 @@ const jobSchema = new mongoose.Schema({
       trim: true,
       lowercase: true,
       validate: {
-        validator: function(value) {
-          if (this.application.method === 'email' && !value) return false;
+        validator: function(this: any, value: string) {
+          if (this.application?.method === 'email' && !value) return false;
           if (value && !/^\S+@\S+\.\S+$/.test(value)) return false;
           return true;
         },
@@ -240,7 +245,6 @@ const jobSchema = new mongoose.Schema({
     type: Date,
     required: true,
     default: function() {
-      // Default to 30 days from now
       return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     }
   },
@@ -298,6 +302,34 @@ const jobSchema = new mongoose.Schema({
     trim: true,
     maxlength: [160, 'Meta description cannot exceed 160 characters']
   },
+  hiring_for_other_company: {
+    type: String,
+    enum: ['yes', 'no'],
+    default: 'no'
+  },
+
+  other_company_name: {
+    type: String,
+    trim: true,
+    default: null
+  },
+
+  other_company_description: {
+    type: String,
+    trim: true,
+    default: null
+  },
+
+  other_company_logo: {
+    type: String,
+    default: null
+  },
+
+  other_company_website: {
+    type: String,
+    trim: true,
+    default: null
+  },
   
   // Flags
   is_verified: {
@@ -321,11 +353,10 @@ const jobSchema = new mongoose.Schema({
   }
   
 }, {
-  timestamps: true, // Adds createdAt and updatedAt
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
-
 // Indexes
 jobSchema.index({ status: 1, posted_date: -1 });
 jobSchema.index({ 'location.country': 1, status: 1, posted_date: -1 });
