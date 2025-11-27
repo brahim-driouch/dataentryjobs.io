@@ -15,7 +15,6 @@ type  JobPostingResponse = {
 export const useJobPosting = () => {
   return useMutation<JobPostingResponse , Error, JobFormData>({
     mutationFn: async (jobData:JobFormData) => {
-     
       const response = await fetch("/api/jobs/", {
         method: 'POST',
         headers: {

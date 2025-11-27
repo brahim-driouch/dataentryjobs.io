@@ -16,8 +16,6 @@ const CompanyInfoTab: React.FC<CompanyInfoTabProps> = ({ formData, updateFormDat
     updateFormData({ [name]: value });
   };
 
-
-
   const handleOtherCompanyChange = (value: 'yes' | 'no') => {
     updateFormData({ hiring_for_other_company: value });
   };
@@ -28,8 +26,7 @@ const CompanyInfoTab: React.FC<CompanyInfoTabProps> = ({ formData, updateFormDat
         Company Information
       </h2>
 
-     
-         <div className="space-y-6">
+      <div className="space-y-6">
         {/* Hiring for Other Company */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -60,61 +57,58 @@ const CompanyInfoTab: React.FC<CompanyInfoTabProps> = ({ formData, updateFormDat
             </label>
           </div>
         </div>
-</div>
-        {/* Company Name */}
-        {formData.hiring_for_other_company ===  "yes" && (
-      <>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {formData.hiring_for_other_company === 'yes' ? 'Client Company Name *' : 'Company Name *'}
-          </label>
-          <input
-            type="text"
-            name={formData.hiring_for_other_company === 'yes' ? 'other_company_name' : 'company_name'}
-            value={formData.hiring_for_other_company === 'yes' ? formData.other_company_name : formData.company_name}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder={formData.hiring_for_other_company === 'yes' ? 'Enter client company name' : 'Enter your company name'}
-            required
-          />
-        </div>
 
-       
-  
+        {/* Company Name - Always use company_name */}
+        {formData.hiring_for_other_company === "yes" && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Client Company Name *
+              </label>
+              <input
+                type="text"
+                name="other_company_name"
+                value={formData.other_company_name || ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter client company name"
+                required
+              />
+            </div>
 
-        {/* Company Website */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Company Website
-          </label>
-          <input
-            type="url"
-            name="other_company_website"
-            value={formData.other_company_website}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="https://example.com"
-          />
-        </div>
+            {/* Company Website */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Company Website
+              </label>
+              <input
+                type="url"
+                name="other_company_website"
+                value={formData.other_company_website || ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="https://example.com"
+              />
+            </div>
 
-        {/* Company Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Company Description *
-          </label>
-          <textarea
-            name={formData.hiring_for_other_company === 'yes' ? 'other_company_description' : 'company_description'}
-            value={formData.hiring_for_other_company === 'yes' ? formData.other_company_description : ""}
-            onChange={handleChange}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Describe your company, mission, and culture..."
-            required
-          />
-        </div>
-       </>
-     
-     )}
+            {/* Company Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Company Description *
+              </label>
+              <textarea
+                name="other_company_description"
+                value={formData.other_company_description || ''}
+                onChange={handleChange}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Describe the company, mission, and culture..."
+                required
+              />
+            </div>
+          </>
+        )}
+      </div>
     </section>
   );
 };

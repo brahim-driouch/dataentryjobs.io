@@ -1,106 +1,145 @@
 "use client";
-import { useState } from 'react';
-import CompanyInfoTab from './company-info-tab';
-import JobDetailsTab from './job-details-tab';
-import JobDescriptionTab from './job-description-tab';
-import ApplicationTab from './job-application-tab';
-import {  JobFormData } from '@/types/jobs';
-import { useJobPosting } from '@/hooks/jobs/useJobPosting';
-import { validateJobRequiredFields } from '@/lib/data-validator';
-import { showErrors } from '@/utils/show-errors';
-import { useSession } from 'next-auth/react';
-
+import { useState } from "react";
+import CompanyInfoTab from "./company-info-tab";
+import JobDetailsTab from "./job-details-tab";
+import JobDescriptionTab from "./job-description-tab";
+import ApplicationTab from "./job-application-tab";
+import { JobFormData } from "@/types/jobs";
+import { useJobPosting } from "@/hooks/jobs/useJobPosting";
+import { validateJobRequiredFields } from "@/lib/data-validator";
+import { showErrors } from "@/utils/show-errors";
+import { useSession } from "next-auth/react";
+import { showSuccess } from "@/utils/showSuccess";
+import { Spinner } from "../shared/spinner";
 
 const JobPostingForm = () => {
-  const {data: session} = useSession()
+  const { data: session } = useSession();
 
-  const [activeTab, setActiveTab] = useState('company');
-const [formData, setFormData] = useState<JobFormData>({
-  employer_id: session?.user?.id,
-  title: '',
-  company_name: '',
-  company_logo: null,
-  description: '',
-  responsibilities: '',
-  requirements: '',
-  category: 'Other',
-  experience_level: 'Not Specified',
-  employment_type: 'Full-time',
-  locationType: 'remote',
-  country: '',
-  is_remote: true,
-  salary_currency: 'USD',
-  salary_period: 'month',
-  salary_is_disclosed: false,
-  skills: '',
-  typing_speed_required: false,
-  application: {
-    method: 'internal',
-    url: '',
-    email: '',
-    instructions: ''
-  },
-  status: 'draft',
-  hiring_for_other_company: 'no',
-});
-
-
+  const [activeTab, setActiveTab] = useState("company");
+  const [formData, setFormData] = useState<JobFormData>({
+    employer_id: session?.user?.id,
+    company_id: session?.user?.company?.companyId,
+    title: "",
+    company_name: "",
+    company_logo: null,
+    description: "",
+    responsibilities: "",
+    requirements: "",
+    category: "Other",
+    experience_level: "Not Specified",
+    employment_type: "Full-time",
+    locationType: "remote",
+    country: "",
+    is_remote: true,
+    salary_currency: "USD",
+    salary_period: "month",
+    salary_is_disclosed: false,
+    skills: "",
+    typing_speed_required: false,
+    application: {
+      method: "internal",
+      url: "",
+      email: "",
+      instructions: "",
+    },
+    status: "draft",
+    hiring_for_other_company: "no",
+  });
 
   const tabs = [
-    { id: 'company', label: 'Company Info' },
-    { id: 'details', label: 'Job Details' },
-    { id: 'description', label: 'Description' },
-    { id: 'application', label: 'Application' },
+    { id: "company", label: "Company Info" },
+    { id: "details", label: "Job Details" },
+    { id: "description", label: "Description" },
+    { id: "application", label: "Application" },
   ];
 
-
   const updateFormData = (newData: Partial<JobFormData>) => {
-    setFormData(prev => ({ ...prev, ...newData }));
+    setFormData((prev) => ({ ...prev, ...newData }));
   };
- const mutation = useJobPosting()
+  const mutation = useJobPosting();
 
-  
-const saveDraft = () => {}
-  
- 
-  const handleSubmit = (e: React.FormEvent) => {
-          e.preventDefault();
+  const saveDraft = () => {};
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+        console.log(formData)
 
     try {
-
-      if(!formData.company_name &&  formData.hiring_for_other_company === 'no'){
-         const company = session?.user?.company;
-         if(company){
-           formData.company_name = company.name;
-           formData.company_id = company.companyId;
-         }
+      if (
+        !formData.company_name &&
+        formData.hiring_for_other_company === "no"
+      ) {
+        const company = session?.user?.company;
+        if (company) {
+          formData.company_name = company.name;
+          formData.company_id = company.companyId;
+        }
         return;
       }
-    const validation = validateJobRequiredFields(formData);
-    if(!validation.isValid){
-      const errors = Object.values(validation.errors);
-      showErrors(errors,()=>{});
-      return;
+      if(formData.hiring_for_other_company === "yes"){
+        formData.company_name = formData.other_company_name as string;
+      }
+      const validation = validateJobRequiredFields(formData);
+      if (!validation.isValid) {
+        const errors = Object.values(validation.errors);
+        showErrors(errors, () => {});
+        return;
+      }
+      if (validation.isValid) {
+        await mutation.mutateAsync(formData);
+        const message =
+          formData.status === "draft"
+            ? " Job post saved successfully"
+            : " Job post submitted for Review";
+        showSuccess(message);
+        setFormData({
+          employer_id: session?.user?.id,
+          company_id: session?.user?.company?.companyId,
+          title: "",
+          company_name: "",
+          company_logo: null,
+          description: "",
+          responsibilities: "",
+          requirements: "",
+          category: "Other",
+          experience_level: "Not Specified",
+          employment_type: "Full-time",
+          locationType: "remote",
+          country: "",
+          is_remote: true,
+          salary_currency: "USD",
+          salary_period: "month",
+          salary_is_disclosed: false,
+          skills: "",
+          typing_speed_required: false,
+          application: {
+            method: "internal",
+            url: "",
+            email: "",
+            instructions: "",
+          },
+          status: "draft",
+          hiring_for_other_company: "no",
+        });
+      }
+    } catch (error: any | Error) {
+      showErrors(
+        ["message" in error ? error.message : "Something went wrong"],
+        () => {}
+      );
+      console.log(error);
     }
-    if(validation.isValid){
-    mutation.mutate(formData);
-    }
-    } catch (error:any | Error) {
-      showErrors(["message" in error ? error.message : "Something went wrong"],()=>{})
-      console.log(error)
-    }
-
   };
 
   const nextTab = () => {
-    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+    const currentIndex = tabs.findIndex((tab) => tab.id === activeTab);
     if (currentIndex < tabs.length - 1) {
       setActiveTab(tabs[currentIndex + 1].id);
     }
   };
 
   const prevTab = () => {
-    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+    const currentIndex = tabs.findIndex((tab) => tab.id === activeTab);
     if (currentIndex > 0) {
       setActiveTab(tabs[currentIndex - 1].id);
     }
@@ -117,10 +156,9 @@ const saveDraft = () => {}
           Post a Job - dataentryjobs.io
         </h1>
         <p className="text-gray-600">
-          Find your next great hire! Your progress is automatically saved as you go.
+          Find your next great hire! Your progress is automatically saved as you
+          go.
         </p>
-        
-       
       </div>
 
       {/* Tab Navigation */}
@@ -133,8 +171,8 @@ const saveDraft = () => {}
               onClick={() => goToTab(tab.id)}
               className={`flex-1 py-3 px-4 text-sm font-medium rounded-md transition-colors ${
                 activeTab === tab.id
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               {tab.label}
@@ -145,23 +183,17 @@ const saveDraft = () => {}
 
       <form onSubmit={handleSubmit}>
         {/* Company Information Tab */}
-        {activeTab === 'company' && (
-          <CompanyInfoTab
-            formData={formData}
-            updateFormData={updateFormData}
-          />
+        {activeTab === "company" && (
+          <CompanyInfoTab formData={formData} updateFormData={updateFormData} />
         )}
 
         {/* Job Details Tab */}
-        {activeTab === 'details' && (
-          <JobDetailsTab
-            formData={formData}
-            updateFormData={updateFormData}
-          />
+        {activeTab === "details" && (
+          <JobDetailsTab formData={formData} updateFormData={updateFormData} />
         )}
 
         {/* Job Description Tab */}
-        {activeTab === 'description' && (
+        {activeTab === "description" && (
           <JobDescriptionTab
             formData={formData}
             updateFormData={updateFormData}
@@ -169,11 +201,8 @@ const saveDraft = () => {}
         )}
 
         {/* Application Process Tab */}
-        {activeTab === 'application' && (
-          <ApplicationTab
-            formData={formData}
-            updateFormData={updateFormData}
-          />
+        {activeTab === "application" && (
+          <ApplicationTab formData={formData} updateFormData={updateFormData} />
         )}
 
         {/* Navigation Buttons */}
@@ -181,26 +210,30 @@ const saveDraft = () => {}
           <button
             type="button"
             onClick={prevTab}
-            disabled={activeTab === 'company'}
+            disabled={activeTab === "company"}
             className={`px-6 py-3 font-semibold rounded-lg transition duration-200 ${
-              activeTab === 'company'
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-600 text-white hover:bg-gray-700'
+              activeTab === "company"
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-600 text-white hover:bg-gray-700"
             }`}
           >
             Previous
           </button>
 
-         
-
-          {activeTab === 'application' ? (
+          {activeTab === "application" ? (
             <div className="flex space-x-4">
-              
               <button
+                disabled={mutation.isPending}
                 type="submit"
-                className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
+                className="px-8 py-3 cursor-pointer outline-none bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
               >
-                Post Job Listing
+                {mutation.isPending ? (
+                  <>
+                    <Spinner /> Posting...
+                  </>
+                ) : (
+                  "Post Job Listing"
+                )}
               </button>
             </div>
           ) : (

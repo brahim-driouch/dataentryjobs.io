@@ -15,34 +15,17 @@ const createJob = async (jobData: JobFormData): Promise<string> => {
       throw new Error('Unauthorized');
     }
 
-    if (!mongoose.Types.ObjectId.isValid(session.user.id)) {
-      throw new Error('Invalid user ID');
-    }
-
-    const { errors, isValid } = validateJobRequiredFields(jobData);
-    if (!isValid) {
-      throw new Error('Invalid job data');
-    }
+   
 
     await connectDB();
 
     const data = convertFormDataToJob(jobData);
-    data.employer_id = new mongoose.Types.ObjectId(session.user.id);
-    
-    // Clean undefined values recursively
-    const cleanData = JSON.parse(JSON.stringify(data, (key, value) => {
-      return value === undefined ? null : value;
-    }));
+   
+  //TODO : FIX employer_id NOT GETTING SAVED TO DB
 
-    console.log('Cleaned data:', cleanData);
-
-    const job: HydratedDocument<IJobModel> = await Job.create(cleanData);
+    const job: HydratedDocument<IJobModel> = await Job.create(data);
     
-    console.log('Created job:', {
-      _id: job._id,
-      employer_id: job.employer_id,
-      company_id: job.company_id
-    });
+   
 
     return job._id.toString();
   } catch (error) {

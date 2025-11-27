@@ -5,7 +5,7 @@ export const  convertFormDataToJob = (formData: JobFormData): Partial<IJob> => {
   return {
     title: formData.title,
     employer_id: formData.employer_id ? new mongoose.Types.ObjectId(formData.employer_id) : undefined,
-    company_name: formData.company_name,
+    company_name: formData.hiring_for_other_company === "no" ? formData.company_name : formData.other_company_name,
     company_id: formData.company_id ? new mongoose.Types.ObjectId(formData.company_id) : undefined,
     
     description: formData.description,
