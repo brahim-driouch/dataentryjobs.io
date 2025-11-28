@@ -85,7 +85,7 @@ export default function Navbar() {
                       <>
                         <Link
                           href="/in/employers"
-                          className="text-gray-700 hover:text-blue-600"
+                          className=" text-white px-6 py-2 rounded bg-linear-to-br from-blue-600 to-purple-700 hover:text-gray-200"
                         >
                           Dashboard
                         </Link>

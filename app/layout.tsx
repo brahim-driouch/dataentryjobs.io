@@ -36,7 +36,9 @@ export default function RootLayout({
           <ToastContainer  position="top-center" />
       <QueryProvider>
           <Header />
+      <div className="min-h-screen bg-gray-50">
         {children}
+      </div>
         <Footer />
       </QueryProvider>
       </SessionProvider>

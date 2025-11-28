@@ -1,4 +1,4 @@
-import JobPostingForm from "@/app/components/employers/job-posting-form";
+import JobPostingForm from "@/app/components/employers/job-posting/job-posting-form";
 
 
 

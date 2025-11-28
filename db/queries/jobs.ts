@@ -1,5 +1,5 @@
 import { HydratedDocument } from "mongoose";
-import { IJobModel } from "@/types/jobs";
+import { IJob, IJobModel } from "@/types/jobs";
 import { JobFormData } from "@/types/jobs";
 import { auth } from "@/lib/auth";
 import connectDB from "../connection";
@@ -34,8 +34,49 @@ const createJob = async (jobData: JobFormData): Promise<string> => {
   }
 };
 
+const getJobs = async (page: number, limit: number = 10,employer_id:string) => {
+  try {
+    await connectDB();
+    const skip = (page - 1) * limit;
+       const jobs  = await Job.find({ employer_id })
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean({ virtuals: true });
+    return jobs;
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    throw error;
+  }
+};
+
+// get single job by id
+
+const getJobById = async (id: string) => {
+  try {
+    if (!id) {
+      throw new Error('Invalid job id');
+    }
+    
+    await connectDB();
+    
+    const job = await Job.findById(id).lean({ virtuals: true }) as unknown as IJob ;
+    
+    // ✅ Add this check - findById returns null if not found
+    if (!job) {
+      throw new Error('Job not found');
+    }
+    
+    return job;
+  } catch (error) {
+    console.error('Error fetching job:', error);
+    throw error;
+  }
+};
 const jobQueries = {
   createJob,
+  getJobs,
+  getJobById
 };
 
 export default jobQueries;

@@ -10,7 +10,8 @@ import { validateJobRequiredFields } from "@/lib/data-validator";
 import { showErrors } from "@/utils/show-errors";
 import { useSession } from "next-auth/react";
 import { showSuccess } from "@/utils/showSuccess";
-import { Spinner } from "../shared/spinner";
+import { Spinner } from "../../shared/spinner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const JobPostingForm = () => {
   const { data: session } = useSession();
@@ -45,6 +46,8 @@ const JobPostingForm = () => {
     status: "draft",
     hiring_for_other_company: "no",
   });
+
+  const queryClient = useQueryClient();
 
   const tabs = [
     { id: "company", label: "Company Info" },
@@ -121,6 +124,8 @@ const JobPostingForm = () => {
           status: "draft",
           hiring_for_other_company: "no",
         });
+        //revalidate react query
+        await queryClient.invalidateQueries({ queryKey: ['jobs'],exact: false });
       }
     } catch (error: any | Error) {
       showErrors(
