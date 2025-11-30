@@ -18,25 +18,25 @@ const JobPostingForm = () => {
 
   const [activeTab, setActiveTab] = useState("company");
   const [formData, setFormData] = useState<JobFormData>({
-    employer_id: session?.user?.id,
-    company_id: session?.user?.company?.companyId,
+    employerId: session?.user?.id,
+    companyId: session?.user?.company?.companyId,
     title: "",
-    company_name: "",
-    company_logo: null,
+    companyName: "",
+    companyLogo: null,
     description: "",
     responsibilities: "",
     requirements: "",
     category: "Other",
-    experience_level: "Not Specified",
-    employment_type: "Full-time",
+    experienceLevel: "Not Specified",
+    employmentType: "Full-time",
     locationType: "remote",
     country: "",
-    is_remote: true,
-    salary_currency: "USD",
-    salary_period: "month",
-    salary_is_disclosed: false,
+    isRemote: true,
+    salaryCurrency: "USD",
+    salaryPeriod: "month",
+    salaryIsDisclosed: false,
     skills: "",
-    typing_speed_required: false,
+    typingSpeedRequired: false,
     application: {
       method: "internal",
       url: "",
@@ -44,7 +44,7 @@ const JobPostingForm = () => {
       instructions: "",
     },
     status: "draft",
-    hiring_for_other_company: "no",
+    hiringForOtherCompany: "no",
   });
 
   const queryClient = useQueryClient();
@@ -69,18 +69,18 @@ const JobPostingForm = () => {
 
     try {
       if (
-        !formData.company_name &&
-        formData.hiring_for_other_company === "no"
+        !formData.companyName &&
+        formData.hiringForOtherCompany === "no"
       ) {
         const company = session?.user?.company;
         if (company) {
-          formData.company_name = company.name;
-          formData.company_id = company.companyId;
+          formData.companyName = company.name;
+          formData.companyId = company.companyId;
         }
         return;
       }
-      if(formData.hiring_for_other_company === "yes"){
-        formData.company_name = formData.other_company_name as string;
+      if(formData.hiringForOtherCompany === "yes"){
+        formData.companyName = formData.otherCompanyName as string;
       }
       const validation = validateJobRequiredFields(formData);
       if (!validation.isValid) {
@@ -96,25 +96,25 @@ const JobPostingForm = () => {
             : " Job post submitted for Review";
         showSuccess(message);
         setFormData({
-          employer_id: session?.user?.id,
-          company_id: session?.user?.company?.companyId,
+          employerId: session?.user?.id,
+          companyId: session?.user?.company?.companyId,
           title: "",
-          company_name: "",
-          company_logo: null,
+          companyName: "",
+          companyLogo: null,
           description: "",
           responsibilities: "",
           requirements: "",
           category: "Other",
-          experience_level: "Not Specified",
-          employment_type: "Full-time",
+          experienceLevel: "Not Specified",
+          employmentType: "Full-time",
           locationType: "remote",
           country: "",
-          is_remote: true,
-          salary_currency: "USD",
-          salary_period: "month",
-          salary_is_disclosed: false,
+          isRemote: true,
+          salaryCurrency: "USD",
+          salaryPeriod: "month",
+          salaryIsDisclosed: false,
           skills: "",
-          typing_speed_required: false,
+          typingSpeedRequired: false,
           application: {
             method: "internal",
             url: "",
@@ -122,7 +122,7 @@ const JobPostingForm = () => {
             instructions: "",
           },
           status: "draft",
-          hiring_for_other_company: "no",
+          hiringForOtherCompany: "no",
         });
         //revalidate react query
         await queryClient.invalidateQueries({ queryKey: ['jobs'],exact: false });

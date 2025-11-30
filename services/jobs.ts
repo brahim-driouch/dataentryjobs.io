@@ -68,10 +68,28 @@ const getJob = async (id: string): Promise<IJob> => {
  return job
 };
 
+const deleteJob = async (id: string): Promise<IJob> => {
+  const response = await fetch(`/api/jobs/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || 'Failed to delete job');
+  }
+
+  const job = await response.json();
+ return job
+};
+
 const jobService ={
 getJobs,
 getJob,
-updateJob
+updateJob,
+deleteJob
 }
 
 export default jobService;

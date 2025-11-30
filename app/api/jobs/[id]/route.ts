@@ -90,3 +90,41 @@ export async function PUT(
     );
   }
 }
+
+
+export async function DELETE(request:NextRequest,{params}:{params:Promise<{id:string}>}) {
+
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json({ error: "Invalid job id" }, { status: 400 });
+  }
+
+  try {
+    const job = await jobQueries.getJobById(id);
+    if (!job) {
+      return NextResponse.json({ error: "Job not found" }, { status: 404 });
+    }
+
+    if (job.employer_id.toString() !== session.user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Delete job
+    await jobQueries.deleteJob(id);
+
+    return NextResponse.json({ message: "Job deleted successfully" });
+  } catch (error: any) {
+    console.error("Error deleting job:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+  
+}

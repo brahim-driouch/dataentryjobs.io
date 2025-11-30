@@ -15,6 +15,9 @@ import { IJob, JobFormData } from '@/types/jobs';
 import { useJobs } from '@/hooks/jobs/useJobs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useDeleteJob } from '@/hooks/jobs/useDeleteJob';
+import { useQueryClient } from '@tanstack/react-query';
+import { ConfirmationPrompt } from '../../shared/confirmation-prompt';
 
 type JobStatus = JobFormData['status'];
 
@@ -35,27 +38,16 @@ export const EmployerDashboardJobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<JobStatus | 'all'>('all');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedId,setSelectedId]=useState<string | null>(null)    
+
+  const queryClient = useQueryClient();
   const router = useRouter()
   if(error){
     return <div>Error fetching jobs</div>;
   }
-  // const handleDelete = (id: string) => {
-  //   if (confirm('Are you sure you want to delete this job posting?')) {
-  //     setJobs(jobs.filter(job => job.id !== id));
-  //   }
-  // };
+     const mutation = useDeleteJob();
 
-  // const handlePause = (id: string) => {
-  //   setJobs(jobs.map(job => 
-  //     job.id === id ? { ...job, status: 'expired' as JobStatus } : job
-  //   ));
-  // };
-
-  // const handleActivate = (id: string) => {
-  //   setJobs(jobs.map(job => 
-  //     job.id === id ? { ...job, status: 'active' as JobStatus } : job
-  //   ));
-  // };
    
   const jobs = data?.jobs
   const filteredJobs = jobs?.filter(job => {
@@ -75,6 +67,16 @@ export const EmployerDashboardJobs = () => {
   const handleClickEdit =(id:string)=>{
     router.push(`/in/employers/jobs/edit/${id}`);
   }
+
+  const handleDelete = async (id:string)=>{
+    await mutation.mutateAsync(id);
+    if(mutation.isError){
+      console.log(mutation.error)
+    }
+
+       await queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      await queryClient.invalidateQueries({ queryKey: ['job', id] });
+  } 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -243,8 +245,8 @@ export const EmployerDashboardJobs = () => {
                         </button>
                       )}
                       <button
-                        // onClick={() => handleDelete(job.id)}
-                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                         onClick={()=>{setShowConfirm(true); setSelectedId(job._id as string)}}
+                        className="p-2 cursor-pointer text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Job"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -255,6 +257,7 @@ export const EmployerDashboardJobs = () => {
               ))}
             </tbody>
           </table>
+          {showConfirm && <ConfirmationPrompt setShow={setShowConfirm} variant='danger' message="Are you sure you want to delete this job?" onConfirm={() => {selectedId && handleDelete(selectedId)}} onCancel={() => setShowConfirm(false)} />}
 
           {filteredJobs?.length === 0 && (
             <div className="text-center py-12">

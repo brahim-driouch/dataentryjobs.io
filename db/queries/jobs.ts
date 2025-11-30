@@ -144,11 +144,26 @@ const updateJob = async (data: JobFormData): Promise<IJob> => {
   }
 
 };
+
+const deleteJob = async (id: string) => {
+  try {
+    await connectDB();
+    const job = await Job.findByIdAndDelete(id);
+    if (!job) {
+      throw new Error('Job not found');
+    }
+    return job;
+  } catch (error) {
+    console.error('Error deleting job:', error);
+    throw error;
+  }
+};
 const jobQueries = {
   createJob,
   getJobs,
   getJobById,
-  updateJob
+  updateJob,
+  deleteJob
 };
 
 export default jobQueries;
