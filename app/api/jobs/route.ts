@@ -15,6 +15,14 @@ export async function GET(request: NextRequest) {
   }
   
   const params = request.nextUrl.searchParams;
+  const countOnly = params.get("countOnly") === "true";
+  // check if the request only asks for count
+  if(countOnly){
+    const count = await jobQueries.getActiveJobsCount(session.user.id);
+    return NextResponse.json({ count });
+  }
+
+  // if the request asks for jobs
   const page = parseInt(params.get("page") || "1");
   const limit = parseInt(params.get("limit") || "10");
 

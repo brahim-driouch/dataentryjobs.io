@@ -11,7 +11,7 @@ export interface IJobPreferences {
 export interface IUser extends Document {
 
   
-  _id:string;
+  _id:Types.ObjectId;
   // Auth
   email: string;
   password_hash: string;

@@ -138,7 +138,7 @@ export interface IJobModel extends mongoose.Model<IJob> {
 // types/jobs.ts - Add this new interface for frontend use
 export interface JobFormData {
   // IDs
-  _id?: string;
+  _id?: Types.ObjectId;
   employerId?: string;
   companyId?: string;
   

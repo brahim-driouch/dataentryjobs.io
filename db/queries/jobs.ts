@@ -158,12 +158,14 @@ const deleteJob = async (id: string) => {
     throw error;
   }
 };
+
+
 const jobQueries = {
   createJob,
   getJobs,
   getJobById,
   updateJob,
-  deleteJob
+  deleteJob,
 };
 
 export default jobQueries;

@@ -1,4 +1,15 @@
+import { useDashboardStats } from "@/hooks/stats/useDashboardStats";
 import { ArrowUpRight, Briefcase, Calendar, Clock, Eye, Filter, MapPin, MoreVertical, Search, TrendingUp, Users } from "lucide-react";
+import { useState, useEffect } from "react";
+
+type StatItem = {
+  label: string;
+  value: string | number;
+  change: string;
+  trend: 'up' | 'down';
+  icon: any;
+  color: string;
+};
 
  const recentApplications = [
     {
@@ -116,12 +127,12 @@ import { ArrowUpRight, Briefcase, Calendar, Clock, Eye, Filter, MapPin, MoreVert
     }
   ];
 
-const stats = [
+const stats: StatItem[] = [
     { 
       label: 'Active Jobs', 
       value: '12', 
       change: '+2 this week',
-      trend: 'up',
+      trend: 'up' as const,
       icon: Briefcase,
       color: 'blue'
     },
@@ -129,7 +140,7 @@ const stats = [
       label: 'Total Applications', 
       value: '248', 
       change: '+18% from last month',
-      trend: 'up',
+      trend: 'up' as const,
       icon: Users,
       color: 'green'
     },
@@ -137,7 +148,7 @@ const stats = [
       label: 'Interview Scheduled', 
       value: '34', 
       change: '12 this week',
-      trend: 'up',
+      trend: 'up' as const,
       icon: Calendar,
       color: 'purple'
     },
@@ -145,7 +156,7 @@ const stats = [
       label: 'Hired This Month', 
       value: '8', 
       change: '+3 from last month',
-      trend: 'up',
+      trend: 'up' as const,
       icon: TrendingUp,
       color: 'orange'
     }
@@ -154,7 +165,9 @@ const stats = [
 
 
 export const EmployerDashboardOverview = () => {
-
+const [dashboardStats, setDashboardStats] = useState<StatItem[]>(stats)
+const {data} = useDashboardStats()
+console.log(JSON.stringify(data))
 
     const getStatusColor = (status: string) => {
     const colors = {
@@ -175,11 +188,25 @@ export const EmployerDashboardOverview = () => {
     };
     return colors[color as keyof typeof colors] || 'bg-gray-500';
   };
+
+
+  useEffect(() => {
+    if (data) {
+      // Update the stats with the data from the API
+      // You might want to transform the data to match the StatItem type
+      // For example, if data contains the active jobs count:
+      const updatedStats = [...dashboardStats];
+      if (updatedStats.length > 0) {
+        updatedStats[0].value = data;
+        setDashboardStats(updatedStats);
+      }
+    }
+  }, [])
     return (
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => {
+          {dashboardStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <div key={index} className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">

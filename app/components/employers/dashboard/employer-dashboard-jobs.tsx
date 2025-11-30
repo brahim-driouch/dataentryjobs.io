@@ -84,7 +84,7 @@ export const EmployerDashboardJobs = () => {
         <div className="mb-8 w-full flex justify-between items-start">
           <div><h1 className="text-3xl font-bold text-gray-900 mb-2">Job Postings</h1>
           <p className="text-gray-600">Manage all your job listings in one place</p></div>
-           <Link  href={"/in/employers/post-job"}   className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+           <Link  href={"/in/employers/jobs/post-job"}   className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
                 <Plus className="w-5 h-5" />
                 Post New Job
               </Link>

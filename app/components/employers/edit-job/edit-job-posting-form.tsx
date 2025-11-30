@@ -18,7 +18,7 @@ import { useJobUpdate } from "@/hooks/jobs/useUpdateJob";
 // Helper function to transform IJob to JobFormData
 const transformJobToFormData = (job: IJob): JobFormData => {
   return {
-    _id: job._id as string,
+    _id: job._id.toString(),
     employerId: job.employer_id.toString(),
     companyId: job.company_id?.toString(),
     title: job.title,

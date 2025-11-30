@@ -85,11 +85,24 @@ const deleteJob = async (id: string): Promise<IJob> => {
  return job
 };
 
+
+const getDashboardStats = async()=>{
+    const response = await fetch(`/api/employers/dashboard/stats`);
+    if(!response.ok){
+        throw new Error("Jobs not found");
+    }
+    const data = await response.json();
+    if(!data){
+        throw new Error("Jobs not found");
+    }
+    return data
+}
 const jobService ={
 getJobs,
 getJob,
 updateJob,
-deleteJob
+deleteJob,
+getDashboardStats
 }
 
 export default jobService;
