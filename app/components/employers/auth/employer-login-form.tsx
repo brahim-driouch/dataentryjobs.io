@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import FormInput from './form-input';
 import { showErrors } from '@/utils/show-errors';
 import { toast } from 'react-toastify';
 import { useEmployerLogin } from '@/hooks/employers/useEmployerLogin';
 import { validateLoginCredentials } from '@/lib/data-validator';
+import FormInput from '../form-input';
 
 interface EmployerLoginFormProps {
   setIsLogin: (isLogin: boolean) => void;
@@ -25,9 +25,10 @@ const EmployerLoginForm = ({ setIsLogin }: EmployerLoginFormProps) => {
   const mutation = useEmployerLogin();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {name, value} = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 

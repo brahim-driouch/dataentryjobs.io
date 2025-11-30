@@ -103,8 +103,8 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes
-userSchema.index({ email: 1 });
+// // Indexes
+// userSchema.index({ email: 1 });
 
 // Pre-save middleware - Hash password
 userSchema.pre('save', async function(next) {

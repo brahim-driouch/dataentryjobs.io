@@ -3,8 +3,31 @@
 
 // getJobs 
 
-import { IJob } from "@/types/jobs";
-import { convertJobToFormData } from "@/utils/job-form-data-transformers";
+import { IJob, JobFormData } from "@/types/jobs";
+
+
+// services/jobs.ts
+const updateJob = async (data: JobFormData): Promise<IJob> => {
+  if (!data._id) {
+    throw new Error("Job ID is required for update");
+  }
+
+  const response = await fetch(`/api/jobs/${data._id}`, {
+    method: 'PUT', 
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update job');
+  }
+  return await response.json();
+};
+
 
 
 const getJobs = async (page:number,limit:number = 10) => {
@@ -47,7 +70,8 @@ const getJob = async (id: string): Promise<IJob> => {
 
 const jobService ={
 getJobs,
-getJob
+getJob,
+updateJob
 }
 
 export default jobService;

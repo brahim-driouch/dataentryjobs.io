@@ -8,7 +8,7 @@ interface JobDetailsTabProps {
   updateFormData: (data: Partial<JobFormData>) => void;
 }
 
-const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ formData, updateFormData }) => {
+const EditJobDetailsTab: React.FC<JobDetailsTabProps> = ({ formData, updateFormData }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
@@ -370,4 +370,4 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ formData, updateFormData 
   );
 };
 
-export default JobDetailsTab;
+export default EditJobDetailsTab;

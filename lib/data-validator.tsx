@@ -155,9 +155,9 @@ export const validateJobRequiredFields = (data: JobFormData): JobValidationResul
     errors.title = 'Title cannot exceed 200 characters';
   }
 
-  if (!data.company_name?.trim()) {
-    errors.company_name = 'Company name is required';
-    missingFields.push('company_name');                                                                                  
+  if (!data.companyName?.trim()) {
+    errors.companyName = 'Company name is required';
+    missingFields.push('companyName');                                                                                  
   }
 
   if (!data.description?.trim()) {
@@ -176,11 +176,11 @@ export const validateJobRequiredFields = (data: JobFormData): JobValidationResul
 
   // Employment Type - Required
   const validEmploymentTypes = ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'];
-  if (!data.employment_type) {
-    errors.employment_type = 'Employment type is required';
-    missingFields.push('employment_type');
-  } else if (!validEmploymentTypes.includes(data.employment_type)) {
-    errors.employment_type = `${data.employment_type} is not a valid employment type`;
+  if (!data.employmentType) {
+    errors.employmentType = 'Employment type is required';
+    missingFields.push('employmentType');
+  } else if (!validEmploymentTypes.includes(data.employmentType)) {
+    errors.employmentType = `${data.employmentType} is not a valid employment type`;
   }
 
   // Location - Required
@@ -203,30 +203,30 @@ export const validateJobRequiredFields = (data: JobFormData): JobValidationResul
   }
 
   // Salary validation (using flattened salary fields)
-  if (data.salary_min !== undefined && data.salary_min < 0) {
-    errors.salary_min = 'Minimum salary cannot be negative';
+  if (data.salaryMin !== undefined && data.salaryMin < 0) {
+    errors.salaryMin = 'Minimum salary cannot be negative';
   }
 
-  if (data.salary_max !== undefined) {
-    if (data.salary_max < 0) {
-      errors.salary_max = 'Maximum salary cannot be negative';
+  if (data.salaryMax !== undefined) {
+    if (data.salaryMax < 0) {
+      errors.salaryMax = 'Maximum salary cannot be negative';
     }
-    if (data.salary_min !== undefined && data.salary_max < data.salary_min) {
-      errors.salary_max = 'Maximum salary must be greater than or equal to minimum salary';
+    if (data.salaryMin !== undefined && data.salaryMax < data.salaryMin) {
+      errors.salaryMax = 'Maximum salary must be greater than or equal to minimum salary';
     }
   }
 
-  if (data.salary_currency) {
+  if (data.salaryCurrency) {
     const validCurrencies = ['USD', 'EUR', 'GBP', 'INR', 'PHP', 'PKR', 'BDT', 'NGN', 'CAD', 'AUD'];
-    if (!validCurrencies.includes(data.salary_currency)) {
-      errors.salary_currency = 'Invalid currency';
+    if (!validCurrencies.includes(data.salaryCurrency)) {
+      errors.salaryCurrency = 'Invalid currency';
     }
   }
 
-  if (data.salary_period) {
+  if (data.salaryPeriod) {
     const validPeriods = ['year', 'month', 'hour', 'project'];
-    if (!validPeriods.includes(data.salary_period)) {
-      errors.salary_period = 'Invalid salary period';
+    if (!validPeriods.includes(data.salaryPeriod)) {
+      errors.salaryPeriod = 'Invalid salary period';
     }
   }
 
@@ -259,10 +259,10 @@ export const validateJobRequiredFields = (data: JobFormData): JobValidationResul
   }
 
   // Experience Level validation
-  if (data.experience_level) {
+  if (data.experienceLevel) {
     const validExperienceLevels = ['Entry Level', 'Mid Level', 'Senior', 'Not Specified'];
-    if (!validExperienceLevels.includes(data.experience_level)) {
-      errors.experience_level = 'Invalid experience level';
+    if (!validExperienceLevels.includes(data.experienceLevel)) {
+      errors.experienceLevel = 'Invalid experience level';
     }
   }
 
@@ -291,13 +291,13 @@ export const validateJobRequiredFields = (data: JobFormData): JobValidationResul
   }
 
   // Typing speed validation
-  if (data.typing_speed_min !== undefined && data.typing_speed_min < 0) {
-    errors.typing_speed_min = 'Typing speed cannot be negative';
+  if (data.typingSpeedMin !== undefined && data.typingSpeedMin < 0) {
+    errors.typingSpeedMin = 'Typing speed cannot be negative';
   }
 
   // Company website validation (if provided)
-  if (data.other_company_website && !isValidUrl(data.other_company_website)) {
-    errors.other_company_website = 'Invalid company website URL';
+  if (data.otherCompanyWebsite && !isValidUrl(data.otherCompanyWebsite)) {
+    errors.otherCompanyWebsite = 'Invalid company website URL';
   }
 
   // Application URL validation (if provided)
@@ -306,14 +306,14 @@ export const validateJobRequiredFields = (data: JobFormData): JobValidationResul
   }
 
   // Other company validation if hiring for other company
-  if (data.hiring_for_other_company === 'yes') {
-    if (!data.other_company_name?.trim()) {
-      errors.other_company_name = 'Company name is required when hiring for another company';
-      missingFields.push('other_company_name');
+  if (data.hiringForOtherCompany === 'yes') {
+    if (!data.otherCompanyName?.trim()) {
+      errors.otherCompanyName = 'Company name is required when hiring for another company';
+      missingFields.push('otherCompanyName');
     }
-    if (!data.other_company_description?.trim()) {
-      errors.other_company_description = 'Company description is required when hiring for another company';
-      missingFields.push('other_company_description');
+    if (!data.otherCompanyDescription?.trim()) {
+      errors.otherCompanyDescription = 'Company description is required when hiring for another company';
+      missingFields.push('otherCompanyDescription');
     }
   }
 
@@ -332,7 +332,7 @@ export const validateJobDraft = (data: Partial<JobFormData>): JobValidationResul
   const errors: Record<string, string> = {};
   const missingFields: string[] = [];
 
-  // For drafts, only title and employer_id are required
+  // For drafts, only title and employerId are required
   if (!data.title?.trim()) {
     errors.title = 'Job title is required to save draft';
     missingFields.push('title');
@@ -340,9 +340,9 @@ export const validateJobDraft = (data: Partial<JobFormData>): JobValidationResul
     errors.title = 'Title cannot exceed 200 characters';
   }
 
-  if (!data.employer_id?.trim()) {
-    errors.employer_id = 'Employer ID is required';
-    missingFields.push('employer_id');
+  if (!data.employerId?.trim()) {
+    errors.employerId = 'Employer ID is required';
+    missingFields.push('employerId');
   }
 
   // Validate data types if provided (but don't require them)
@@ -353,10 +353,10 @@ export const validateJobDraft = (data: Partial<JobFormData>): JobValidationResul
     }
   }
 
-  if (data.employment_type) {
+  if (data.employmentType) {
     const validEmploymentTypes = ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'];
-    if (!validEmploymentTypes.includes(data.employment_type)) {
-      errors.employment_type = `${data.employment_type} is not a valid employment type`;
+    if (!validEmploymentTypes.includes(data.employmentType)) {
+      errors.employmentType = `${data.employmentType} is not a valid employment type`;
     }
   }
 
@@ -366,12 +366,12 @@ export const validateJobDraft = (data: Partial<JobFormData>): JobValidationResul
     }
   }
 
-  if (data.salary_min !== undefined && data.salary_min < 0) {
-    errors.salary_min = 'Minimum salary cannot be negative';
+  if (data.salaryMin !== undefined && data.salaryMin < 0) {
+    errors.salaryMin = 'Minimum salary cannot be negative';
   }
 
-  if (data.salary_max !== undefined && data.salary_min !== undefined && data.salary_max < data.salary_min) {
-    errors.salary_max = 'Maximum salary must be greater than or equal to minimum salary';
+  if (data.salaryMax !== undefined && data.salaryMin !== undefined && data.salaryMax < data.salaryMin) {
+    errors.salaryMax = 'Maximum salary must be greater than or equal to minimum salary';
   }
 
   return {
@@ -387,10 +387,10 @@ export const validateJobDraft = (data: Partial<JobFormData>): JobValidationResul
 export const getJobCompletionPercentage = (data: Partial<JobFormData>): number => {
   const requiredFields = [
     'title',
-    'company_name',
+    'companyName',
     'description',
     'category',
-    'employment_type',
+    'employmentType',
     'locationType',
     'country',
     'application.method',
@@ -400,10 +400,10 @@ export const getJobCompletionPercentage = (data: Partial<JobFormData>): number =
   let totalFields = requiredFields.length;
 
   if (data.title?.trim()) completedFields++;
-  if (data.company_name?.trim()) completedFields++;
+  if (data.companyName?.trim()) completedFields++;
   if (data.description?.trim()) completedFields++;
   if (data.category) completedFields++;
-  if (data.employment_type) completedFields++;
+  if (data.employmentType) completedFields++;
   if (data.locationType) completedFields++;
   if (data.country?.trim()) completedFields++;
   if (data.application?.method) completedFields++;
@@ -431,23 +431,23 @@ export const getJobCompletionPercentage = (data: Partial<JobFormData>): number =
 export const getFieldLabel = (fieldName: string): string => {
   const labels: Record<string, string> = {
     title: 'Job Title',
-    company_name: 'Company Name',
+    companyName: 'Company Name',
     description: 'Job Description',
     responsibilities: 'Responsibilities',
     requirements: 'Requirements',
     category: 'Category',
-    employment_type: 'Employment Type',
+    employmentType: 'Employment Type',
     locationType: 'Location Type',
     country: 'Country',
     city: 'City',
     application_method: 'Application Method',
     application_url: 'Application URL',
     application_email: 'Application Email',
-    salary_min: 'Minimum Salary',
-    salary_max: 'Maximum Salary',
+    salaryMin: 'Minimum Salary',
+    salaryMax: 'Maximum Salary',
     skills: 'Required Skills',
-    other_company_name: 'Other Company Name',
-    other_company_description: 'Other Company Description',
+    otherCompanyName: 'Other Company Name',
+    otherCompanyDescription: 'Other Company Description',
   };
 
   return labels[fieldName] || fieldName;
@@ -465,16 +465,16 @@ export const getTabValidationStatus = (data: Partial<JobFormData>) => {
   };
 
   // Company tab fields
-  if (!data.company_name?.trim()) tabErrors.company.push('company_name');
-  if (data.hiring_for_other_company === 'yes') {
-    if (!data.other_company_name?.trim()) tabErrors.company.push('other_company_name');
-    if (!data.other_company_description?.trim()) tabErrors.company.push('other_company_description');
+  if (!data.companyName?.trim()) tabErrors.company.push('companyName');
+  if (data.hiringForOtherCompany === 'yes') {
+    if (!data.otherCompanyName?.trim()) tabErrors.company.push('otherCompanyName');
+    if (!data.otherCompanyDescription?.trim()) tabErrors.company.push('otherCompanyDescription');
   }
 
   // Details tab fields
   if (!data.title?.trim()) tabErrors.details.push('title');
   if (!data.category) tabErrors.details.push('category');
-  if (!data.employment_type) tabErrors.details.push('employment_type');
+  if (!data.employmentType) tabErrors.details.push('employmentType');
   if (!data.locationType) tabErrors.details.push('locationType');
   if (!data.country?.trim()) tabErrors.details.push('country');
   if (data.locationType !== 'remote' && !data.city?.trim()) tabErrors.details.push('city');

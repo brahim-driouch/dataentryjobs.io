@@ -122,9 +122,9 @@ const employerSchema = new mongoose.Schema({
 });
 
 // Indexes
-employerSchema.index({ email: 1 });
-employerSchema.index({ company_id: 1 });
-employerSchema.index({ 'subscription.status': 1 });
+// // employerSchema.index({ email: 1 });
+// // employerSchema.index({ company_id: 1 });
+// // employerSchema.index({ 'subscription.status': 1 });
 
 // Pre-save middleware - Hash password
 employerSchema.pre('save', async function(next) {

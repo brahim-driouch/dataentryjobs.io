@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import FormToggle from './form-toggle';
+import FormToggle from '../form-toggle';
 import EmployerLoginForm from './employer-login-form';
 import EmployerSignupForm from './employer-registration-form';
 

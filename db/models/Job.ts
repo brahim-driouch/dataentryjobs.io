@@ -358,27 +358,27 @@ title: {
   toObject: { virtuals: true }
 });
 // Indexes
-jobSchema.index({ status: 1, posted_date: -1 });
-jobSchema.index({ 'location.country': 1, status: 1, posted_date: -1 });
-jobSchema.index({ 'location.is_remote': 1, status: 1, posted_date: -1 });
-jobSchema.index({ category: 1, status: 1, posted_date: -1 });
-jobSchema.index({ featured: 1, posted_date: -1 });
-jobSchema.index({ expires_date: 1 });
+// jobSchema.index({ status: 1, posted_date: -1 });
+// jobSchema.index({ 'location.country': 1, status: 1, posted_date: -1 });
+// jobSchema.index({ 'location.is_remote': 1, status: 1, posted_date: -1 });
+// jobSchema.index({ category: 1, status: 1, posted_date: -1 });
+// jobSchema.index({ featured: 1, posted_date: -1 });
+// jobSchema.index({ expires_date: 1 });
 
-// Text search index
-jobSchema.index({
-  title: 'text',
-  description: 'text',
-  company_name: 'text',
-  skills: 'text'
-}, {
-  weights: {
-    title: 10,
-    company_name: 5,
-    skills: 3,
-    description: 1
-  }
-});
+// // Text search index
+// jobSchema.index({
+//   title: 'text',
+//   description: 'text',
+//   company_name: 'text',
+//   skills: 'text'
+// }, {
+//   weights: {
+//     title: 10,
+//     company_name: 5,
+//     skills: 3,
+//     description: 1
+//   }
+// });
 
 // Pre-save middleware - Generate slug
 jobSchema.pre('save', async function(next) {

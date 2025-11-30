@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import EmployerBenefits from "./employer-benefits";
 import EmployerFormBackground from "./employer-form-background";
 import EmployerFormHeader from "./employer-form-header";
 import EmployerForm from "./employer-form";
+import EmployerBenefits from "../employer-benefits";
 
 
 export const EmployerAuthComponent = () => {

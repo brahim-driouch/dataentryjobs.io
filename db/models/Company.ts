@@ -159,9 +159,9 @@ const companySchema = new mongoose.Schema({
 });
 
 // Indexes
-companySchema.index({ name: 1 });
-companySchema.index({ slug: 1 });
-companySchema.index({ industry: 1 });
+// // companySchema.index({ name: 1 });
+// // companySchema.index({ slug: 1 });
+// // companySchema.index({ industry: 1 });
 
 // Pre-save middleware - Generate slug
 companySchema.pre('save', function(next: () => void) {

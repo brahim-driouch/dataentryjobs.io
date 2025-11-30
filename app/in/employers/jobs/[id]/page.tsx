@@ -139,9 +139,9 @@ const statusConfig = {
         <div className="max-w-7xl mx-auto px-4 py-6 md:px-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-            <a href="/employer/dashboard" className="hover:text-blue-600">Dashboard</a>
+            <a href="/in/employers" className="hover:text-blue-600">Dashboard</a>
             <span>/</span>
-            <a href="/employer/jobs" className="hover:text-blue-600">Jobs</a>
+            <a href="/in/employers?tab=jobs" className="hover:text-blue-600">Jobs</a>
             <span>/</span>
             <span className="text-gray-900">{job.title}</span>
           </div>

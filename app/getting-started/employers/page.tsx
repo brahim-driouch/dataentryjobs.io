@@ -1,5 +1,5 @@
+import { EmployerAuthComponent } from "@/app/components/employers/auth/employer-auth-component";
 
-import {EmployerAuthComponent} from "@/app/components/employers/employer-auth-component";
 
 
 export default function EmployerAuthPage() {

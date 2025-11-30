@@ -8,7 +8,7 @@ interface CompanyInfoTabProps {
   updateFormData: (data: Partial<JobFormData>) => void;
 }
 
-const CompanyInfoTab: React.FC<CompanyInfoTabProps> = ({ formData, updateFormData }) => {
+const EditCompanyInfoTab: React.FC<CompanyInfoTabProps> = ({ formData, updateFormData }) => {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -113,4 +113,4 @@ const CompanyInfoTab: React.FC<CompanyInfoTabProps> = ({ formData, updateFormDat
   );
 };
 
-export default CompanyInfoTab;
+export default EditCompanyInfoTab;

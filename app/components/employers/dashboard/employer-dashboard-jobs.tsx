@@ -8,12 +8,13 @@ import {
   Play, 
   Users, 
   Search,
-  Filter
+  Filter,
+  Plus
 } from 'lucide-react';
 import { IJob, JobFormData } from '@/types/jobs';
 import { useJobs } from '@/hooks/jobs/useJobs';
-import { convertJobToFormData } from '@/utils/job-form-data-transformers';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type JobStatus = JobFormData['status'];
 
@@ -34,7 +35,7 @@ export const EmployerDashboardJobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<JobStatus | 'all'>('all');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-
+  const router = useRouter()
   if(error){
     return <div>Error fetching jobs</div>;
   }
@@ -64,13 +65,27 @@ export const EmployerDashboardJobs = () => {
     return matchesSearch && matchesFilter;
   });
 
+
+  // action functions
+
+  const navigateToJob = (id: string) => {
+    router.push(`/in/employers/jobs/${id}`);
+  };
+
+  const handleClickEdit =(id:string)=>{
+    router.push(`/in/employers/jobs/edit/${id}`);
+  }
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Job Postings</h1>
-          <p className="text-gray-600">Manage all your job listings in one place</p>
+        <div className="mb-8 w-full flex justify-between items-start">
+          <div><h1 className="text-3xl font-bold text-gray-900 mb-2">Job Postings</h1>
+          <p className="text-gray-600">Manage all your job listings in one place</p></div>
+           <Link  href={"/in/employers/post-job"}   className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                <Plus className="w-5 h-5" />
+                Post New Job
+              </Link>
         </div>
 
         {/* Stats Cards */}
@@ -197,19 +212,19 @@ export const EmployerDashboardJobs = () => {
                         <Users className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => alert(`View job: ${job.title}`)}
+                        onClick={()=>navigateToJob(job._id as string)}
                         className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="View Job"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      <Link
-                         href={`/in/employers/jobs/${job._id}`}
+                      <button
+                       onClick={()=>handleClickEdit(job._id as string)}
                         className="p-2 text-gray-600 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
                         
                       >
                         <Edit className="w-4 h-4" />
-                      </Link>
+                      </button>
                       {job.status === 'active' ? (
                         <button
                           // onClick={() => handlePause(job.id)}

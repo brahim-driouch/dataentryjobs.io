@@ -135,53 +135,52 @@ export interface IJobModel extends mongoose.Model<IJob> {
  * Form data interface that matches the model structure
  * Arrays are kept as strings in the form and converted before saving
  */
+// types/jobs.ts - Add this new interface for frontend use
 export interface JobFormData {
-  // Draft/Job ID (for updates)
+  // IDs
   _id?: string;
+  employerId?: string;
+  companyId?: string;
   
-  // Employer ID
-  employer_id?: string;
-  
-  // Basic Info
+  // Basic Info (camelCase for frontend)
   title: string;
-  company_id?: string; // ObjectId as string
-  company_name: string;
-  company_logo?: File | null;
+  companyName: string;
+  companyLogo?: File | null;
   
-  // Job Details (strings in form, converted to arrays before saving)
+  // Job Details
   description: string;
-  responsibilities: string; // textarea content, split by newlines
-  requirements: string; // textarea content, split by newlines
+  responsibilities: string; // newline-separated
+  requirements: string; // newline-separated
   
   // Classification
   category: 'Medical' | 'General' | 'Legal' | 'Ecommerce' | 'Finance' | 'Logistics' | 'Other';
   subcategory?: string;
-  experience_level: 'Entry Level' | 'Mid Level' | 'Senior' | 'Not Specified';
-  employment_type: 'Full-time' | 'Part-time' | 'Contract' | 'Freelance' | 'Internship';
+  experienceLevel: 'Entry Level' | 'Mid Level' | 'Senior' | 'Not Specified';
+  employmentType: 'Full-time' | 'Part-time' | 'Contract' | 'Freelance' | 'Internship';
   
-  // Location (flat structure in form, converted to nested before saving)
+  // Location (flat, camelCase)
   locationType: 'remote' | 'onsite' | 'hybrid';
   country: string;
-  country_code?: string;
+  countryCode?: string;
   city?: string;
   state?: string;
   timezone?: string;
-  is_remote: boolean;
-  remote_regions?: string; // comma-separated, converted to array
+  isRemote: boolean;
+  remoteRegions?: string; // comma-separated
   
-  // Salary (flat structure in form, converted to nested before saving)
-  salary_min?: number;
-  salary_max?: number;
-  salary_currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'PHP' | 'PKR' | 'BDT' | 'NGN' | 'CAD' | 'AUD';
-  salary_period: 'year' | 'month' | 'hour' | 'project';
-  salary_is_disclosed: boolean;
+  // Salary (flat, camelCase)
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'PHP' | 'PKR' | 'BDT' | 'NGN' | 'CAD' | 'AUD';
+  salaryPeriod: 'year' | 'month' | 'hour' | 'project';
+  salaryIsDisclosed: boolean;
   
-  // Requirements (strings in form, converted to arrays before saving)
-  skills: string; // comma-separated or newline-separated
-  certifications?: string; // comma-separated or newline-separated
-  typing_speed_min?: number;
-  typing_speed_required: boolean;
-  language_requirements?: string; // comma-separated or newline-separated
+  // Requirements
+  skills: string; // comma-separated
+  certifications?: string; // comma-separated
+  typingSpeedMin?: number;
+  typingSpeedRequired: boolean;
+  languageRequirements?: string; // comma-separated
   
   // Application
   application: IApplication;
@@ -189,21 +188,36 @@ export interface JobFormData {
   // Metadata
   status: 'active' | 'filled' | 'expired' | 'pending_approval' | 'draft' | 'rejected';
   featured?: boolean;
-  featured_until?: Date;
+  featuredUntil?: Date;
   
   // Timestamps
-  expires_date?: Date;
+  expiresDate?: Date;
+  postedDate?: Date;
   
-  // Other company hiring
-  hiring_for_other_company: 'yes' | 'no';
-  other_company_name?: string;
-  other_company_description?: string;
-  other_company_logo?: File | null;
-  other_company_website?: string;
+  // Other company
+  hiringForOtherCompany: 'yes' | 'no';
+  otherCompanyName?: string;
+  otherCompanyDescription?: string;
+  otherCompanyLogo?: File | null;
+  otherCompanyWebsite?: string;
   
   // Flags
-  urgent_hiring?: boolean;
-  is_verified?: boolean;
-  is_remote_friendly?: boolean;
-  is_entry_level_friendly?: boolean;
+  urgentHiring?: boolean;
+  isVerified?: boolean;
+  isRemoteFriendly?: boolean;
+  isEntryLevelFriendly?: boolean;
+  
+  // Virtual properties (read-only)
+  daysUntilExpiration?: number;
+  isExpired?: boolean;
+  applicationCount?: number;
+  
+  // Analytics (read-only)
+  views?: number;
+  clicks?: number;
+  viewsLast7Days?: number;
+  
+  // Timestamps (read-only)
+  createdAt?: Date;
+  updatedAt?: Date;
 }

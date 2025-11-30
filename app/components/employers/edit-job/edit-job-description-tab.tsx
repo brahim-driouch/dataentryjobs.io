@@ -139,7 +139,7 @@ const RichTextEditor = ({
   );
 };
 
-const JobDescriptionTab: React.FC<JobDescriptionTabProps> = ({ formData, updateFormData }) => {
+const EditJobDescriptionTab: React.FC<JobDescriptionTabProps> = ({ formData, updateFormData }) => {
   const handleEditorChange = (value: string, fieldName: string) => {
     updateFormData({ [fieldName]: value });
   };
@@ -273,4 +273,4 @@ const JobDescriptionTab: React.FC<JobDescriptionTabProps> = ({ formData, updateF
   );
 };
 
-export default JobDescriptionTab;
+export default EditJobDescriptionTab;

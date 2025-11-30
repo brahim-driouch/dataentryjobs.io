@@ -7,7 +7,7 @@ interface ApplicationTabProps {
   updateFormData: (data: Partial<JobFormData>) => void;
 }
 
-const ApplicationTab: React.FC<ApplicationTabProps> = ({ formData, updateFormData }) => {
+const EditJobApplicationTab: React.FC<ApplicationTabProps> = ({ formData, updateFormData }) => {
   // ✅ Handle nested application object changes
   const handleApplicationChange = (field: string, value: string) => {
     updateFormData({
@@ -224,4 +224,4 @@ const ApplicationTab: React.FC<ApplicationTabProps> = ({ formData, updateFormDat
   );
 };
 
-export default ApplicationTab;
+export default EditJobApplicationTab;
