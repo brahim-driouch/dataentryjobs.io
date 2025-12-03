@@ -259,6 +259,6 @@ applicationSchema.pre('save', function(this: IApplicationDocument, next) {
 applicationSchema.set('toJSON', { virtuals: true });
 applicationSchema.set('toObject', { virtuals: true });
 
-const Application = mongoose.model<IApplicationDocument, ApplicationModel>('Application', applicationSchema);
+const Application = mongoose.models.Application || mongoose.model<IApplicationDocument, ApplicationModel>('Application', applicationSchema);
 
 export default Application;

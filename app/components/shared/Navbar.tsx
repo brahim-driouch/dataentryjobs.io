@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { mainNavigation } from '@/constants/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { LoggedInUserLinks } from './logged-in-user-links';
-import { X } from 'lucide-react';
+import { Briefcase, X } from 'lucide-react';
+import { getUserNameInitials } from '@/utils/formatters';
 
 
 
@@ -38,27 +39,25 @@ const AuthLinks =()=>{
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession();
-  const [showUserMenu,setShowUserMenu]=useState(false)
   const isLoading = status === 'loading';
   const isAuthenticated = status === 'authenticated';
 
-  const getUserNameInitials = (name:string)=>{
-  const nameArray = name.split(" ")
-  console.log(nameArray)
-  const initals = `${nameArray[0][0]}${nameArray[1][0]}`
-  return initals.toUpperCase()
-  }
+
 
   return (
-    <nav className="bg-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4">
+    <nav className="flex-1">
+      <div className=" mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo - Always visible */}
-          <div className="shrink-0">
-            <Link href="/" className="text-xl font-bold text-blue-600">
-              DataEntryJobs.io
-            </Link>
-          </div>
+                  <div className=" flex items-center gap-3">
+                      <div className="bg-linear-to-br from-blue-600 to-purple-600 p-2.5 rounded-xl">
+                        <Briefcase className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h1 className="text-xl font-bold text-gray-900">DataEntry Jobs</h1>
+                        <p className="text-xs text-gray-500">Find your perfect position</p>
+                      </div>
+                    </div>
 
           {/* Show content only when NOT loading */}
           {!isLoading && (
@@ -91,12 +90,7 @@ export default function Navbar() {
                         </Link>
                      
                       </>
-                    ) : (
-                      <div onClick={()=>setShowUserMenu(!showUserMenu)} className='relative w-10 h-10 rounded-full border border-gray-300 hover:border-gray-400 cursor-pointer text-blue-500 font-bold flex justify-center items-center bg-gray-200'>
-                          {showUserMenu ? <X color='red' size={24}/> : getUserNameInitials(session.user.name)}
-                          {showUserMenu && <LoggedInUserLinks/>}
-                      </div>
-                    )}
+                    ) : null}
                     
                   </>
                 ) : (

@@ -11,19 +11,19 @@ export async function GET() {
     if(!session){
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-     const [activeJobsCount,totalAplicationsCount,upComingInterviewsCount,hiredThisMonthCount] =await Promise.all(
+     const [activeJobsStats,totalAplicationsStats,upComingInterviewsStats,hiredThisMonthStats] =await Promise.all(
         [
-            statsQueries.getActiveJobsCount(session.user.id),
-            statsQueries.getTotalApplicationsCount(session.user.id),
-            statsQueries.getUpcomingInterviewsCount(session.user.id),
-            statsQueries.getHiredThisMonthCount(session.user.id)
+            statsQueries.getActiveJobsStats(session.user.id),
+            statsQueries.getApplicationsStats(session.user.id),
+            statsQueries.getUpcomingInterviewsStats(session.user.id),
+            statsQueries.getHiredThisMonthCountStats(session.user.id)
         ]
     )
     return NextResponse.json({
-        activeJobsCount,
-        totalAplicationsCount,
-        upComingInterviewsCount,
-        hiredThisMonthCount
+        activeJobsStats,
+        totalAplicationsStats,
+        upComingInterviewsStats,
+        hiredThisMonthStats
     })    
    } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

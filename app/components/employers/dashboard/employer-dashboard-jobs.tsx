@@ -74,8 +74,9 @@ export const EmployerDashboardJobs = () => {
       console.log(mutation.error)
     }
 
-       await queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      await queryClient.invalidateQueries({ queryKey: ['job', id] });
+    await queryClient.invalidateQueries({ queryKey: ['jobs'] });
+    await queryClient.invalidateQueries({ queryKey: ['job', id] });
+    await queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
   } 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
