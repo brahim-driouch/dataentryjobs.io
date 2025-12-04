@@ -41,7 +41,7 @@ export const ProfileHeader = () => {
     ]
 }
  return (
-     <div className="relative bg-linear-to-r from-blue-600 via-blue-700 to-indigo-700 overflow-hidden">
+     <div className="relative rounded-lg  mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-linear-to-r from-blue-600 via-blue-700 to-indigo-700 overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-size[20px_20px]"></div>
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">

@@ -2,6 +2,8 @@ import { IUser, newUser } from "@/types/user";
 import connectDB from "../connection";
 import User from "../models/User";
 import mongoose, { HydratedDocument, Model } from "mongoose";
+import { IPersonalInfo } from "@/types/profile";
+import { PersonalInfo } from "../models/profile/profile";
 
 
 
@@ -58,13 +60,20 @@ const updateUser = async (email: string, user: typeof User) => {
     return result
  }
 
+ const getProfileById = async (id: string) => {
+    await connectDB();
+    const result : HydratedDocument<IPersonalInfo> | null = await PersonalInfo.findById(id);
+    return result;
+};
+
 const userQueries = {
     checkUserExists,
     registerUser,
     getUserByEmail,
     getUserById,
     updateUser,
-    deleteUserById
+    deleteUserById,
+    getProfileById
 };
 export default userQueries;
 

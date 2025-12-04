@@ -30,13 +30,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
         <SessionProvider>
           <ToastContainer  position="top-center" />
       <QueryProvider>
           <Header />
-      <div className="min-h-screen w-full bg-gray-50">
+      <div className="min-h-screen  mx-auto ">
         {children}
       </div>
         <Footer />

@@ -344,7 +344,7 @@ export default function JobSeekerDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-gray-200 rounded-xl border-b border-gray-200 ">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -375,7 +375,7 @@ export default function JobSeekerDashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2  gap-6 mb-8">
           {stats.map((stat, index) => (
             <DashboardStatsItem key={index} {...stat} />
           ))}

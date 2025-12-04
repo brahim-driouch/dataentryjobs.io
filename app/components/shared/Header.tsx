@@ -1,17 +1,33 @@
-import { Briefcase } from "lucide-react"
+"use client";
+
+import { useEffect, useState } from "react";
 import Navbar from "./Navbar"
 
-const Header =  () => {
-return (
-  
+const Header = () => {
+  const [scrolled, setScrolled] = useState(false);
 
-       <header className="sticky bg-white top-0 w-full flex justify-between py-2 px-4 items-center z-[999px] ">
-        
-           <Navbar/>      
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <header 
+      className={`sticky w-full mx-auto px-2 md:px-6  top-0 flex justify-between py-2 items-center z-50 transition-all duration-300 ${
+        scrolled 
+          ? "bg-white/60 backdrop-blur-md shadow-md  " 
+          : "bg-transparent"
+      }`}
+    >
+     <div className="w-full max-w-7xl  mx-auto ">
+     <Navbar />
+     </div>
     </header>
-
-  )
+  );
 }
 
-export default Header
-
+export default Header;

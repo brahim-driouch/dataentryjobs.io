@@ -20,9 +20,9 @@ export default function InLayout({
   const showBanner = session?.user && !session.user.isVerified;
 
   return (
-    <>
+    <div className="min-h-screen mx-auto max-w-7xl px-2 md:px-4">
       {showBanner && <VerificationBanner userType={session?.user?.userType} />}
       {children}
-    </>
+    </div>
   );
 }
