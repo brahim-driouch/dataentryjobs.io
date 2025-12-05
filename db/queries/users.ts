@@ -2,9 +2,20 @@ import { IUser, newUser } from "@/types/user";
 import connectDB from "../connection";
 import User from "../models/User";
 import mongoose, { HydratedDocument, Model } from "mongoose";
-import { IPersonalInfo } from "@/types/profile";
+import { ICertification, IEducation, IPersonalInfo, ISkill, IWorkExperience } from "@/types/profile";
 import { PersonalInfo } from "../models/profile/profile";
+import { WorkExperience } from "../models/profile/WorkExperience";
+import { Education } from "../models/profile/Education";
+import { Certification } from "../models/profile/Certification";
+import { Skill } from "../models/profile/Skill";
 
+export interface ProfileResponse {
+  personalInfo: IPersonalInfo | null;
+  experience: IWorkExperience | null;
+  education: IEducation| null;
+  skills: ISkill | null;
+  certifications: ICertification| null;
+}
 
 
 // check if email already exists
@@ -60,10 +71,29 @@ const updateUser = async (email: string, user: typeof User) => {
     return result
  }
 
- const getProfileById = async (id: string) => {
+const getProfileById = async (id: string): Promise<ProfileResponse> => {
     await connectDB();
-    const result : HydratedDocument<IPersonalInfo> | null = await PersonalInfo.findById(id);
-    return result;
+    const [
+        personalInfo,
+        experience,
+        education,
+        skills,
+        certifications
+    ] = await Promise.all([
+        PersonalInfo.findById(id),
+        WorkExperience.findById(id),
+        Education.findById(id),
+        Skill.findById(id),
+        Certification.findById(id)
+    ]);
+
+    return {
+        personalInfo,
+        experience,
+        education,
+        skills,
+        certifications  
+    };
 };
 
 const userQueries = {

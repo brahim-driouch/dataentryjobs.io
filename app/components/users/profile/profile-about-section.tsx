@@ -4,18 +4,19 @@ import { Save, Edit2, User } from "lucide-react";
 import { useState } from "react";
 
 type ProfileAboutSectionProps = {
-  editMode: string | null;
-  setEditMode: (mode: string | null) => void;
-  fullName: string;
-  title: string;
-  summary: string;
+  aboutInfo:{
+    fullName:string
+    title:string;
+    summary:string
+  }
 }
 
-export const ProfileAboutSection = ({ editMode, setEditMode, fullName, title, summary }: ProfileAboutSectionProps) => {
+export const ProfileAboutSection = ({ aboutInfo }: ProfileAboutSectionProps) => {
+  const [editMode, setEditMode] = useState<boolean>(false);
   const [personalInfo, setPersonalInfo] = useState({
-    fullName: fullName,
-    title: title,
-    summary: summary,
+    fullName: aboutInfo.fullName,
+    title: aboutInfo.title,
+    summary: aboutInfo.summary,
   });
 
   // input change handler
@@ -31,7 +32,7 @@ export const ProfileAboutSection = ({ editMode, setEditMode, fullName, title, su
   const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     // TODO: Add API call to save data
-    setEditMode(null);
+  
   };
 
   return (
@@ -46,7 +47,6 @@ export const ProfileAboutSection = ({ editMode, setEditMode, fullName, title, su
           
           </div>
           <button
-            onClick={() => setEditMode(editMode === 'personal' ? null : 'personal')}
             className="p-2 rounded-lg text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
           >
             <Edit2 size={18} />
@@ -56,7 +56,7 @@ export const ProfileAboutSection = ({ editMode, setEditMode, fullName, title, su
 
       {/* Section Content */}
       <div className="p-6">
-        {editMode === 'personal' ? (
+        {editMode ? (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -106,7 +106,6 @@ export const ProfileAboutSection = ({ editMode, setEditMode, fullName, title, su
 
             <div className="flex justify-end gap-3 pt-4">
               <button
-                onClick={() => setEditMode(null)}
                 className="px-5 py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium text-gray-700"
               >
                 Cancel
@@ -145,7 +144,6 @@ export const ProfileAboutSection = ({ editMode, setEditMode, fullName, title, su
               <div className="text-center py-8">
                 <p className="text-gray-500 mb-3">No professional summary added yet</p>
                 <button
-                  onClick={() => setEditMode('personal')}
                   className="text-blue-600 hover:text-blue-700 font-medium text-sm"
                 >
                   Add your professional summary

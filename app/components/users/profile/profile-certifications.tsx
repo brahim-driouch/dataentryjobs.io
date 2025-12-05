@@ -2,36 +2,37 @@ import { Award, Plus } from "lucide-react";
 
 
 type ProfileCertificationsSectionProps = {
-    id: number;
-    name: string;
-    issuer: string;
-    year: string;
+    certifications: {
+        id: number;
+        name: string;
+        issuer: string;
+        year: string;
+    }[]
 }
 
 export const ProfileCertificationsSection = ({
-    id,
-    name,
-    issuer,
-    year,
+    certifications,
 }: ProfileCertificationsSectionProps) => {
     return (
         <>
          
           
-              <div
-                key={id}
+            {certifications.map((cert)=>(
+                <div
+                key={cert.id}
                 className="flex items-start gap-4 p-4 bg-linear-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-100 hover:shadow-md transition-all"
               >
                 <div className="p-2 bg-white rounded-lg">
                   <Award className="text-amber-600" size={24} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{name}</h3>
+                  <h3 className="font-semibold text-gray-900">{cert.name}</h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    {issuer} • {year}
+                    {cert.issuer} • {cert.year}
                   </p>
                 </div>
               </div>
+            ))}
         
 
 
