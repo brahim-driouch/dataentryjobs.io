@@ -10,6 +10,8 @@ import Company from "@/db/models/Company";
 import companyQueries from "@/db/queries/companies";
 import employerQueries from "@/db/queries/employer";
 import userQueries from "@/db/queries/users";
+import { ILocation } from "@/types/jobs";
+import { IUserLocation } from "@/types/user";
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -59,6 +61,7 @@ export const authConfig: NextAuthConfig = {
             email: user.email,
             name: user.full_name,
             isVerified: user.email_verified || false,
+            location: user.location,
             userType: "user" as const,
           };
         } catch (error) {
@@ -143,6 +146,7 @@ callbacks: {
       token.id = user.id;
       token.email = user.email;
       token.name = user.name;
+      token.location = user.location;
       token.isVerified = user.isVerified;
       token.userType = user.userType;
       
@@ -187,6 +191,7 @@ callbacks: {
     
     if (token && session.user) {
       session.user.id = token.id as string;
+      session.user.location = token.location as IUserLocation;
       session.user.email = token.email as string;
       session.user.name = token.name as string;
       session.user.isVerified = token.isVerified as boolean;

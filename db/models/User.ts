@@ -39,9 +39,21 @@ const userSchema = new mongoose.Schema({
 
   // location
   location: {
-    type: String,
-    trim: true    
+    country: {
+      type: String,
+      required: [true, 'Country is required']
+    },
+    countryCode: {
+      type: String,
+      uppercase: true,
+      minlength: 2,
+      maxlength: 3
+    },
+    city: String,
+    state: String,
+    timezone: String
   },
+
   // Preferences
   job_preferences: {
     categories: [{

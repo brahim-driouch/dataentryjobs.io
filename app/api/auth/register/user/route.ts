@@ -4,11 +4,12 @@ import { validateNewUser } from "@/lib/data-validator";
 import { sendEmailVerificationLink } from "@/lib/emails";
 import { generateUserToken } from "@/lib/jwt";
 import { IAPIResponse } from "@/types/api";
-import { newUser } from "@/types/user";
+import { IUser, newUser } from "@/types/user";
+import { dataTransformerToSnakeCase } from "@/utils/data-transformer";
 import { Types } from "mongoose";
 import { NextResponse } from "next/server";
-import { CreateEmailResponseSuccess } from "resend";
-
+import { CreateEmailResponseSuccess } from "resend";    
+import countries from "@/assets/countries.json"
 
 
 
@@ -20,7 +21,7 @@ export async function POST(req: Request): Promise<NextResponse<IAPIResponse<stri
         if(!user){
             return NextResponse.json({ success: false, message: "Failed to register user",data:["Please provide user details"] }, { status: 400 });
         }
-        const {isValid, errors} = validateNewUser(user.email, user.password, user.confirmPassword,user.location);
+        const {isValid, errors} = validateNewUser(user.email, user.password, user.confirmPassword,user.location.country);
         if(!isValid){
             return NextResponse.json({ success: false, message: "Failed to register user",data:errors }, { status: 400 });
         }
@@ -30,9 +31,12 @@ export async function POST(req: Request): Promise<NextResponse<IAPIResponse<stri
        if(emailExists){
         return NextResponse.json({ success: false, message: "Email already registered",data:["Email already registered, please login"] }, { status: 400 });
        }
-
+         // transform user data to snake_case
+         user.location.countryCode = countries.find((country: { name: string; code: string; }) => country.name === user.location.country)?.code;
+         const transformedUser = dataTransformerToSnakeCase(user);
         // register user in database
-        const queryResult = await userQueries.registerUser(user);
+        transformedUser.password_hash  = transformedUser.password;
+        const queryResult = await userQueries.registerUser(transformedUser as IUser);
 
         if(!queryResult){
             return NextResponse.json({ success: false, message: "Failed to register user",data:["Failed to register user"] }, { status: 500 });
@@ -42,7 +46,7 @@ export async function POST(req: Request): Promise<NextResponse<IAPIResponse<stri
         const token = await generateUserToken(userId.toString());
         const email = queryResult.email;
         const verificationUrl = `http://localhost:3000/auth/verify-email/users?token=${token}`;
-       const emailSent :CreateEmailResponseSuccess =  await sendEmailVerificationLink(email, verificationUrl);
+         await sendEmailVerificationLink(email, verificationUrl);
 
       
         

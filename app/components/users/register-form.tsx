@@ -18,13 +18,19 @@ import countries  from "@/assets/countries.json";
 import { validateNewUser } from '@/lib/data-validator';
 import { newUser } from '@/types/user';
 import { useUserRegistration } from '@/hooks/users/useUserRegistration';
+import {  dataTransformerToSnakeCase } from '@/utils/data-transformer';
 export const UserRegistrationForm = () => {
-  const [formData, setFormData] = useState({
-    full_name: '',
+  const [formData, setFormData] = useState<newUser>({
+    fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    location: '',
+    location: {
+      country: '',
+        countryCode: '',
+      city: '',
+  
+    },
   });
   
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +50,7 @@ export const UserRegistrationForm = () => {
  
 
   // validation
-  const {isValid, errors:_errors} = validateNewUser(formData.email, formData.password, formData.confirmPassword, formData.location);
+  const {isValid, errors:_errors} = validateNewUser(formData.email, formData.password, formData.confirmPassword, formData.location.country);
   if (!isValid) {
     setErrors(_errors);
     return;
@@ -56,6 +62,8 @@ export const UserRegistrationForm = () => {
       return;
     }
     try {
+    const countryCode = countries.find((country) => country.name === formData.location.country)?.code;
+    formData.location.countryCode = countryCode;
     await mutation.mutateAsync(formData as newUser);
     setSuccess(true);
     } catch (err: any) {
@@ -119,9 +127,10 @@ export const UserRegistrationForm = () => {
               <div className="relative">
                 <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
+                name='fullName'
                   type="text"
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   placeholder="John Doe"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   
@@ -137,6 +146,7 @@ export const UserRegistrationForm = () => {
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
+                name='email'
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -148,12 +158,7 @@ export const UserRegistrationForm = () => {
             </div>
 
             {/* Phone */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Phone Number (Optional)
-              </label>
-              
-            </div>
+          
 
        
           <div>
@@ -162,8 +167,9 @@ export const UserRegistrationForm = () => {
               </label>
               <div className="relative">
                 <select
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                name='country'
+                  value={formData.location.country}
+                  onChange={(e) => setFormData({ ...formData, location: { ...formData.location, country: e.target.value } })}
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   
                 >

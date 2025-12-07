@@ -1,7 +1,5 @@
 "use client";
-import { useState } from "react";
-import { GraduationCap, Award, FileText, X, Plus, Edit2, Frown } from "lucide-react";
-import { ProfileHeader } from "@/app/components/users/profile/profile-header";
+import { Frown } from "lucide-react";
 import { ProfileAboutSection } from "@/app/components/users/profile/profile-about-section";
 import { ProfileWorkExperienceSection } from "@/app/components/users/profile/profile-work-experience-section";
 import { ProfileEducationSection } from "@/app/components/users/profile/profile-education-section";
@@ -10,18 +8,15 @@ import { ProfileCertificationsSection } from "@/app/components/users/profile/pro
 import { useUserProfile } from "@/hooks/users/useProfileInfo";
 import { useSession } from "next-auth/react";
 import { NoAboutSection } from "@/app/components/users/profile/no-about-section";
-import { useRouter } from "next/navigation";
 import { NoExperienceSection } from "@/app/components/users/profile/no-experience-section";
 import { NoEducationSection } from "@/app/components/users/profile/no-education-section";
-import { NoskillsSection } from "@/app/components/users/profile/so-skills-section";
 import { NoCertificationsSection } from "@/app/components/users/profile/no-certifications-section";
 import Link from "next/link";
+import { NoSkillsSection } from "@/app/components/users/profile/no-skills-section";
+import { IPersonalInfoDTO } from "@/types/profile";
 
 export default function JobSeekerProfile() {
-  const [editMode, setEditMode] = useState<string | null>(null);
-    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
     const session = useSession();
-    const router = useRouter();
     if(!session){
         return null
     }
@@ -30,10 +25,9 @@ export default function JobSeekerProfile() {
     if(!id){
         return null
     }
-  const {data } = useUserProfile(id);
+  const {data,isLoading } = useUserProfile(id);
 
-  
-
+  if(isLoading) return null;
 
 
   // const handleDeleteSkill = (e: React.MouseEvent) => {
@@ -53,14 +47,18 @@ export default function JobSeekerProfile() {
        </Link>
     </div>
   }
-
+  const  personalInfo = data?.personalInfo as IPersonalInfoDTO;
+  const  experience = data?.experience;
+  const  education = data?.education;
+  const  skills = data?.skills;
+  const  certifications = data?.certifications;
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50/30 to-gray-50 py-8">
-     {data?.personalInfo ? <ProfileAboutSection aboutInfo={data.personalInfo} /> : <NoAboutSection />}
-     {data?.experience ? <ProfileWorkExperienceSection  experience={data?.experience} /> : <NoExperienceSection />}
-     {data?.education ? <ProfileEducationSection education={data?.education} /> : <NoEducationSection />}
-     {data?.skills ? <ProfileSkillsSection skills={data?.skills} />   : <NoskillsSection />}
-     {data?.certifications ? <ProfileCertificationsSection certifications={data?.certifications} /> : <NoCertificationsSection />}
+     {personalInfo?.email ? <ProfileAboutSection aboutInfo={personalInfo} /> : <NoAboutSection />}
+     {experience.length > 0 ? <ProfileWorkExperienceSection  experience={experience} /> : <NoExperienceSection />}
+     {education.length > 0 ? <ProfileEducationSection education={education} /> : <NoEducationSection />}
+     {skills.length > 0 ? <ProfileSkillsSection skills={skills} />   : <NoSkillsSection />}
+     {certifications.length > 0 ? <ProfileCertificationsSection certifications={certifications} /> : <NoCertificationsSection />}
     </div>
   )
 }

@@ -1,45 +1,59 @@
+import { BadgeCheck, BadgeCheckIcon, FileText, Plus, Shield, TrendingUp } from "lucide-react";
 
-
-
-
-"use client";
-
-import { User, Edit2 } from "lucide-react";
-
-
-
-
- export const NoCertificationsSection = () => {
+export const NoCertificationsSection = () => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
-      <div className="bg-linear-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <User className="text-blue-600" size={20} />
-          </div>
-          <h2 className="text-lg font-semibold text-gray-900">Certifications</h2>
+    <div className="bg-linear-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-amber-200 p-8 hover:border-amber-300 transition-all duration-300">
+      <div className="max-w-md mx-auto text-center">
+        {/* Icon */}
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-2xl mb-4">
+          <FileText className="text-amber-600" size={32} />
         </div>
-      </div>
 
-      <div className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-blue-50 rounded-xl">
-            <User className="text-blue-600" size={24} />
+        {/* Heading */}
+        <h3 className="text-xl font-bold text-gray-900 mb-2">
+          Add Certifications
+        </h3>
+        
+        {/* Description */}
+        <p className="text-gray-600 mb-6">
+          Stand out with professional credentials and certifications
+        </p>
+
+        {/* Stats/Benefits */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-white rounded-lg p-3 shadow-sm">
+            <BadgeCheckIcon className="text-amber-600 mx-auto mb-1" size={20} />
+            <p className="text-xs font-semibold text-gray-900">+60%</p>
+            <p className="text-xs text-gray-600">Trust</p>
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1">
-              Add your certifications
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Help employers learn about your background and experience
-            </p>
-            <button
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all flex items-center gap-2 font-medium shadow-sm hover:shadow-md"
-            >
-              <Edit2 size={18} />
-              <span>Add Information</span>
-            </button>
+          <div className="bg-white rounded-lg p-3 shadow-sm">
+            <Shield className="text-green-600 mx-auto mb-1" size={20} />
+            <p className="text-xs font-semibold text-gray-900">Verified</p>
+            <p className="text-xs text-gray-600">Skills</p>
           </div>
+          <div className="bg-white rounded-lg p-3 shadow-sm">
+            <TrendingUp className="text-blue-600 mx-auto mb-1" size={20} />
+            <p className="text-xs font-semibold text-gray-900">Premium</p>
+            <p className="text-xs text-gray-600">Roles</p>
+          </div>
+        </div>
+
+        {/* CTA Button */}
+        <button
+          className="w-full px-6 py-3 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-all flex items-center justify-center gap-2 font-semibold shadow-lg hover:shadow-xl group"
+        >
+          <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
+          <span>Add Certification</span>
+        </button>
+
+        {/* Helper Text */}
+        <div className="mt-6 bg-white rounded-lg p-3 text-left">
+          <p className="text-xs text-gray-500 mb-2">
+            <strong className="text-gray-700">💡 Optional but recommended:</strong>
+          </p>
+          <p className="text-xs text-gray-600">
+            Certifications help validate your expertise and can significantly boost your profile visibility
+          </p>
         </div>
       </div>
     </div>

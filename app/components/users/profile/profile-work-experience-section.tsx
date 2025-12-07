@@ -12,6 +12,7 @@ type ProfileWorkExperienceSectionProps = {
 
 export const ProfileWorkExperienceSection = ({experience}:{experience:ProfileWorkExperienceSectionProps})=> {
 
+ 
     return (
           <div className="space-y-6">
               {experience.map((exp)=>(

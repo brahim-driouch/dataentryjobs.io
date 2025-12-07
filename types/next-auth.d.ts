@@ -1,5 +1,6 @@
 // types/next-auth.d.ts
 import { DefaultSession } from "next-auth";
+import { IUserLocation } from "./user";
 
 declare module "next-auth" {
   interface Session {
@@ -30,6 +31,7 @@ declare module "next-auth" {
     email: string;
     name: string;
     isVerified: boolean;
+    location?: IUserLocation;
     userType: "user" | "employer";
     company?: {
       companyId: string;
@@ -53,6 +55,7 @@ declare module "next-auth/jwt" {
     email: string;
     name: string;
     isVerified: boolean;
+    location?: IUserLocation;
     userType: "user" | "employer";
     company?: {
       companyId: string;

@@ -6,41 +6,51 @@ import mongoose, { Schema, Model } from 'mongoose';
 
 
 const PersonalInfoSchema = new Schema<IPersonalInfo>({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-  fullName: { type: String, required: true },
+  user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  full_name: { type: String, required: true },
   email: { type: String, required: true },
-  phone: { type: String, required: true },
-  location: { type: String, required: true },
-  city: { type: String },
-  state: { type: String },
-  country: { type: String },
-  zipCode: { type: String },
-  professionalTitle: { type: String, required: true },
-  profilePhoto: { type: String },
-  resumeUrl: { type: String },
-  portfolioUrl: { type: String },
-  linkedinUrl: { type: String },
-  githubUrl: { type: String },
-  websiteUrl: { type: String },
-  summary: { type: String, required: true },
+  phone: { type: String, required: false,default:"" },
+   location: {
+    country: {
+      type: String,
+      required: [true, 'Country is required']
+    },
+    country_code: {
+      type: String,
+      uppercase: true,
+      minlength: 2,
+      maxlength: 3
+    },
+  city:{type:String,required:false,default:""},
+    state: {type:String,required:false,default:""},
+    timezone: {type:String,required:false,default:""}
+  },
+  professional_title: { type: String },
+  profile_photo: { type: String ,default:"" },
+  resume_url: { type: String ,default:"" },
+  portfolio_url: { type: String ,default:"" },
+  linkedin_url: { type: String ,default:"" },
+  github_url: { type: String ,default:"" },
+  website_url: { type: String ,default:"" },
+  summary: { type: String,default:"" },
   availability: { 
     type: String, 
     enum: Object.values(Availability), 
     default: Availability.IMMEDIATELY 
   },
 
-  remotePreference: { 
+  remote_preference: { 
     type: String, 
     enum: Object.values(REMOTE_PREFERENCES), 
     default: RemotePreference.FLEXIBLE 
   },
-  willingToRelocate: { type: Boolean, default: false },
-  expectedSalaryMin: { type: Number },
-  expectedSalaryMax: { type: Number },
-  salaryCurrency: { type: String, default: 'USD' }
+  willing_to_relocate: { type: Boolean, default: false },
+  expected_salary_min: { type: Number },
+  expected_salary_max: { type: Number },
+  salary_currency: { type: String, default: 'USD' }
 }, { timestamps: true });
 
-PersonalInfoSchema.index({ userId: 1 });
+PersonalInfoSchema.index({ user_id: 1 });
 
 export const PersonalInfo: Model<IPersonalInfo> = mongoose.models.PersonalInfo || mongoose.model<IPersonalInfo>('PersonalInfo', PersonalInfoSchema);
 

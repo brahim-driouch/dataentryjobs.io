@@ -1,42 +1,55 @@
-"use client";
+import { Eye, MessageSquare, Plus, User, UserCheck } from "lucide-react";
 
-import { User, Edit2 } from "lucide-react";
-
-
-
-
- export const NoAboutSection = () => {
+export const NoAboutSection = () => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
-      <div className="bg-linear-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <User className="text-blue-600" size={20} />
-          </div>
-          <h2 className="text-lg font-semibold text-gray-900">About</h2>
+    <div className="bg-linear-to-br from-cyan-50 to-blue-50 rounded-2xl border-2 border-dashed border-cyan-200 p-8 hover:border-cyan-300 transition-all duration-300">
+      <div className="max-w-md mx-auto text-center">
+        {/* Icon */}
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-cyan-100 rounded-2xl mb-4">
+          <User className="text-cyan-600" size={32} />
         </div>
-      </div>
 
-      <div className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-blue-50 rounded-xl">
-            <User className="text-blue-600" size={24} />
+        {/* Heading */}
+        <h3 className="text-xl font-bold text-gray-900 mb-2">
+          Tell Your Story
+        </h3>
+        
+        {/* Description */}
+        <p className="text-gray-600 mb-6">
+          Create a professional summary to introduce yourself to employers
+        </p>
+
+        {/* Stats/Benefits */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-white rounded-lg p-3 shadow-sm">
+            <Eye className="text-cyan-600 mx-auto mb-1" size={20} />
+            <p className="text-xs font-semibold text-gray-900">First</p>
+            <p className="text-xs text-gray-600">Impression</p>
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1">
-              Add your professional information
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Help employers learn about your background and experience
-            </p>
-            <button
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all flex items-center gap-2 font-medium shadow-sm hover:shadow-md"
-            >
-              <Edit2 size={18} />
-              <span>Add Information</span>
-            </button>
+          <div className="bg-white rounded-lg p-3 shadow-sm">
+            <UserCheck className="text-green-600 mx-auto mb-1" size={20} />
+            <p className="text-xs font-semibold text-gray-900">+50%</p>
+            <p className="text-xs text-gray-600">Profile Views</p>
+          </div>
+          <div className="bg-white rounded-lg p-3 shadow-sm">
+            <MessageSquare className="text-blue-600 mx-auto mb-1" size={20} />
+            <p className="text-xs font-semibold text-gray-900">3x</p>
+            <p className="text-xs text-gray-600">Messages</p>
           </div>
         </div>
+
+        {/* CTA Button */}
+        <button
+          className="w-full px-6 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition-all flex items-center justify-center gap-2 font-semibold shadow-lg hover:shadow-xl group"
+        >
+          <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
+          <span>Add Your Summary</span>
+        </button>
+
+        {/* Helper Text */}
+        <p className="text-xs text-gray-500 mt-4">
+          Share your experience, skills, and what makes you unique
+        </p>
       </div>
     </div>
   );

@@ -15,6 +15,9 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import PersonnalInfoForm from "./personnal-info-form";
+import { IUserLocation } from "@/types/user";
+import { Availability, RemotePreference } from "@/types/profile";
 
 export default function ProfileSetupWizard() {
   const session = useSession();
@@ -24,16 +27,24 @@ export default function ProfileSetupWizard() {
 }
 
 const user = session.data?.user;
+console.log(user)
 
    const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
     personalInfo: {
-      fullName: user?.name,
-      professionalTitle: "",
-      email: user?.email,
+
+      fullName: user?.name as string,
+      professionalTitle:"",
+      email: user?.email as string,
       phone: "",
-      location: "",
+      location: user?.location as IUserLocation,
       summary: "",
+      availability:Availability.IMMEDIATELY,
+      remotePreference:RemotePreference.FLEXIBLE,
+      willingToRelocate:false,
+      expectedSalaryMin:0,
+      expectedSalaryMax:0,
+      salaryCurrency:"USD"
     },
     workExperience: [
       {
@@ -78,19 +89,7 @@ const user = session.data?.user;
     { id: 4, name: "Certifications", icon: FileText },
   ];
 
-  const handlePersonalInfoChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    if(e.target.name === "fullName" || e.target.name === "email")return;
-    if(e.target.value.trim() === "")return;
-    setFormData({
-      ...formData,
-      personalInfo: {
-        ...formData.personalInfo,
-        [e.target.name]: e.target.value,
-      },
-    });
-  };
+
 
   const addWorkExperience = () => {
 
@@ -246,7 +245,6 @@ const user = session.data?.user;
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50/30 to-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Complete Your Profile
@@ -256,33 +254,12 @@ const user = session.data?.user;
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Step {activeTab + 1} of {tabs.length}
-            </span>
-            <span className="text-sm font-medium text-blue-600">
-              {Math.round(((activeTab + 1) / tabs.length) * 100)}% Complete
-            </span>
-          </div>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-linear-to-r from-blue-600 to-indigo-600 transition-all duration-300"
-              style={{ width: `${((activeTab + 1) / tabs.length) * 100}%` }}
-            ></div>
-          </div>
-        </div>
 
-        {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          {/* Tabs */}
           <div className="border-b border-gray-200 bg-gray-50">
             <div className="flex overflow-x-auto">
               {tabs.map((tab) => {
-                const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
-                const isCompleted = tab.id < activeTab;
 
                 return (
                   <button
@@ -290,17 +267,12 @@ const user = session.data?.user;
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all ${
                       isActive
-                        ? "border-blue-600 text-blue-600 bg-white"
-                        : isCompleted
-                        ? "border-green-500 text-green-600 hover:bg-gray-100"
+                        ? " border-blue-600 text-blue-600 bg-white"
+                        
                         : "border-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                     }`}
                   >
-                    {isCompleted ? (
-                      <Check size={18} />
-                    ) : (
-                      <Icon size={18} />
-                    )}
+                 
                     <span className="hidden sm:inline">{tab.name}</span>
                   </button>
                 );
@@ -308,109 +280,12 @@ const user = session.data?.user;
             </div>
           </div>
 
-          {/* Tab Content */}
           <div className="p-6 md:p-8">
             {/* Personal Info Tab */}
             {activeTab === 0 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Personal Information
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Full Name *
-                    </label>
-                    <input
-                    disabled
-                      type="text"
-                      name="fullName"
-                      value={formData.personalInfo.fullName}
-                      onChange={handlePersonalInfoChange}
-                      className="w-full px-4 py-2.5 border bg-gray-100 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="John Doe"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Professional Title *
-                    </label>
-                    <input
-                      type="text"
-                      name="professionalTitle"
-                      value={formData.personalInfo.professionalTitle}
-                      onChange={handlePersonalInfoChange}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Senior Data Entry Specialist"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Email *
-                    </label>
-                    <input
-                    disabled
-                      type="email"
-                      name="email"
-                      value={formData.personalInfo.email}
-                      onChange={handlePersonalInfoChange}
-                      className="w-full px-4 py-2.5 border bg-gray-100 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Phone *
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.personalInfo.phone}
-                      onChange={handlePersonalInfoChange}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="+1 (555) 123-4567"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Location *
-                  </label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.personalInfo.location}
-                    onChange={handlePersonalInfoChange}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="San Francisco, CA"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Professional Summary *
-                  </label>
-                  <textarea
-                    name="summary"
-                    value={formData.personalInfo.summary}
-                    onChange={handlePersonalInfoChange}
-                    rows={5}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    placeholder="Tell us about your experience, skills, and career goals..."
-                  />
-                  <p className="text-xs text-gray-500 mt-1.5">
-                    {formData.personalInfo.summary.length} characters
-                  </p>
-                </div>
-              </div>
+             <PersonnalInfoForm personalInfo={formData.personalInfo}/>
             )}
 
-            {/* Work Experience Tab */}
             {activeTab === 1 && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center mb-4">
@@ -448,7 +323,6 @@ const user = session.data?.user;
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Company *
                         </label>
                         <input
                           type="text"
@@ -463,7 +337,6 @@ const user = session.data?.user;
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Position *
                         </label>
                         <input
                           type="text"
@@ -478,7 +351,6 @@ const user = session.data?.user;
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Start Date *
                         </label>
                         <input
                           type="month"
@@ -547,7 +419,6 @@ const user = session.data?.user;
               </div>
             )}
 
-            {/* Education Tab */}
             {activeTab === 2 && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center mb-4">
@@ -583,7 +454,6 @@ const user = session.data?.user;
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          School *
                         </label>
                         <input
                           type="text"
@@ -598,7 +468,6 @@ const user = session.data?.user;
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Degree *
                         </label>
                         <input
                           type="text"
@@ -613,7 +482,6 @@ const user = session.data?.user;
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Field of Study *
                         </label>
                         <input
                           type="text"
@@ -628,7 +496,6 @@ const user = session.data?.user;
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Start Date *
                         </label>
                         <input
                           type="month"
@@ -682,7 +549,6 @@ const user = session.data?.user;
               </div>
             )}
 
-            {/* Skills Tab */}
             {activeTab === 3 && (
               <div className="space-y-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -731,7 +597,6 @@ const user = session.data?.user;
               </div>
             )}
 
-            {/* Certifications Tab */}
             {activeTab === 4 && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center mb-4">
@@ -769,7 +634,6 @@ const user = session.data?.user;
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Certification Name *
                         </label>
                         <input
                           type="text"
@@ -784,7 +648,6 @@ const user = session.data?.user;
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Issuer *
                         </label>
                         <input
                           type="text"
@@ -799,7 +662,6 @@ const user = session.data?.user;
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Issue Date *
                         </label>
                         <input
                           type="month"
@@ -821,7 +683,6 @@ const user = session.data?.user;
             )}
           </div>
 
-          {/* Navigation Footer */}
           <div className="border-t border-gray-200 px-6 md:px-8 py-4 bg-gray-50 flex justify-between items-center">
             <button
               onClick={() => setActiveTab(Math.max(0, activeTab - 1))}
@@ -832,23 +693,10 @@ const user = session.data?.user;
               <span>Previous</span>
             </button>
 
-            {isLastTab ? (
-              <button
-                onClick={handleSubmit}
-                className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-semibold shadow-sm hover:shadow-md"
-              >
-                <Save size={18} />
-                <span>Save Profile</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => setActiveTab(Math.min(tabs.length - 1, activeTab + 1))}
-                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium"
-              >
-                <span>Next</span>
-                <ArrowRight size={18} />
-              </button>
-            )}
+           
+             
+             
+            
           </div>
         </div>
       </div>

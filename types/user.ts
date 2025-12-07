@@ -8,9 +8,15 @@ export interface IJobPreferences {
   salary_currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'PHP' | 'PKR' | 'BDT' | 'NGN' | 'CAD' | 'AUD';
 }
 
-export interface IUser extends Document {
+export interface IUserLocation {
+  country: string;
+  countryCode?: string;
+  city?: string;
+  state?: string;
+  timezone?: string;
+}
 
-  
+export interface IUser extends Document {  
   _id:Types.ObjectId;
   // Auth
   email: string;
@@ -21,9 +27,6 @@ export interface IUser extends Document {
 
   //phone number
   phone_number: string;
-
-  //location
-  location: string; 
   
   // Preferences
   job_preferences: IJobPreferences;
@@ -33,6 +36,9 @@ export interface IUser extends Document {
 
   // email verification
   email_verified: boolean;
+
+  // location
+  location: IUserLocation;
   
   // Email Alerts
   email_alerts_enabled: boolean;
@@ -57,5 +63,11 @@ export interface IUserModel extends mongoose.Model<IUser> {
   findByEmailWithPassword(email: string): Promise<IUser | null>;
 }
 
-export type newUser = Omit<IUser, '_id' | 'createdAt' | 'updatedAt'| 'last_login' | 'password_hash'| 'saved_jobs'| 'email_alerts_enabled'| 'alert_frequency'> & { password: string, confirmPassword: string };
+export type newUser = {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  location: IUserLocation;
+};
 export type UserLogin = { email: string, password: string };

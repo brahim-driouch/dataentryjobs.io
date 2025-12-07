@@ -15,6 +15,7 @@ interface UserRegistrationResponse {
 
 export const useUserRegistration = () => {
   return useMutation<UserRegistrationResponse, Error, newUser>({
+  
     mutationFn: async (userData) => {
       const response = await fetch('/api/auth/register/user', {
         method: 'POST',

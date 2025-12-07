@@ -1,6 +1,7 @@
 // types/profile.types.ts
 
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
+import { IUserLocation } from "./user";
 
 export interface PersonalInfo {
   id?: string;
@@ -247,29 +248,26 @@ export interface CreateProjectDTO {
 }
 
 export interface IPersonalInfo extends Document {
-  userId: mongoose.Types.ObjectId;
-  fullName: string;
+  _id: mongoose.Types.ObjectId;
+  user_id : mongoose.Types.ObjectId;
+  full_name: string;
   email: string;
-  phone: string;
-  location: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  zipCode?: string;
-  professionalTitle: string;
-  profilePhoto?: string;
-  resumeUrl?: string;
-  portfolioUrl?: string;
-  linkedinUrl?: string;
-  githubUrl?: string;
-  websiteUrl?: string;
-  summary: string;
+  phone?: string;
+  location: IUserLocation;  
+  professional_title?: string;
+  profile_photo?: string;
+  resume_url?: string;
+  portfolio_url?: string;
+  linkedin_url?: string;
+  github_url?: string;
+  website_url?: string;
+  summary?: string;
   availability: Availability;
-  remotePreference: RemotePreference;
-  willingToRelocate: boolean;
-  expectedSalaryMin?: number;
-  expectedSalaryMax?: number;
-  salaryCurrency: string;
+  remote_preference: RemotePreference;
+  willing_to_relocate: boolean;
+  expected_salary_min?: number;
+  expected_salary_max?: number;
+  salary_currency: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -399,24 +397,24 @@ export interface IProject extends Document {
  
 
 export interface ISkill extends Document {
-  userId: mongoose.Types.ObjectId;
+  user_id: mongoose.Types.ObjectId;
   name: string;
   category: SkillCategory;
-  proficiencyLevel: ProficiencyLevel;
-  yearsOfExperience?: number;
+  proficiency_level: ProficiencyLevel;
+  years_of_experience?: number;
   order: number;
   createdAt: Date;
 }
 // Education Interface & Schema
 export interface IEducation extends Document {
-  userId: mongoose.Types.ObjectId;
+  user_id: mongoose.Types.ObjectId;
   school: string;
   degree: string;
-  fieldOfStudy: string;
-  degreeType: DegreeType;
-  startDate: string;
-  endDate?: string;
-  currentlyEnrolled: boolean;
+  field_of_study: string;
+  degree_type: DegreeType;
+  start_date: string;
+  end_date?: string;
+  currently_enrolled: boolean;
   gpa?: number;
   description?: string;
   achievements?: string[];
@@ -438,3 +436,200 @@ export const LANGUAGE_PROFICIENCY = ['elementary', 'limited_working', 'professio
 export const AVAILABILITY_OPTIONS = ['immediately', 'two_weeks', 'one_month', 'not_looking'] as const;
 export const WORK_AUTHORIZATION_OPTIONS = ['citizen', 'green_card', 'visa_holder', 'need_sponsorship'] as const;
 export const REMOTE_PREFERENCES = ['remote', 'hybrid', 'onsite', 'flexible'] as const;
+
+export interface IProfile {
+  personalInfo: IPersonalInfo;
+  experience: IWorkExperience;
+  education: IEducation;
+  skills: ISkill;
+  certifications: ICertification;
+}
+
+export interface IPersonalInfoDTO {
+  id?: string
+  userId: string;
+  fullName: string;
+  title: string;
+  summary: string;
+  availability: Availability;
+  remotePreference: RemotePreference;
+  willingToRelocate: boolean;
+  expectedSalaryMin?: number;
+  expectedSalaryMax?: number;
+  salaryCurrency?: string;
+  phone?: string;
+  location: IUserLocation;
+  profilePhoto?: string;
+  resumeUrl?: string;
+  portfolioUrl?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  websiteUrl?: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IWorkExperienceDTO {
+  id?: string;
+  userId: string;
+  company: string;
+  position: string;
+  employmentType: EmploymentType;
+  location: string;
+  remote: boolean;
+  startDate: string;
+  endDate?: string;
+  currentlyWorking: boolean;
+  description: string;
+  achievements?: string[];
+  technologies?: string[];
+  order: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface IEducationDTO {
+    id?: string;
+    userId: string;
+    school: string;
+    degree: string;
+    fieldOfStudy: string;
+    degreeType: DegreeType;
+    startDate: string;
+    endDate?: string;
+    currentlyEnrolled: boolean;
+    gpa?: number;
+    description?: string;
+    achievements?: string[];
+    location?: string;
+    order: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface ISkillDTO {
+    id?: string;
+    userId: string;
+    name: string;
+    category: SkillCategory;
+    proficiencyLevel: ProficiencyLevel;
+    yearsOfExperience?: number;
+    order: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface ICertificationDTO {
+    id?: string;
+    userId: string;
+    name: string;
+    issuer: string;
+    issueDate: string;
+    expirationDate?: string;
+    credentialId?: string;
+    credentialUrl?: string;
+    description?: string;
+    order: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface ISkillDTO {
+    id?: string;
+    userId: string;
+    name: string;
+    category: SkillCategory;
+    proficiencyLevel: ProficiencyLevel;
+    yearsOfExperience?: number;
+    order: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+// DB RESPONSE
+
+export interface IPersonalInfoDbResponse {
+    _id?: Types.ObjectId;
+    user_id: string;
+    full_name: string;
+    title: string;
+    summary: string;
+    availability: Availability;
+    remote_preference: RemotePreference;
+    willing_to_relocate: boolean;
+    expected_salary_min?: number;
+    expected_salary_max?: number;
+    salary_currency?: string;
+    phone?: string;
+    location: IUserLocation;
+    profile_photo?: string;
+    resume_url?: string;
+    portfolio_url?: string;
+    linkedin_url?: string;
+    github_url?: string;
+    website_url?: string;
+    email: string;
+    created_at: Date;
+    updated_at: Date;
+}
+export interface IWorkExperienceDbResponse {
+    _id?: Types.ObjectId;
+    user_id: string;
+    company: string;
+    position: string;
+    employment_type: EmploymentType;
+    location: string;
+    remote: boolean;
+    start_date: string;
+    end_date?: string;
+    currently_working: boolean;
+    description: string;
+    achievements?: string[];
+    technologies?: string[];
+    order: number;
+    created_at: Date;
+    updated_at: Date;
+} 
+
+export interface IEducationDbResponse {
+    _id?: Types.ObjectId;
+    user_id: string;
+    school: string;
+    degree: string;
+    field_of_study: string;
+    degree_type: DegreeType;
+    start_date: string;
+    end_date?: string;
+    currently_enrolled: boolean;
+    gpa?: number;
+    description?: string;
+    achievements?: string[];
+    location?: string;
+    order: number;
+    created_at: Date;
+    updated_at: Date;
+}
+
+export interface ISkillDbResponse {
+    _id?: Types.ObjectId;
+    user_id: string;
+    name: string;
+    category: SkillCategory;
+    proficiency_level: ProficiencyLevel;
+    years_of_experience?: number;
+    order: number;
+    created_at: Date;
+    updated_at: Date;
+}
+
+export interface ICertificationDbResponse {
+    _id?: Types.ObjectId;
+    user_id: string;
+    name: string;
+    issuer: string;
+    issue_date: string;
+    expiration_date?: string;
+    credential_id?: string;
+    credential_url?: string;
+    description?: string;
+    order: number;
+    created_at: Date;
+    updated_at: Date;
+}
