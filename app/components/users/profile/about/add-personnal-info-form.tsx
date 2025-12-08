@@ -1,40 +1,34 @@
-"use client";
-
-import { IPersonalInfoDTO } from "@/types/profile";
-import { 
-  Save, Edit2, User, Mail, Phone, MapPin, Globe, Briefcase, 
-  Calendar, Info, X, Linkedin, Github, Camera, Upload
-} from "lucide-react";
+import { Availability, IPersonalInfo, IPersonalInfoDTO, RemotePreference } from "@/types/profile";
+import { IUserLocation } from "@/types/user";
 import { useState } from "react";
+import { MapPin, Phone, Mail, User, Briefcase, DollarSign, Globe, Home, ChevronDown, Save, Info, Camera, Upload, Linkedin, Github } from "lucide-react";
+import countries from "@/assets/countries.json";
+import { useUpdatePersonalInfo } from "@/hooks/users/useUpdatePersonnalInfo";
+import { useSession } from "next-auth/react";
+import { dataTransformerToSnakeCase } from "@/utils/data-transformer";
+import { showSuccess } from "@/utils/showSuccess";
+import { showErrors } from "@/utils/show-errors";
+import { useQueryClient } from "@tanstack/react-query";
+import { getInitials } from "@/utils/get-initials";
 
-type ProfileAboutSectionProps = {
-  aboutInfo: IPersonalInfoDTO;
+ type PersonalInfoFormProps = {
+  personalInfo: IPersonalInfoDTO;
+  completionPercentage: number;
+  missingFields: () => string[];
+  setPersonalInfo: (info: IPersonalInfoDTO) => void;
+  setEditMode: (editMode: boolean) => void;
+  userId:string
 };
+export default function AddPersonalInfoForm({ personalInfo, completionPercentage,userId, missingFields, setPersonalInfo, setEditMode }: PersonalInfoFormProps) {
 
-export const ProfileAboutSection = ({ aboutInfo }: ProfileAboutSectionProps) => {
-  const [editMode, setEditMode] = useState<boolean>(false);
-  const [personalInfo, setPersonalInfo] = useState<IPersonalInfoDTO>(aboutInfo);
+  // states
   const [photoHover, setPhotoHover] = useState(false);
+  // hooks
+  const mutation = useUpdatePersonalInfo(userId);
+  const queryClient = useQueryClient();
 
-  const calculateCompletion = () => {
-    const fields = [
-      personalInfo.fullName,
-      personalInfo.title,
-      personalInfo.summary,
-      personalInfo.phone,
-      personalInfo.location?.country,
-      personalInfo.linkedinUrl,
-      personalInfo.githubUrl,
-      personalInfo.profilePhoto,
-    ];
-    
-    const filled = fields.filter(field => field && field.toString().trim().length > 0).length;
-    return Math.round((filled / fields.length) * 100);
-  };
 
-  const completionPercentage = calculateCompletion();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
     if (type === 'checkbox') {
@@ -51,6 +45,7 @@ export const ProfileAboutSection = ({ aboutInfo }: ProfileAboutSectionProps) => 
     }
   };
 
+  // handle photo upload
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -63,82 +58,21 @@ export const ProfileAboutSection = ({ aboutInfo }: ProfileAboutSectionProps) => 
     }
   };
 
-  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  // handle save
+   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    // TODO: Add API call to save data
+    try {
+      const transformedData = dataTransformerToSnakeCase(personalInfo);
+      await mutation.mutateAsync(transformedData as IPersonalInfo);
+    showSuccess("Profile updated successfully");
+    await queryClient.invalidateQueries({ queryKey: ['profile', userId] });
     setEditMode(false);
+    } catch (error:Error | unknown) {
+      showErrors([`Error:${error instanceof Error ? error.message : "Please try again"}`],()=>{}); 
+    }
   };
 
-  const formatSalaryRange = () => {
-    if (!personalInfo.expectedSalaryMin && !personalInfo.expectedSalaryMax) return null;
-    const currency = personalInfo.salaryCurrency || 'USD';
-    const min = personalInfo.expectedSalaryMin?.toLocaleString() || '0';
-    const max = personalInfo.expectedSalaryMax?.toLocaleString() || '0';
-    return `${currency} ${min} - ${max}`;
-  };
-
-  const formatLocation = () => {
-    const { city, state, country } = personalInfo.location;
-    const parts = [city, state, country].filter(Boolean);
-    return parts.join(', ') || 'Not specified';
-  };
-
-  const missingFields = () => {
-    const fields = [];
-    if (!personalInfo.fullName) fields.push('Full Name');
-    if (!personalInfo.title) fields.push('Title');
-    if (!personalInfo.summary) fields.push('Summary');
-    if (!personalInfo.phone) fields.push('Phone');
-    if (!personalInfo.profilePhoto) fields.push('Photo');
-    return fields;
-  };
-
-  const getInitials = () => {
-    return personalInfo.fullName
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-      {/* Header with linear */}
-      <div className="bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 px-5 py-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-              <User className="text-white" size={18} />
-            </div>
-            <div>
-              <h3 className="font-semibold text-white">Professional Profile</h3>
-              {completionPercentage < 100 && (
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 bg-white/20 rounded-full h-1.5 w-24">
-                    <div 
-                      className="bg-white h-1.5 rounded-full transition-all duration-500"
-                      style={{ width: `${completionPercentage}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-white/90 font-medium">{completionPercentage}%</span>
-                </div>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={() => setEditMode(!editMode)}
-            className="p-2 rounded-xl bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-            aria-label={editMode ? "Close editor" : "Edit profile"}
-          >
-            {editMode ? <X size={18} /> : <Edit2 size={18} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-5">
-        {editMode ? (
+ return(
           <div className="space-y-4">
             {/* Progress Indicator */}
             {completionPercentage < 100 && (
@@ -175,7 +109,7 @@ export const ProfileAboutSection = ({ aboutInfo }: ProfileAboutSectionProps) => 
                     />
                   ) : (
                     <span className="text-3xl font-bold text-indigo-600">
-                      {getInitials()}
+                      {getInitials(personalInfo.fullName)}
                     </span>
                   )}
                   <div className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity ${photoHover ? 'opacity-100' : 'opacity-0'}`}>
@@ -389,159 +323,6 @@ export const ProfileAboutSection = ({ aboutInfo }: ProfileAboutSectionProps) => 
               </div>
             </div>
           </div>
-        ) : (
-          <div className="space-y-5">
-            {/* Profile Header with Photo */}
-            <div className="flex items-start gap-4">
-              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-linear-to-br from-indigo-100 to-purple-100 flex items-center justify-center shrink-0 ring-4 ring-indigo-50">
-                {personalInfo.profilePhoto ? (
-                  <img 
-                    src={personalInfo.profilePhoto} 
-                    alt="Profile" 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-2xl font-bold text-indigo-600">
-                    {getInitials()}
-                  </span>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-gray-900 text-xl">{personalInfo.fullName}</h4>
-                <p className="text-indigo-600 font-semibold text-sm mt-0.5">{personalInfo.title}</p>
-                {completionPercentage < 100 && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="flex-1 bg-gray-100 rounded-full h-1.5 max-w-xs">
-                      <div 
-                        className="bg-linear-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full transition-all duration-500"
-                        style={{ width: `${completionPercentage}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-gray-500 font-medium">{completionPercentage}%</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Contact Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl">
-                <Mail size={16} className="text-indigo-600 shrink-0" />
-                <span className="text-sm text-gray-700 truncate">{personalInfo.email}</span>
-              </div>
-              {personalInfo.phone && (
-                <div className="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl">
-                  <Phone size={16} className="text-indigo-600 shrink-0" />
-                  <span className="text-sm text-gray-700">{personalInfo.phone}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl">
-                <MapPin size={16} className="text-indigo-600 shrink-0" />
-                <span className="text-sm text-gray-700 truncate">{formatLocation()}</span>
-              </div>
-              <div className="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl">
-                <Calendar size={16} className="text-indigo-600 shrink-0" />
-                <span className="text-sm text-gray-700 capitalize">{personalInfo.availability}</span>
-              </div>
-            </div>
-
-            {/* Summary */}
-            {personalInfo.summary && (
-              <div className="p-4 bg-linear-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {personalInfo.summary}
-                </p>
-              </div>
-            )}
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-linear-to-br from-indigo-50 to-indigo-100 rounded-xl p-3 text-center">
-                <Briefcase size={16} className="text-indigo-600 mx-auto mb-1.5" />
-                <div className="font-semibold text-gray-900 text-xs capitalize">{personalInfo.remotePreference}</div>
-                <div className="text-gray-600 text-xs mt-0.5">Work Type</div>
-              </div>
-              
-              {personalInfo.willingToRelocate && (
-                <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-xl p-3 text-center">
-                  <MapPin size={16} className="text-purple-600 mx-auto mb-1.5" />
-                  <div className="font-semibold text-gray-900 text-xs">Relocate</div>
-                  <div className="text-gray-600 text-xs mt-0.5">Willing</div>
-                </div>
-              )}
-              
-              {formatSalaryRange() && (
-                <div className="bg-linear-to-br from-emerald-50 to-emerald-100 rounded-xl p-3 text-center col-span-2">
-                  <div className="font-semibold text-gray-900 text-xs truncate">{formatSalaryRange()}</div>
-                  <div className="text-gray-600 text-xs mt-0.5">Expected Salary</div>
-                </div>
-              )}
-            </div>
-
-            {/* Professional Links */}
-            {(personalInfo.linkedinUrl || personalInfo.githubUrl || personalInfo.portfolioUrl) && (
-              <div className="flex flex-wrap gap-2">
-                {personalInfo.linkedinUrl && (
-                  <a
-                    href={personalInfo.linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-xl text-xs font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/30"
-                  >
-                    <Linkedin size={14} />
-                    LinkedIn
-                  </a>
-                )}
-                {personalInfo.githubUrl && (
-                  <a
-                    href={personalInfo.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-gray-700 to-gray-800 text-white rounded-xl text-xs font-semibold hover:from-gray-800 hover:to-gray-900 transition-all shadow-lg shadow-gray-500/30"
-                  >
-                    <Github size={14} />
-                    GitHub
-                  </a>
-                )}
-                {personalInfo.portfolioUrl && (
-                  <a
-                    href={personalInfo.portfolioUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-purple-500 to-purple-600 text-white rounded-xl text-xs font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/30"
-                  >
-                    <Globe size={14} />
-                    Portfolio
-                  </a>
-                )}
-              </div>
-            )}
-
-            {/* Completion Prompt */}
-            {completionPercentage < 100 && missingFields().length > 0 && (
-              <div className="bg-linear-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-white rounded-lg">
-                    <Info size={16} className="text-indigo-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900">Complete your profile</p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      Add {missingFields().slice(0, 2).join(' and ')} to stand out to recruiters
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setEditMode(true)}
-                    className="px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-white rounded-lg hover:bg-indigo-50 transition-all whitespace-nowrap"
-                  >
-                    Complete Now
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+        
   );
-};
+}

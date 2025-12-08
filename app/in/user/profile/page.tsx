@@ -1,13 +1,13 @@
 "use client";
 import { Frown } from "lucide-react";
-import { ProfileAboutSection } from "@/app/components/users/profile/profile-about-section";
+import { ProfileAboutSectionWrapper } from "@/app/components/users/profile/about/profile-about-section-wrapper";
 import { ProfileWorkExperienceSection } from "@/app/components/users/profile/profile-work-experience-section";
 import { ProfileEducationSection } from "@/app/components/users/profile/profile-education-section";
 import { ProfileSkillsSection } from "@/app/components/users/profile/profile-skills-section";
 import { ProfileCertificationsSection } from "@/app/components/users/profile/profile-certifications";
 import { useUserProfile } from "@/hooks/users/useProfileInfo";
 import { useSession } from "next-auth/react";
-import { NoAboutSection } from "@/app/components/users/profile/no-about-section";
+import { NoAboutSection } from "@/app/components/users/profile/about/no-about-section";
 import { NoExperienceSection } from "@/app/components/users/profile/no-experience-section";
 import { NoEducationSection } from "@/app/components/users/profile/no-education-section";
 import { NoCertificationsSection } from "@/app/components/users/profile/no-certifications-section";
@@ -54,7 +54,7 @@ export default function JobSeekerProfile() {
   const  certifications = data?.certifications;
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50/30 to-gray-50 py-8">
-     {personalInfo?.email ? <ProfileAboutSection aboutInfo={personalInfo} /> : <NoAboutSection />}
+     {personalInfo?.email ? <ProfileAboutSectionWrapper aboutInfo={personalInfo} /> : <NoAboutSection />}
      {experience.length > 0 ? <ProfileWorkExperienceSection  experience={experience} /> : <NoExperienceSection />}
      {education.length > 0 ? <ProfileEducationSection education={education} /> : <NoEducationSection />}
      {skills.length > 0 ? <ProfileSkillsSection skills={skills} />   : <NoSkillsSection />}

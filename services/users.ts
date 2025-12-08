@@ -20,20 +20,22 @@ const updatePersonalInfo = async (id: string, formData: IPersonalInfo) => {
     try {
         const response = await fetch(`/api/users/profile/${id}/personal-info`, {
          
-            method: 'PATCH',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(formData)
         })
-        if (!response.ok) {
-            throw new Error('Failed to update profile')
-        }
         const data = await response.json()
+        if (!response.ok || !data.success) {
+           
+            throw new Error(data.message)
+        }
+        console.log(data)
         return data
     } catch (error) {
         console.error('Error updating profile:', error)
-        return null
+        throw error
     }
 }
 

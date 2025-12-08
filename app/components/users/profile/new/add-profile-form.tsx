@@ -15,7 +15,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import PersonnalInfoForm from "./personnal-info-form";
+import PersonnalInfoForm from "../about/add-personnal-info-form";
 import { IUserLocation } from "@/types/user";
 import { Availability, RemotePreference } from "@/types/profile";
 

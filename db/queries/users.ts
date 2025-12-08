@@ -128,22 +128,15 @@ const getProfileByUserId = async (id: string): Promise<ProfileResponse> => {
 };
 
 // update profile #PersonalInfo
-const updatePersonalInfo = async (id: string, profile: IPersonalInfo): Promise<ProfileResponse | null> => {
+const updatePersonalInfo = async (id: string, profile: IPersonalInfo): Promise<IPersonalInfo | null> => {
     await connectDB();
     
-    const result = await PersonalInfo.findOneAndUpdate({ _id: id }, { $set: profile }, { new: true,runValidators:true });
+    const result = await PersonalInfo.findOneAndUpdate({ user_id: id }, { $set: profile }, { new: true,runValidators:true });
 
     if(!result){
         throw new Error("Profile not updated") ;
     }
-    const updatedProfile = await getProfileByUserId(id);
-    return {
-        personalInfo: updatedProfile.personalInfo,
-        experience: updatedProfile.experience,
-        education: updatedProfile.education,
-        skills: updatedProfile.skills,
-        certifications: updatedProfile.certifications
-    };
+    return result;
 };
 
 
