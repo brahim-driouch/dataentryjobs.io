@@ -1,8 +1,10 @@
 import { Briefcase, Eye, Plus, Sparkles, TrendingUp } from "lucide-react";
 
-export const NoExperienceSection = () => {
+export const NoWorkExperienceSection = () => {
+  
+ 
   return (
-    <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-dashed border-blue-200 p-8 hover:border-blue-300 transition-all duration-300">
+    <div className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-dashed border-blue-200 p-8 hover:border-blue-300 transition-all duration-300">
       <div className="max-w-md mx-auto text-center">
         {/* Icon */}
         <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl mb-4">
@@ -39,12 +41,7 @@ export const NoExperienceSection = () => {
         </div>
 
         {/* CTA Button */}
-        <button
-          className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all flex items-center justify-center gap-2 font-semibold shadow-lg hover:shadow-xl group"
-        >
-          <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-          <span>Add Work Experience</span>
-        </button>
+       
 
         {/* Helper Text */}
         <p className="text-xs text-gray-500 mt-4">

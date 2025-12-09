@@ -485,8 +485,8 @@ export interface IWorkExperienceDTO {
   achievements?: string[];
   technologies?: string[];
   order: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 export interface IEducationDTO {
     id?: string;

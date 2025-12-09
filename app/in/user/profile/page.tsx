@@ -1,5 +1,4 @@
 "use client";
-import { Frown } from "lucide-react";
 import { ProfileAboutSectionWrapper } from "@/app/components/users/profile/about/profile-about-section-wrapper";
 import { ProfileEducationSection } from "@/app/components/users/profile/profile-education-section";
 import { ProfileSkillsSection } from "@/app/components/users/profile/profile-skills-section";
@@ -7,15 +6,15 @@ import { ProfileCertificationsSection } from "@/app/components/users/profile/pro
 import { useUserProfile } from "@/hooks/users/useProfileInfo";
 import { useSession } from "next-auth/react";
 import { NoAboutSection } from "@/app/components/users/profile/about/no-about-section";
-import { NoExperienceSection } from "@/app/components/users/profile/work-experience/no-experience-section";
 import { NoEducationSection } from "@/app/components/users/profile/no-education-section";
 import { NoCertificationsSection } from "@/app/components/users/profile/no-certifications-section";
-import Link from "next/link";
 import { NoSkillsSection } from "@/app/components/users/profile/no-skills-section";
 import { ICertificationDTO, IEducationDTO, IPersonalInfoDTO, ISkillDTO, IWorkExperienceDTO } from "@/types/profile";
 import ProfileWorkExperienceSectionWrapper from "@/app/components/users/profile/work-experience/profile-work-experience-section-wrapper";
+import { useState } from "react";
 
 export default function JobSeekerProfile() {
+  
     const session = useSession();
     if(!session){
         return null
@@ -39,7 +38,7 @@ export default function JobSeekerProfile() {
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50/30 to-gray-50 py-8">
     
      {personalInfo?.email ? <ProfileAboutSectionWrapper aboutInfo={personalInfo} /> : <NoAboutSection />}
-     {experience && experience?.length > 0 ? <ProfileWorkExperienceSectionWrapper /> : <NoExperienceSection />}
+     { <ProfileWorkExperienceSectionWrapper  experiences={experience} /> }
      {education && education?.length > 0 ? <ProfileEducationSection education={education} /> : <NoEducationSection />}
      {skills && skills?.length > 0 ? <ProfileSkillsSection skills={skills} />   : <NoSkillsSection />}
      {certifications && certifications.length > 0 ? <ProfileCertificationsSection certifications={certifications} /> : <NoCertificationsSection />}

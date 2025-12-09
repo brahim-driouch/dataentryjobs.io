@@ -43,7 +43,7 @@ export const ProfileAboutSectionContent = ({ personalInfo,setEditMode,completion
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-gray-900 text-xl">{personalInfo.fullName}</h4>
-                <p className="text-indigo-600 font-semibold text-sm mt-0.5">{personalInfo.title}</p>
+                <p className="text-indigo-600 font-semibold text-sm mt-0.5">{personalInfo.professionalTitle}</p>
                 {completionPercentage < 100 && (
                   <div className="flex items-center gap-2 mt-2">
                     <div className="flex-1 bg-gray-100 rounded-full h-1.5 max-w-xs">
