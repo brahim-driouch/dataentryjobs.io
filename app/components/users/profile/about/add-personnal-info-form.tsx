@@ -151,8 +151,8 @@ export default function AddPersonalInfoForm({ personalInfo, completionPercentage
                   </label>
                   <input
                     type="text"
-                    name="title"
-                    value={personalInfo.title}
+                    name="professionalTitle"
+                    value={personalInfo.professionalTitle}
                     onChange={handleChange}
                     className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     placeholder="Senior Software Engineer"

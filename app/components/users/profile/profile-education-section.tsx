@@ -1,14 +1,9 @@
+import { IEducationDTO } from "@/types/profile";
 import { Plus } from "lucide-react";
 
 type ProfileEducationSectionProps = {
-   education: {
-    id: number;
-    degree: string;
-    school: string;
-    startDate: string;
-    endDate: string;
-    description: string;
-   }[]
+   education: IEducationDTO[];
+
 }
 
 

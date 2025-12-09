@@ -1,24 +1,24 @@
 import userQueries from "@/db/queries/users";
-import { IPersonalInfoDTO } from "@/types/profile";
+import { ICertificationDTO, IEducationDTO, IPersonalInfoDTO, ISkillDTO, IWorkExperienceDTO } from "@/types/profile";
 import { dataTransformerToCamelCase } from "@/utils/data-transformer";
 import { NextResponse } from "next/server";
-import mongoose, { Types } from "mongoose";
-import { isValidObjectId } from "mongoose";
+import { IAPIResponse } from "@/types/api";
+import { ProfileResponse } from "@/types/profile";
 
 
+type APIProfileResponse = Promise<NextResponse<IAPIResponse<ProfileResponse | null>>>;
 
-
-    export async function GET(request: Request,{params}: {params: Promise<{id: string}>}) {
+    export async function GET(request: Request,{params}: {params: Promise<{id: string}>}) : APIProfileResponse {
         
         try {
             const {id} = await params;
             if(!id){
-                return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+                return NextResponse.json({ success:false, message: "Invalid ID",data:null }, { status: 400 });
             }
 
             const profile = await userQueries.getProfileByUserId(id);
             if(!profile){
-                return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+                return NextResponse.json({success:false, message: "Profile not found",data:null }, { status: 404 });
             }
 
     
@@ -34,16 +34,17 @@ import { isValidObjectId } from "mongoose";
         if (profile?.personalInfo?.user_id) {
             profileDTO.personalInfo.userId =  profile.personalInfo.user_id.toString() || "";
         }
+    }  const data = {
+        personalInfo:profileDTO.personalInfo as IPersonalInfoDTO,
+        experience: profileDTO.experience as IWorkExperienceDTO[],
+        education: profileDTO.education as IEducationDTO[],
+        skills: profileDTO.skills as ISkillDTO[],
+        certifications: profileDTO.certifications as ICertificationDTO[]
     }
-            return NextResponse.json({
-                personalInfo:profileDTO.personalInfo ,
-                experience: profileDTO.experience,
-                education: profileDTO.education,
-                skills: profileDTO.skills,
-                certifications: profileDTO.certifications
-            }, { status: 200 });
+            return NextResponse.json({success:true, message: "Profile found",data:data}, { status: 200 });
         } catch (error) {
-            return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+            console.log(error)
+            return NextResponse.json({success:false,     message: "Internal Server Error",data:null }, { status: 500 });
         }
     }
 

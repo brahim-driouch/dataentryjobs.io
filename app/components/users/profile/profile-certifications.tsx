@@ -1,13 +1,9 @@
+import { ICertificationDTO } from "@/types/profile";
 import { Award, Plus } from "lucide-react";
 
 
 type ProfileCertificationsSectionProps = {
-    certifications: {
-        id: number;
-        name: string;
-        issuer: string;
-        year: string;
-    }[]
+   certifications:ICertificationDTO[]
 }
 
 export const ProfileCertificationsSection = ({
@@ -28,7 +24,7 @@ export const ProfileCertificationsSection = ({
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900">{cert.name}</h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    {cert.issuer} • {cert.year}
+                    {cert.issuer} • {cert.issueDate}  
                   </p>
                 </div>
               </div>

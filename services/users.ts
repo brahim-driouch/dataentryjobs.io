@@ -4,11 +4,13 @@ import { IPersonalInfo } from "@/types/profile"
 const getProfileByUseryId = async (id: string) => {
     try {
         const response = await fetch(`/api/users/profile/${id}`)
-        if (!response.ok) {
-            throw new Error('Failed to fetch profile')
-        }
+       
         const data = await response.json()
-        console.log(data)
+         if (!response.ok || !data.success) {
+            const errorMessage = data.message || 'Failed to fetch profile'
+            throw new Error(errorMessage)
+        }
+      
         return data
     } catch (error) {
         console.error('Error fetching profile:', error)
@@ -27,9 +29,10 @@ const updatePersonalInfo = async (id: string, formData: IPersonalInfo) => {
             body: JSON.stringify(formData)
         })
         const data = await response.json()
+        console.log(data)
         if (!response.ok || !data.success) {
-           
-            throw new Error(data.message)
+            const errorMessage = data.message || 'Failed to update profile'
+            throw new Error(errorMessage)
         }
         console.log(data)
         return data

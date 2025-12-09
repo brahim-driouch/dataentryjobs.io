@@ -2,7 +2,7 @@ import { Plus } from "lucide-react"
 
 
 
-export const AddWorkExperience = () => {
+export const AddWorkExperienceForm = () => {
     return (
         <div>
             <h2>Add Work Experience</h2>

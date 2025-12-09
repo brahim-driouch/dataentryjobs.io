@@ -449,7 +449,7 @@ export interface IPersonalInfoDTO {
   id?: string
   userId: string;
   fullName: string;
-  title: string;
+  professionalTitle: string;
   summary: string;
   availability: Availability;
   remotePreference: RemotePreference;
@@ -549,7 +549,7 @@ export interface IPersonalInfoDbResponse {
     _id?: Types.ObjectId;
     user_id: string;
     full_name: string;
-    title: string;
+  professional_title: string;
     summary: string;
     availability: Availability;
     remote_preference: RemotePreference;
@@ -632,4 +632,12 @@ export interface ICertificationDbResponse {
     order: number;
     created_at: Date;
     updated_at: Date;
+}
+
+export type ProfileResponse = {
+    personalInfo: IPersonalInfoDTO;
+    experience: IWorkExperienceDTO[];
+    education: IEducationDTO[];
+    skills: ISkillDTO[];
+    certifications: ICertificationDTO[];   
 }

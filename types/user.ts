@@ -1,4 +1,5 @@
 import mongoose, { Document, Types } from 'mongoose';
+import { ICertificationDTO, IEducationDTO, IPersonalInfoDTO, ISkillDTO, IWorkExperienceDTO } from './profile';
 
 export interface IJobPreferences {
   categories: ('Medical' | 'General' | 'Legal' | 'Ecommerce' | 'Finance' | 'Logistics' | 'Other')[];

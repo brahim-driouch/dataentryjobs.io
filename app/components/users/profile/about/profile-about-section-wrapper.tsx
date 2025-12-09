@@ -29,10 +29,12 @@ export const ProfileAboutSectionWrapper = ({ aboutInfo }: ProfileAboutSectionPro
     const calculateCompletion = () => {
     const fields = [
       personalInfo.fullName,
-      personalInfo.title,
+      personalInfo.professionalTitle,
       personalInfo.summary,
       personalInfo.phone,
       personalInfo.location?.country,
+      personalInfo.location?.city,
+      personalInfo.location?.state,
       personalInfo.linkedinUrl,
       personalInfo.githubUrl,
       personalInfo.profilePhoto,
@@ -46,7 +48,7 @@ export const ProfileAboutSectionWrapper = ({ aboutInfo }: ProfileAboutSectionPro
   const missingFields = () => {
     const fields = [];
     if (!personalInfo.fullName) fields.push('Full Name');
-    if (!personalInfo.title) fields.push('Title');
+    if (!personalInfo.professionalTitle) fields.push('Title');
     if (!personalInfo.summary) fields.push('Summary');
     if (!personalInfo.phone) fields.push('Phone');
     if (!personalInfo.profilePhoto) fields.push('Photo');
