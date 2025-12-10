@@ -1,4 +1,4 @@
-import userService from "@/services/users"
+import userService from "@/services/profile"
 import { IPersonalInfo } from "@/types/profile"
 import { useMutation } from "@tanstack/react-query"
 

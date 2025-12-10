@@ -3,7 +3,7 @@ import { IUserLocation } from "@/types/user";
 import { useState } from "react";
 import { MapPin, Phone, Mail, User, Briefcase, DollarSign, Globe, Home, ChevronDown, Save, Info, Camera, Upload, Linkedin, Github } from "lucide-react";
 import countries from "@/assets/countries.json";
-import { useUpdatePersonalInfo } from "@/hooks/users/useUpdatePersonnalInfo";
+import { useUpdatePersonalInfo } from "@/hooks/profile/useUpdatePersonnalInfo";
 import { useSession } from "next-auth/react";
 import { dataTransformerToSnakeCase } from "@/utils/data-transformer";
 import { showSuccess } from "@/utils/showSuccess";

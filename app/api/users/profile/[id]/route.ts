@@ -1,9 +1,9 @@
-import userQueries from "@/db/queries/users";
-import { ICertificationDTO, IEducationDTO, IPersonalInfoDTO, ISkillDTO, IWorkExperienceDTO } from "@/types/profile";
+import { ICertification, ICertificationDTO, IEducation, IEducationDTO, IPersonalInfoDTO, ISkill, ISkillDTO, IWorkExperience, IWorkExperienceDTO } from "@/types/profile";
 import { dataTransformerToCamelCase } from "@/utils/data-transformer";
 import { NextResponse } from "next/server";
 import { IAPIResponse } from "@/types/api";
 import { ProfileResponse } from "@/types/profile";
+import profileQueries from "@/db/queries/profiles";
 
 
 type APIProfileResponse = Promise<NextResponse<IAPIResponse<ProfileResponse | null>>>;
@@ -16,30 +16,27 @@ type APIProfileResponse = Promise<NextResponse<IAPIResponse<ProfileResponse | nu
                 return NextResponse.json({ success:false, message: "Invalid ID",data:null }, { status: 400 });
             }
 
-            const profile = await userQueries.getProfileByUserId(id);
+            const profile = await profileQueries.getProfileByUserId(id);
             if(!profile){
                 return NextResponse.json({success:false, message: "Profile not found",data:null }, { status: 404 });
             }
 
     
-
-        const profileDTO  = dataTransformerToCamelCase({personalInfo: profile.personalInfo, experience: profile.experience, education: profile.education, skills: profile.skills, certifications: profile.certifications}) ;
+        const personalInfoDTO  = dataTransformerToCamelCase(profile.personalInfo) ;
+        const experiencesDTO  = profile.experiences?.map((experience: IWorkExperience) => dataTransformerToCamelCase(experience)) ;
+        const educationDTO  = profile.education?.map((education: IEducation) => dataTransformerToCamelCase(education)) ;
+        const skillsDTO  = profile.skills?.map((skill: ISkill) => dataTransformerToCamelCase(skill)) ;
+        const certificationsDTO  = profile.certifications?.map((certification: ICertification) => dataTransformerToCamelCase(certification)) ;
     
-
-                  if (profileDTO?.personalInfo) {
-                
-        if (profile?.personalInfo?._id) {
-            profileDTO.personalInfo.id = profile?.personalInfo?._id.toString() || "";
-        }
-        if (profile?.personalInfo?.user_id) {
-            profileDTO.personalInfo.userId =  profile.personalInfo.user_id.toString() || "";
-        }
-    }  const data = {
-        personalInfo:profileDTO.personalInfo as IPersonalInfoDTO,
-        experience: profileDTO.experience as IWorkExperienceDTO[],
-        education: profileDTO.education as IEducationDTO[],
-        skills: profileDTO.skills as ISkillDTO[],
-        certifications: profileDTO.certifications as ICertificationDTO[]
+     
+      
+        
+     const data = {
+        personalInfo:personalInfoDTO,
+        experiences: experiencesDTO || [],
+        education: educationDTO || [],
+        skills: skillsDTO || [],
+        certifications: certificationsDTO || []
     }
             return NextResponse.json({success:true, message: "Profile found",data:data}, { status: 200 });
         } catch (error) {

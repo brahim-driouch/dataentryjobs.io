@@ -1,4 +1,4 @@
-import userQueries from "@/db/queries/users";
+import profileQueries from "@/db/queries/profiles";
 import { auth } from "@/lib/auth";
 import { IAPIResponse } from "@/types/api";
 import { IPersonalInfo } from "@/types/profile";
@@ -26,12 +26,12 @@ import { NextResponse } from "next/server";
         }
 
         
-        const profileExist = userQueries.getProfileByUserId(id);
+        const profileExist =await  profileQueries.getProfileByUserId(id);
         if(!profileExist){
             return NextResponse.json({success:false, message: "Profile not found",data: null }, { status: 404 });
         }
 
-       const updated = await userQueries.updatePersonalInfo(id, body as IPersonalInfo);
+       const updated = await profileQueries.updatePersonalInfo(id, body as IPersonalInfo);
        if(!updated){
            return NextResponse.json({success:false, message: "Profile not updated",data: null }, { status: 404 });
        }

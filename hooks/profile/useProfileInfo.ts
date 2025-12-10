@@ -1,4 +1,4 @@
-import userService from "@/services/users"
+import userService from "@/services/profile"
 import { useQuery } from "@tanstack/react-query"
 import { ProfileResponse } from "@/db/queries/users"
 

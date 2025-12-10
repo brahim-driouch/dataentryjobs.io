@@ -7,55 +7,13 @@ import { Edit2, Plus, ToolCase, User, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 
   
-const experiences: IWorkExperienceDTO[] = [
-    {
-      id: "1",
-      userId: "user123",
-      company: "Tech Innovations Inc.",
-      position: "Senior Full Stack Developer",
-      employmentType: EmploymentType.FULL_TIME,
-      location: "San Francisco, CA",
-      remote: true,
-      startDate: "2022-01-15",
-      currentlyWorking: true,
-      description: "Leading development of microservices architecture and mentoring junior developers. Responsible for designing and implementing scalable solutions for high-traffic applications.",
-      achievements: [
-        "Reduced API response time by 40% through optimization",
-        "Led migration from monolith to microservices architecture",
-        "Mentored 5 junior developers, 3 promoted to mid-level"
-      ],
-      technologies: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS", "Docker"],
-      order: 1,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "2",
-      userId: "user123",
-      company: "Digital Solutions Ltd.",
-      position: "Full Stack Developer",
-      employmentType: EmploymentType.FULL_TIME,
-      location: "New York, NY",
-      remote: false,
-      startDate: "2019-06-01",
-      endDate: "2021-12-31",
-      currentlyWorking: false,
-      description: "Developed and maintained web applications using modern JavaScript frameworks. Collaborated with cross-functional teams to deliver high-quality software solutions.",
-      achievements: [
-        "Built customer portal used by 50,000+ users",
-        "Implemented automated testing, increasing code coverage to 85%"
-      ],
-      technologies: ["React", "Express", "MongoDB", "Redux"],
-      order: 2,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ]; 
-  // type ProfileWorkExperienceSectionWrapperProps = {
-  //   experiences: IWorkExperienceDTO[];
-  // };
 
-export default function ProfileWorkExperienceSectionWrapper() {
+  type ProfileWorkExperienceSectionWrapperProps = {
+    experiences: IWorkExperienceDTO[];
+  };
+
+export default function ProfileWorkExperienceSectionWrapper({experiences}:ProfileWorkExperienceSectionWrapperProps) {
+  
   const [ediatableExperiences,setEditableExperiences] = useState<IWorkExperienceDTO[]>(experiences)
       const [addMode,setAddMode] = useState(false)
 
@@ -64,7 +22,7 @@ const session = useSession();
 if (!session) return null
 const userId = session?.data?.user?.id;
   
- 
+console.log("experiences",experiences)
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
@@ -92,10 +50,10 @@ const userId = session?.data?.user?.id;
 
       </div>
         {addMode && (
-            <AddProfileExperienceForm userId=""  setEditMode={setAddMode} />
+            <AddProfileExperienceForm userId={userId || ""}  setEditMode={setAddMode} />
           )}
-        {experiences && experiences.length === 0 &&(
-          <NoWorkExperienceSection />
+        {((!experiences || experiences.length === 0) && !addMode)&&(
+          <NoWorkExperienceSection setAddMode={setAddMode} />
         )}
        
       {experiences && experiences.length > 0 &&(

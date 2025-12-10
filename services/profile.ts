@@ -1,4 +1,5 @@
-import { IPersonalInfo } from "@/types/profile"
+import { IPersonalInfo, IWorkExperience, IWorkExperienceDTO } from "@/types/profile"
+import { dataTransformerToSnakeCase } from "@/utils/data-transformer"
 
 
 const getProfileByUseryId = async (id: string) => {
@@ -42,10 +43,34 @@ const updatePersonalInfo = async (id: string, formData: IPersonalInfo) => {
     }
 }
 
-
-const userService = {
-    getProfileByUseryId,
-    updatePersonalInfo
+const addWorkExperience = async (id: string, formData: IWorkExperienceDTO) => {
+    try {
+        const transformedData = dataTransformerToSnakeCase(formData) as IWorkExperience;
+        const response = await fetch(`/api/users/profile/${id}/work-experience`, {
+         
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(transformedData)
+        })
+        const data = await response.json()
+        if (!response.ok || !data.success) {
+            const errorMessage = data.message || 'Failed to update profile'
+            throw new Error(errorMessage)
+        }
+        return data
+    } catch (error) {
+        console.error('Error updating profile:', error)
+        throw error
+    }
 }
 
-export default userService
+
+const profileService = {
+    getProfileByUseryId,
+    updatePersonalInfo,
+    addWorkExperience
+}
+
+export default profileService

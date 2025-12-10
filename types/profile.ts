@@ -346,34 +346,33 @@ export interface ILanguage extends Document {
 
 // Work Experience Interface & Schema
 export interface IWorkExperience extends Document {
-  userId: mongoose.Types.ObjectId;
+  user_id: mongoose.Types.ObjectId | string;
   company: string;
   position: string;
-  employmentType: EmploymentType;
+  employment_type: EmploymentType;
   location: string;
   remote: boolean;
-  startDate: string;
-  endDate?: string;
-  currentlyWorking: boolean;
+  start_date: string;
+  end_date?: string;
+  currently_working: boolean;
   description: string;
   achievements?: string[];
-  technologies?: string[];
+  industry_category: IndustryCategory;
   order: number;
   createdAt: Date;
   updatedAt: Date;
 }
 // Project Interface & Schema
 export interface IProject extends Document {
-  userId: mongoose.Types.ObjectId;
+  user_id: mongoose.Types.ObjectId;
   title: string;
   description: string;
   role: string;
-  startDate: string;
-  endDate?: string;
-  currentlyWorking: boolean;
+  start_date: string;
+  end_date?: string;
+  currently_working: boolean;
   url?: string;
-  repositoryUrl?: string;
-  technologies?: string[];
+  repository_url?: string;
   highlights?: string[];
   order: number;
   createdAt: Date;
@@ -481,9 +480,9 @@ export interface IWorkExperienceDTO {
   startDate: string;
   endDate?: string;
   currentlyWorking: boolean;
+  industryCategory: IndustryCategory;
   description: string;
   achievements?: string[];
-  technologies?: string[];
   order: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -571,7 +570,7 @@ export interface IPersonalInfoDbResponse {
 }
 export interface IWorkExperienceDbResponse {
     _id?: Types.ObjectId;
-    user_id: string;
+    user_id?: string;
     company: string;
     position: string;
     employment_type: EmploymentType;
@@ -582,7 +581,7 @@ export interface IWorkExperienceDbResponse {
     currently_working: boolean;
     description: string;
     achievements?: string[];
-    technologies?: string[];
+    industryCategory: IndustryCategory;
     order: number;
     created_at: Date;
     updated_at: Date;
@@ -636,8 +635,144 @@ export interface ICertificationDbResponse {
 
 export type ProfileResponse = {
     personalInfo: IPersonalInfoDTO;
-    experience: IWorkExperienceDTO[];
+    experiences: IWorkExperienceDTO[];
     education: IEducationDTO[];
     skills: ISkillDTO[];
     certifications: ICertificationDTO[];   
+}
+
+
+export enum IndustryCategory {
+  // Technology & Digital
+  INFORMATION_TECHNOLOGY = 'Information Technology & Services',
+  SOFTWARE_DEVELOPMENT = 'Software Development',
+  TELECOMMUNICATIONS = 'Telecommunications',
+  INTERNET = 'Internet & E-commerce',
+  COMPUTER_HARDWARE = 'Computer Hardware & Networking',
+  CYBERSECURITY = 'Cybersecurity',
+  ARTIFICIAL_INTELLIGENCE = 'Artificial Intelligence & Machine Learning',
+  
+  // Finance & Professional Services
+  BANKING = 'Banking',
+  FINANCIAL_SERVICES = 'Financial Services',
+  INSURANCE = 'Insurance',
+  INVESTMENT_MANAGEMENT = 'Investment Management & Venture Capital',
+  ACCOUNTING = 'Accounting',
+  CONSULTING = 'Management & Strategy Consulting',
+  LEGAL_SERVICES = 'Legal Services',
+  
+  // Healthcare & Life Sciences
+  HEALTHCARE = 'Healthcare Services',
+  HOSPITAL_HEALTHCARE = 'Hospital & Healthcare Facilities',
+  PHARMACEUTICALS = 'Pharmaceuticals',
+  BIOTECHNOLOGY = 'Biotechnology',
+  MEDICAL_DEVICES = 'Medical Devices & Equipment',
+  MENTAL_HEALTH = 'Mental Health Care',
+  VETERINARY = 'Veterinary Services',
+  
+  // Education & Research
+  EDUCATION = 'Education',
+  HIGHER_EDUCATION = 'Higher Education',
+  E_LEARNING = 'E-Learning & EdTech',
+  RESEARCH = 'Research & Development',
+  LIBRARIES = 'Libraries & Museums',
+  
+  // Manufacturing & Industrial
+  MANUFACTURING = 'Manufacturing',
+  AUTOMOTIVE = 'Automotive',
+  AEROSPACE = 'Aerospace & Defense',
+  INDUSTRIAL_AUTOMATION = 'Industrial Automation',
+  CHEMICALS = 'Chemicals',
+  PLASTICS = 'Plastics & Polymers',
+  TEXTILES = 'Textiles & Apparel',
+  ELECTRONICS = 'Electronics Manufacturing',
+  
+  // Retail & Consumer Goods
+  RETAIL = 'Retail',
+  E_COMMERCE = 'E-Commerce',
+  CONSUMER_GOODS = 'Consumer Goods',
+  LUXURY_GOODS = 'Luxury Goods & Jewelry',
+  FASHION = 'Fashion & Apparel',
+  SPORTING_GOODS = 'Sporting Goods',
+  FOOD_BEVERAGE = 'Food & Beverage',
+  TOBACCO = 'Tobacco',
+  
+  // Hospitality & Travel
+  HOSPITALITY = 'Hospitality',
+  HOTELS = 'Hotels & Resorts',
+  RESTAURANTS = 'Restaurants & Food Service',
+  TRAVEL_TOURISM = 'Travel & Tourism',
+  AIRLINES = 'Airlines & Aviation',
+  EVENTS = 'Events Services',
+  
+  // Media & Entertainment
+  MEDIA = 'Media & Communications',
+  ENTERTAINMENT = 'Entertainment',
+  BROADCAST_MEDIA = 'Broadcast Media',
+  PUBLISHING = 'Publishing',
+  MUSIC = 'Music',
+  FILM = 'Film & Video Production',
+  GAMING = 'Gaming & Esports',
+  ANIMATION = 'Animation & VFX',
+  
+  // Real Estate & Construction
+  REAL_ESTATE = 'Real Estate',
+  CONSTRUCTION = 'Construction',
+  ARCHITECTURE = 'Architecture & Planning',
+  CIVIL_ENGINEERING = 'Civil Engineering',
+  PROPERTY_MANAGEMENT = 'Property Management',
+  
+  // Energy & Utilities
+  OIL_GAS = 'Oil & Gas',
+  RENEWABLE_ENERGY = 'Renewable Energy',
+  UTILITIES = 'Utilities',
+  MINING = 'Mining & Metals',
+  ENVIRONMENTAL_SERVICES = 'Environmental Services',
+  
+  // Transportation & Logistics
+  LOGISTICS = 'Logistics & Supply Chain',
+  SHIPPING = 'Shipping & Maritime',
+  WAREHOUSING = 'Warehousing & Storage',
+  TRANSPORTATION = 'Transportation',
+  DELIVERY_SERVICES = 'Package Delivery & Courier',
+  
+  // Agriculture & Natural Resources
+  AGRICULTURE = 'Agriculture',
+  FARMING = 'Farming & Ranching',
+  FISHERY = 'Fishery',
+  FORESTRY = 'Forestry',
+  
+  // Government & Public Sector
+  GOVERNMENT = 'Government Administration',
+  DEFENSE = 'Defense & Space',
+  PUBLIC_SAFETY = 'Public Safety & Law Enforcement',
+  NONPROFIT = 'Non-Profit Organizations',
+  INTERNATIONAL_AFFAIRS = 'International Affairs',
+  
+  // Business Services
+  HUMAN_RESOURCES = 'Human Resources Services',
+  MARKETING_ADVERTISING = 'Marketing & Advertising',
+  PUBLIC_RELATIONS = 'Public Relations',
+  MARKET_RESEARCH = 'Market Research',
+  STAFFING_RECRUITING = 'Staffing & Recruiting',
+  FACILITIES_SERVICES = 'Facilities Services',
+  SECURITY_SERVICES = 'Security & Investigations',
+  
+  // Creative & Design
+  GRAPHIC_DESIGN = 'Graphic Design',
+  INDUSTRIAL_DESIGN = 'Industrial Design',
+  PHOTOGRAPHY = 'Photography',
+  ARTS_CRAFTS = 'Arts & Crafts',
+  
+  // Personal Services
+  WELLNESS_FITNESS = 'Wellness & Fitness',
+  BEAUTY_COSMETICS = 'Beauty & Cosmetics',
+  PERSONAL_CARE = 'Personal Care Services',
+  
+  // Sports & Recreation
+  SPORTS = 'Sports',
+  RECREATION = 'Recreational Facilities',
+  
+  // Other
+  OTHER = 'Other'
 }

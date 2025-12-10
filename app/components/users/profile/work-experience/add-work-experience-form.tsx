@@ -1,10 +1,11 @@
-import { IWorkExperienceDTO, EmploymentType } from "@/types/profile";
+import { IWorkExperienceDTO, EmploymentType, IndustryCategory } from "@/types/profile";
 import { useState } from "react";
 import { Briefcase, MapPin, Calendar, Plus, X, Save, Info, Code, Award } from "lucide-react";
 import { dataTransformerToSnakeCase } from "@/utils/data-transformer";
 import { showSuccess } from "@/utils/showSuccess";
 import { showErrors } from "@/utils/show-errors";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAddWorkExperience } from "@/hooks/profile/useAddWorkExperience";
 
 type AddProfileExperienceFormProps = {
   setEditMode: (editMode: boolean) => void;
@@ -29,12 +30,13 @@ export default function AddProfileExperienceForm({
     currentlyWorking: false,
     description: "",
     achievements: [],
-    technologies: [],
     userId: userId, 
+    industryCategory: IndustryCategory.OTHER,
     order: 0,  
   });
   
   // hooks
+  const mutation = useAddWorkExperience(userId)
   //const mutation = useUpdateWorkExperience(userId);
   const queryClient = useQueryClient();
 
@@ -75,33 +77,13 @@ export default function AddProfileExperienceForm({
     });
   };
 
-  // Handle adding technology
-  const handleAddTechnology = () => {
-    if (newTechnology.trim()) {
-      const technologies = newWorkExperience.technologies || [];
-      setNewWorkExperience({ 
-        ...newWorkExperience, 
-        technologies: [...technologies, newTechnology.trim()] 
-      });
-      setNewTechnology("");
-    }
-  };
 
-  // Handle removing technology
-  const handleRemoveTechnology = (index: number) => {
-    const technologies = newWorkExperience.technologies || [];
-    setNewWorkExperience({ 
-      ...newWorkExperience, 
-      technologies: technologies.filter((_, i) => i !== index) 
-    });
-  };
 
   // Handle save
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      const transformedData = dataTransformerToSnakeCase(newWorkExperience);
-      //await mutation.mutateAsync(transformedData as IWorkExperienceDTO);
+      await mutation.mutateAsync(newWorkExperience as IWorkExperienceDTO);
       showSuccess("Work experience updated successfully");
       await queryClient.invalidateQueries({ queryKey: ['profile', userId] });
       setEditMode(false);
@@ -288,7 +270,7 @@ export default function AddProfileExperienceForm({
                 type="text"
                 value={newAchievement}
                 onChange={(e) => setNewAchievement(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddAchievement()}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddAchievement()}
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 placeholder="Add an achievement..."
               />
@@ -303,48 +285,7 @@ export default function AddProfileExperienceForm({
           </div>
         </div>
 
-        {/* Technologies */}
-        <div>
-          <label className="text-xs font-semibold text-gray-700 mb-1.5 block">
-            Technologies & Skills
-          </label>
-          <div className="space-y-2">
-            <div className="flex flex-wrap gap-2">
-              {newWorkExperience.technologies?.map((tech, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-lg group hover:bg-indigo-100 transition-all"
-                >
-                  <Code size={12} />
-                  {tech}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTechnology(index)}
-                    className="ml-1 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-all"
-                  >
-                    <X size={12} />
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newTechnology}
-                onChange={(e) => setNewTechnology(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddTechnology()}
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                placeholder="Add a technology or skill..."
-              />
-              <button
-                type="button"
-                onClick={handleAddTechnology}
-                className="px-3 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all"
-              >
-                <Plus size={16} />
-              </button>
-            </div>
-          </div>
+       
         </div>
 
         {/* Action Buttons */}
@@ -364,6 +305,6 @@ export default function AddProfileExperienceForm({
           </button>
         </div>
       </div>
-    </div>
+    
   );
 }

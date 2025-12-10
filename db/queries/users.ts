@@ -2,21 +2,10 @@ import { IUser } from "@/types/user";
 import connectDB from "../connection";
 import User from "../models/User";
 import { HydratedDocument } from "mongoose";
-import { ICertification, ICertificationDbResponse, IEducation, IEducationDbResponse, IPersonalInfo, IPersonalInfoDbResponse, IProfile, ISkill, ISkillDbResponse, IWorkExperience, IWorkExperienceDbResponse } from "@/types/profile";
-import { PersonalInfo } from "../models/profile/profile";
-import { WorkExperience } from "../models/profile/WorkExperience";
-import { Education } from "../models/profile/Education";
-import { Certification } from "../models/profile/Certification";
-import { Skill } from "../models/profile/Skill";
 import { dataTransformerToSnakeCase } from "@/utils/data-transformer";
 import mongoose from "mongoose";
-export interface ProfileResponse {
-  personalInfo: IPersonalInfoDbResponse | null;
-  experience: IWorkExperienceDbResponse[] | null;
-  education: IEducationDbResponse[] | null;
-  skills: ISkillDbResponse[] | null;
-  certifications: ICertificationDbResponse[] | null;
-}
+import { PersonalInfo } from "../models/profile/profile";
+
 
 
 // check if email already exists
@@ -101,43 +90,7 @@ const updateUser = async (email: string, user: typeof User) => {
     return result
  }
 
-const getProfileByUserId = async (id: string): Promise<ProfileResponse> => {
-    await connectDB();
-    const [
-        personalInfo,
-        experience,
-        education,
-        skills,
-        certifications
-    ] = await Promise.all([
-        PersonalInfo.findOne({user_id:id}).select("-__v  -isNew").lean(),
-        WorkExperience.find({user_id:id}).select("-__v -_id -isNew").lean(),
-        Education.find({user_id:id}).select("-__v -_id -isNew").lean(),
-        Skill.find({user_id:id}).select("-__v -_id -isNew").lean(),
-        Certification.find({user_id:id}).select("-__v -_id -isNew").lean()
-    ]);
 
-   console.log(personalInfo)
-    return {
-        personalInfo,
-        experience,
-        education,
-        skills,
-        certifications  
-    } as unknown as  ProfileResponse;
-};
-
-// update profile #PersonalInfo
-const updatePersonalInfo = async (id: string, profile: IPersonalInfo): Promise<IPersonalInfo | null> => {
-    await connectDB();
-    
-    const result = await PersonalInfo.findOneAndUpdate({ user_id: id }, { $set: profile }, { new: true,runValidators:true });
-
-    if(!result){
-        throw new Error("Profile not updated") ;
-    }
-    return result;
-};
 
 
 
@@ -150,8 +103,7 @@ const userQueries = {
     getUserById,
     updateUser,
     deleteUserById,
-    getProfileByUserId,
-    updatePersonalInfo    
+
 };
 export default userQueries;
 

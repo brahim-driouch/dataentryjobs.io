@@ -1,6 +1,6 @@
 import { Briefcase, Eye, Plus, Sparkles, TrendingUp } from "lucide-react";
 
-export const NoWorkExperienceSection = () => {
+export const NoWorkExperienceSection = ({setAddMode}: {setAddMode: (addMode: boolean) => void}) => {
   
  
   return (
@@ -41,7 +41,12 @@ export const NoWorkExperienceSection = () => {
         </div>
 
         {/* CTA Button */}
-       
+        <button
+          className="inline-flex items-center justify-center w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300"
+          onClick={() => setAddMode(true)}
+        >
+          Add Work Experience
+        </button>
 
         {/* Helper Text */}
         <p className="text-xs text-gray-500 mt-4">
