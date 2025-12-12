@@ -83,11 +83,24 @@ const addWorkExperience = async ( experience: IWorkExperience): Promise<IWorkExp
 };
 
 
+const updateWorkExperince = async (experience :IWorkExperience) : Promise<IWorkExperience | null>=>{
+    await connectDB()
+
+    const updatedWorkExperience = await WorkExperience.findOneAndUpdate(
+        { _id: experience._id }, 
+        { $set: experience }, 
+        { new: true, runValidators: true }
+    );
+
+return updatedWorkExperience;
+}
+
 
 const profileQueries = {
     getProfileByUserId,
     updatePersonalInfo,
-    addWorkExperience
+    addWorkExperience,
+    updateWorkExperince
 }
 
 export default profileQueries

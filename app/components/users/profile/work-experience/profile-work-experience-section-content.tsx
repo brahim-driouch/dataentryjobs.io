@@ -15,8 +15,8 @@ type WorkExperienceSectionProps = {
 };
 
 export const ProfileWorkExperienceSectionContent = ({ experiences: initialExperiences }: WorkExperienceSectionProps) => {
-  const [experiences, setExperiences] = useState<IWorkExperienceDTO[]>(initialExperiences);
-  const [editMode, setEditMode] = useState<boolean>(false);
+  const [experiences] = useState<IWorkExperienceDTO[]>(initialExperiences);
+  const [editingId, setEditingId] = useState<string | null>(null);
   
 
   
@@ -42,7 +42,7 @@ export const ProfileWorkExperienceSectionContent = ({ experiences: initialExperi
           {experiences.map((exp, index) => (
             <div key={exp.id}>
             
-                               {editMode ? <EditWorkExperienceForm experience={exp} setEditMode={setEditMode} /> : <SingleWorkExperienceComponent experience={exp} setEditMode={setEditMode} />}
+                               {editingId === exp.id ? <EditWorkExperienceForm   setEditingId={setEditingId} experience={exp} /> : <SingleWorkExperienceComponent experience={exp} setEditingId={setEditingId} />}
 
             </div>
           ))}

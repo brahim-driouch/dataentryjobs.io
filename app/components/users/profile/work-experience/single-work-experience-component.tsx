@@ -6,13 +6,13 @@ import { Dispatch, SetStateAction } from "react";
 
 type SingleWorkExperienceComponentProps = {
     experience: IWorkExperienceDTO;
-    setEditMode: Dispatch<SetStateAction<boolean>>;
+    setEditingId: Dispatch<SetStateAction<string | null>>;
 
 }
 
 
 
-export const SingleWorkExperienceComponent = ({experience,setEditMode}: SingleWorkExperienceComponentProps) => {
+export const SingleWorkExperienceComponent = ({experience,setEditingId}: SingleWorkExperienceComponentProps) => {
     const handleDelete = (id: string) => {
        
       };
@@ -89,7 +89,7 @@ export const SingleWorkExperienceComponent = ({experience,setEditMode}: SingleWo
                     {/* Actions */}
                     <div className="flex gap-2 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
-                      onClick={() => setEditMode(true)}
+                      onClick={() => setEditingId(experience.id!)}
                         
                         className="p-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
                         aria-label="Edit"

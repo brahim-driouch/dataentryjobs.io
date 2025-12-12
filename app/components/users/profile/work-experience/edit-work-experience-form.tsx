@@ -1,21 +1,28 @@
 import { IWorkExperienceDTO } from "@/types/profile";
 import { useState, useEffect, SetStateAction, Dispatch } from "react";
 import { Award, Code, TrendingUp, X, Plus, Save, Trash2 } from "lucide-react";
+import { useUpdateWorkExperience } from "@/hooks/profile/useUpdateWorkExperience";
+import { useSession } from "next-auth/react";
+import { showErrors } from "@/utils/show-errors";
+import { showSuccess } from "@/utils/showSuccess";
 
 type EditWorkExperienceFormProps = {
   experience: IWorkExperienceDTO;
- setEditMode:Dispatch<SetStateAction<boolean>>
+ setEditingId:Dispatch<SetStateAction<string | null>>
 }
 
 export const EditWorkExperienceForm = ({ 
   experience, 
-  setEditMode
+  setEditingId
 
 }: EditWorkExperienceFormProps) => {
   const [formData, setFormData] = useState<IWorkExperienceDTO>({ ...experience });
   const [newAchievement, setNewAchievement] = useState("");
   const [newTechnology, setNewTechnology] = useState("");
 
+  //session
+const session = useSession()
+if(!session || session.status !== "authenticated") return null
   // Initialize arrays if they don't exist
   useEffect(() => {
     setFormData(prev => ({
@@ -24,6 +31,8 @@ export const EditWorkExperienceForm = ({
      
     }));
   }, [experience]);
+
+  const mutation =useUpdateWorkExperience(experience.id || "")
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -69,9 +78,18 @@ export const EditWorkExperienceForm = ({
 
   
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
+    await mutation.mutateAsync(formData)
+    showSuccess("Updated successfully")
     
+
+      try {
+        
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "There was an error on you request"
+        showErrors([errorMessage],()=>{})
+      }
   };
 
   return (
@@ -273,7 +291,7 @@ export const EditWorkExperienceForm = ({
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
         <button
           type="button"
-          onClick={() => setEditMode(false)}
+          onClick={() => setEditingId(null)}
           className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg font-medium transition-colors"
         >
           Cancel
