@@ -10,8 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 type WorkExperienceApiResponse = Promise<NextResponse<IAPIResponse<IWorkExperience | null>>>
 
-export async function PUT(request:NextRequest):WorkExperienceApiResponse {
-
+export async function PUT(request:NextRequest,{params}:{params:Promise<{id:string,expId:string}>}):WorkExperienceApiResponse {
 
     try {
         const session = await auth();
@@ -23,6 +22,17 @@ export async function PUT(request:NextRequest):WorkExperienceApiResponse {
                   data:null
             },{status:401})
         }
+
+       const {id,expId} = await params
+
+    if(!id || !expId) {
+            return NextResponse.json({
+                success: false,
+                message: "Invalid ID parameters",
+                data: null
+            },{status:400})
+        }
+ 
         const body = await request.json() as IWorkExperience
         if(!body){
             return NextResponse.json({
@@ -31,8 +41,7 @@ export async function PUT(request:NextRequest):WorkExperienceApiResponse {
                 data: null
             },{status:400})
         }
-  
-        if(session.user.id !== body.user_id){
+        if(session.user.id !== id){
             return NextResponse.json({
                 success:false,
                 message:"UNAUTHORIZED",
@@ -41,7 +50,7 @@ export async function PUT(request:NextRequest):WorkExperienceApiResponse {
         }
 
 
-        const result = await profileQueries.updateWorkExperince(body)
+        const result = await profileQueries.updateWorkExperince(id, expId, body)
         if(!result){
             return NextResponse.json({
                 success:false,

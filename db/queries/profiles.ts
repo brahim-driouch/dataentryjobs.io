@@ -26,29 +26,29 @@ const getProfileByUserId = async (id: string): Promise<ProfileResponse> => {
         skills,
         certifications
     ] = await Promise.all([
-        PersonalInfo.findOne({user_id:id}).select("-__v  -isNew").lean(),
-        WorkExperience.find({user_id:id}).select("-__v  -isNew").lean(),
-        Education.find({user_id:id}).select("-__v -isNew").lean(),
-        Skill.find({user_id:id}).select("-__v -isNew").lean(),  
-        Certification.find({user_id:id}).select("-__v -isNew").lean()
+        PersonalInfo.findOne({user_id:id}),
+        WorkExperience.find({user_id:id}),
+        Education.find({user_id:id}),
+        Skill.find({user_id:id}),  
+        Certification.find({user_id:id})
     ]);
-    personalInfo ? personalInfo.id = personalInfo._id?.toString() : null;
-    experiences?.map((experience) => {
-        experience._id = (experience._id as Types.ObjectId).toString()
-        return experience
-    })  ;
-    education?.map((education) => {
-        education._id = (education._id as Types.ObjectId).toString()
-        return education
-    })  ;
-    skills?.map((skill) => {
-        skill._id = (skill._id as Types.ObjectId).toString()
-        return skill
-    })  ;
-    certifications?.map((certification) => {
-        certification._id = (certification._id as Types.ObjectId).toString()
-        return certification
-    })  ;
+    // // personalInfo ? personalInfo.id = personalInfo._id?.toString() : null;
+    // // experiences?.map((experience) => {
+    // //     experience._id = (experience._id as Types.ObjectId).toString()
+    // //     return experience
+    // // })  ;
+    // // education?.map((education) => {
+    // //     education._id = (education._id as Types.ObjectId).toString()
+    // //     return education
+    // // })  ;
+    // // skills?.map((skill) => {
+    // //     skill._id = (skill._id as Types.ObjectId).toString()
+    // //     return skill
+    // // })  ;
+    // // certifications?.map((certification) => {
+    // //     certification._id = (certification._id as Types.ObjectId).toString()
+    // //     return certification
+    // // })  ;
     
     return {
         personalInfo,
@@ -56,7 +56,7 @@ const getProfileByUserId = async (id: string): Promise<ProfileResponse> => {
         education,
         skills,
         certifications  
-    } as unknown as  ProfileResponse;
+    } as ProfileResponse;
 };
 
 // update profile #PersonalInfo
@@ -83,12 +83,12 @@ const addWorkExperience = async ( experience: IWorkExperience): Promise<IWorkExp
 };
 
 
-const updateWorkExperince = async (experience :IWorkExperience) : Promise<IWorkExperience | null>=>{
+const updateWorkExperince = async (userId:string,expId:string,experience :IWorkExperience) : Promise<IWorkExperience | null>=>{
     await connectDB()
-
+  const {id,user_id,...updatableFields} =experience
     const updatedWorkExperience = await WorkExperience.findOneAndUpdate(
-        { _id: experience._id }, 
-        { $set: experience }, 
+        { _id: expId,user_id:userId }, 
+        { $set: updatableFields }, 
         { new: true, runValidators: true }
     );
 

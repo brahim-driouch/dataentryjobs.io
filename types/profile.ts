@@ -634,12 +634,20 @@ export interface ICertificationDbResponse {
 }
 
 export type ProfileResponse = {
-    personalInfo: IPersonalInfoDTO;
-    experiences: IWorkExperienceDTO[];
-    education: IEducationDTO[];
-    skills: ISkillDTO[];
-    certifications: ICertificationDTO[];   
+    personalInfo: IPersonalInfo;
+    experiences: IWorkExperience[] | [];
+    education: IEducation[] | [];
+    skills: ISkill[] | [];
+    certifications: ICertification[] | [];   
 }
+export type ProfileResponseDTO = {
+    personalInfo: IPersonalInfoDTO;
+    experiences: IWorkExperienceDTO[] | [];
+    education: IEducationDTO[] | [];
+    skills: ISkillDTO[] | [];
+    certifications: ICertificationDTO[] | [];   
+}
+
 
 
 export enum IndustryCategory {

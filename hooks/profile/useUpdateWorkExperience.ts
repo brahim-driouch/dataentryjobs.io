@@ -6,9 +6,9 @@ import { useMutation } from "@tanstack/react-query"
 
 
 
-export const useUpdateWorkExperience = (workExperienceId:string)=>{
+export const useUpdateWorkExperience = (userId:string,workExperienceId:string)=>{
    return useMutation({
-    mutationFn:(formData:IWorkExperienceDTO)=>   profileService.updateWorkExperience(workExperienceId,formData)
+    mutationFn:(formData:IWorkExperienceDTO)=>   profileService.updateWorkExperience(userId,workExperienceId,formData)
     
    })
 

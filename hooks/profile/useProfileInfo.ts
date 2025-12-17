@@ -1,16 +1,15 @@
 import userService from "@/services/profile"
+import { ProfileResponseDTO } from "@/types/profile"
 import { useQuery } from "@tanstack/react-query"
-import { ProfileResponse } from "@/db/queries/users"
 
 
 
 
 
-export const useUserProfile = <ProfileResponse , Error>(id:string) => {
-    return useQuery({
+export const useUserProfile = (id:string) => {
+    return useQuery<ProfileResponseDTO , Error>({
         queryKey: ['profile', id],
-        queryFn: () => userService.getProfileByUseryId(id),
-        enabled: !!id,
+        queryFn: () => userService.getProfileByUseryId(id) as Promise<ProfileResponseDTO>,
         staleTime: 60 * 60 * 1000,
         retry: 3,
         refetchOnWindowFocus: false,

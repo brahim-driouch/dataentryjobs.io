@@ -14,8 +14,7 @@ type WorkExperienceSectionProps = {
   experiences: IWorkExperienceDTO[];
 };
 
-export const ProfileWorkExperienceSectionContent = ({ experiences: initialExperiences }: WorkExperienceSectionProps) => {
-  const [experiences] = useState<IWorkExperienceDTO[]>(initialExperiences);
+export const ProfileWorkExperienceSectionContent = ({ experiences }: WorkExperienceSectionProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   
 

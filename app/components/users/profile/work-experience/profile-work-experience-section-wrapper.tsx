@@ -9,20 +9,18 @@ import { useSession } from "next-auth/react";
   
 
   type ProfileWorkExperienceSectionWrapperProps = {
-    experiences: IWorkExperienceDTO[];
+    experiences: IWorkExperienceDTO[] | [];
   };
 
 export default function ProfileWorkExperienceSectionWrapper({experiences}:ProfileWorkExperienceSectionWrapperProps) {
   
-  const [ediatableExperiences,setEditableExperiences] = useState<IWorkExperienceDTO[]>(experiences)
-      const [addMode,setAddMode] = useState(false)
+  const [addMode,setAddMode] = useState(false)
 
 //session
 const session = useSession();
-if (!session) return null
+if (!session.data?.user || session.status !== "authenticated") return null;
 const userId = session?.data?.user?.id;
   
-console.log("experiences",experiences)
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">

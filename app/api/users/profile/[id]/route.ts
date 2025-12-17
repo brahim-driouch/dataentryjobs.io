@@ -1,9 +1,7 @@
-import { ICertification, ICertificationDTO, IEducation, IEducationDTO, IPersonalInfoDTO, ISkill, ISkillDTO, IWorkExperience, IWorkExperienceDTO } from "@/types/profile";
-import { dataTransformerToCamelCase } from "@/utils/data-transformer";
 import { NextResponse } from "next/server";
 import { IAPIResponse } from "@/types/api";
-import { ProfileResponse } from "@/types/profile";
 import profileQueries from "@/db/queries/profiles";
+import { ProfileResponse } from "@/types/profile";
 
 
 type APIProfileResponse = Promise<NextResponse<IAPIResponse<ProfileResponse | null>>>;
@@ -22,23 +20,14 @@ type APIProfileResponse = Promise<NextResponse<IAPIResponse<ProfileResponse | nu
             }
 
     
-        const personalInfoDTO  = dataTransformerToCamelCase(profile.personalInfo) ;
-        const experiencesDTO  = profile.experiences?.map((experience: IWorkExperience) => dataTransformerToCamelCase(experience)) ;
-        const educationDTO  = profile.education?.map((education: IEducation) => dataTransformerToCamelCase(education)) ;
-        const skillsDTO  = profile.skills?.map((skill: ISkill) => dataTransformerToCamelCase(skill)) ;
-        const certificationsDTO  = profile.certifications?.map((certification: ICertification) => dataTransformerToCamelCase(certification)) ;
+        
     
      
       
         
-     const data = {
-        personalInfo:personalInfoDTO,
-        experiences: experiencesDTO || [],
-        education: educationDTO || [],
-        skills: skillsDTO || [],
-        certifications: certificationsDTO || []
-    }
-            return NextResponse.json({success:true, message: "Profile found",data:data}, { status: 200 });
+
+            return NextResponse.json({success:true, message: "Profile found",data:profile as ProfileResponse}, { status: 200 });
+
         } catch (error) {
             console.log(error)
             return NextResponse.json({success:false,     message: "Internal Server Error",data:null }, { status: 500 });

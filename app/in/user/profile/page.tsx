@@ -9,37 +9,49 @@ import { NoAboutSection } from "@/app/components/users/profile/about/no-about-se
 import { NoEducationSection } from "@/app/components/users/profile/no-education-section";
 import { NoCertificationsSection } from "@/app/components/users/profile/no-certifications-section";
 import { NoSkillsSection } from "@/app/components/users/profile/no-skills-section";
-import { ICertificationDTO, IEducationDTO, IPersonalInfoDTO, ISkillDTO, IWorkExperienceDTO } from "@/types/profile";
 import ProfileWorkExperienceSectionWrapper from "@/app/components/users/profile/work-experience/profile-work-experience-section-wrapper";
-import { useState } from "react";
 
 export default function JobSeekerProfile() {
+  const session = useSession();
   
-    const session = useSession();
-    if(!session){
-        return null
-    }
-    const id = session.data?.user.id;
-
-    if(!id){
-        return null
-    }
-  const {data,isLoading } = useUserProfile(id);
-  if(isLoading) return null;
-
-  const  personalInfo = data?.data?.personalInfo as IPersonalInfoDTO;
-  const  experiences = data?.data?.experiences as IWorkExperienceDTO[];
-  const  education = data?.data?.education as IEducationDTO[];
-  const  skills = data?.data?.skills as ISkillDTO[];
-  const  certifications = data?.data?.certifications as ICertificationDTO[];
+  // Fix: Check session.data, not session
+  if (!session.data?.user?.id) {
+    return null;
+  }
+  
+  const id = session.data.user.id;
+  const { data, isLoading } = useUserProfile(id);
+  
+  if (isLoading) return null;
+  
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50/30 to-gray-50 py-8">
-    
-     {personalInfo?.email ? <ProfileAboutSectionWrapper aboutInfo={personalInfo} /> : <NoAboutSection />}
-     { <ProfileWorkExperienceSectionWrapper  experiences={experiences} /> }
-     {education && education?.length > 0 ? <ProfileEducationSection education={education} /> : <NoEducationSection />}
-     {skills && skills?.length > 0 ? <ProfileSkillsSection skills={skills} />   : <NoSkillsSection />}
-     {certifications && certifications.length > 0 ? <ProfileCertificationsSection certifications={certifications} /> : <NoCertificationsSection />}
+      {data?.personalInfo?.email ? (
+        <ProfileAboutSectionWrapper aboutInfo={data.personalInfo} />
+      ) : (
+        <NoAboutSection />
+      )}
+      
+      {/* Fix: Remove extra curly braces */}
+      <ProfileWorkExperienceSectionWrapper experiences={data?.experiences || []} />
+      
+      {data?.education && data.education.length > 0 ? (
+        <ProfileEducationSection education={data.education} />
+      ) : (
+        <NoEducationSection />
+      )}
+      
+      {data?.skills && data.skills.length > 0 ? (
+        <ProfileSkillsSection skills={data.skills} />
+      ) : (
+        <NoSkillsSection />
+      )}
+      
+      {data?.certifications && data.certifications.length > 0 ? (
+        <ProfileCertificationsSection certifications={data.certifications} />
+      ) : (
+        <NoCertificationsSection />
+      )}
     </div>
-  )
+  );
 }

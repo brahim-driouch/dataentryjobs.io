@@ -5,34 +5,38 @@ import { useUpdateWorkExperience } from "@/hooks/profile/useUpdateWorkExperience
 import { useSession } from "next-auth/react";
 import { showErrors } from "@/utils/show-errors";
 import { showSuccess } from "@/utils/showSuccess";
+import { useQueryClient } from "@tanstack/react-query";
 
 type EditWorkExperienceFormProps = {
   experience: IWorkExperienceDTO;
- setEditingId:Dispatch<SetStateAction<string | null>>
+  setEditingId: Dispatch<SetStateAction<string | null>>
 }
 
 export const EditWorkExperienceForm = ({ 
   experience, 
   setEditingId
-
 }: EditWorkExperienceFormProps) => {
   const [formData, setFormData] = useState<IWorkExperienceDTO>({ ...experience });
   const [newAchievement, setNewAchievement] = useState("");
-  const [newTechnology, setNewTechnology] = useState("");
+  const queryClient = useQueryClient();
+  
+  const session = useSession();
+  const userId = session.data?.user?.id;
+  
+  const mutation = useUpdateWorkExperience(userId || "", experience.id || "");
 
-  //session
-const session = useSession()
-if(!session || session.status !== "authenticated") return null
   // Initialize arrays if they don't exist
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
       achievements: prev.achievements || [],
-     
     }));
   }, [experience]);
 
-  const mutation =useUpdateWorkExperience(experience.id || "")
+  // Early return AFTER all hooks
+  if (!session.data || session.status !== "authenticated" || !userId) {
+    return null;
+  }
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -58,7 +62,7 @@ if(!session || session.status !== "authenticated") return null
     }));
   };
 
-   const formatDateForInput = (dateString: string | undefined): string => {
+  const formatDateForInput = (dateString: string | undefined): string => {
     if (!dateString) return "";
     
     try {
@@ -74,22 +78,49 @@ if(!session || session.status !== "authenticated") return null
       return "";
     }
   };
-  
 
-  
-
-  const handleSubmit = async(e: React.FormEvent) => {
+  // DEBUG VERSION - Add extensive logging
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await mutation.mutateAsync(formData)
-    showSuccess("Updated successfully")
     
-
-      try {
-        
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "There was an error on you request"
-        showErrors([errorMessage],()=>{})
-      }
+    console.log('🔵 SUBMIT STARTED');
+    console.log('User ID:', userId);
+    console.log('Form data:', formData);
+    console.log('Query key that will be invalidated:', ["profile", userId]);
+    
+    try {
+      console.log('🟡 Calling mutation...');
+      const result = await mutation.mutateAsync(formData);
+      console.log('🟢 Mutation successful:', result);
+      
+      // Check what's in cache BEFORE invalidation
+      const cachedDataBefore = queryClient.getQueryData(["profile", userId]);
+      console.log('📦 Cached data BEFORE refetch:', cachedDataBefore);
+      
+      console.log('🔄 Refetching queries...');
+      await queryClient.refetchQueries({ 
+        queryKey: ["profile", userId],
+        exact: true 
+      });
+      
+      // Check what's in cache AFTER invalidation
+      const cachedDataAfter = queryClient.getQueryData(["profile", userId]);
+      console.log('📦 Cached data AFTER refetch:', cachedDataAfter);
+      
+      // Check if the experience was actually updated in cache
+      const updatedExperience = (cachedDataAfter as any)?.experiences?.find(
+        (exp: any) => exp.id === experience.id
+      );
+      console.log('🎯 Updated experience in cache:', updatedExperience);
+      
+      showSuccess("Updated successfully");
+      setEditingId(null);
+      
+    } catch (error) {
+      console.error('🔴 Error during submit:', error);
+      const errorMessage = error instanceof Error ? error.message : "There was an error on your request";
+      showErrors([errorMessage], () => {});
+    }
   };
 
   return (
@@ -97,15 +128,13 @@ if(!session || session.status !== "authenticated") return null
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-800">Edit Work Experience</h2>
         <div className="flex gap-2">
-         
-            <button
-              type="button"
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              title="Delete experience"
-            >
-              <Trash2 size={20} />
-            </button>
-          
+          <button
+            type="button"
+            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            title="Delete experience"
+          >
+            <Trash2 size={20} />
+          </button>
         </div>
       </div>
 
@@ -117,7 +146,7 @@ if(!session || session.status !== "authenticated") return null
           </label>
           <input
             type="text"
-            name="title"
+            name="position"
             value={formData.position || ""}
             onChange={handleInputChange}
             required
@@ -263,15 +292,6 @@ if(!session || session.status !== "authenticated") return null
         </div>
       </div>
 
-      {/* Technologies Section */}
-      <div className="space-y-3">
-        
-
-       
-
-   
-      </div>
-
       {/* Location (Optional) */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -298,10 +318,11 @@ if(!session || session.status !== "authenticated") return null
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg font-medium transition-colors flex items-center gap-1.5"
+          disabled={mutation.isPending}
+          className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save size={16} />
-          Save Changes
+          {mutation.isPending ? "Saving..." : "Save Changes"}
         </button>
       </div>
     </form>

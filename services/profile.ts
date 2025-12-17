@@ -1,4 +1,4 @@
-import { IPersonalInfo, IWorkExperience, IWorkExperienceDTO } from "@/types/profile"
+import { ICertification, IEducation, IPersonalInfo, ISkill, IWorkExperience, IWorkExperienceDTO } from "@/types/profile"
 import { dataTransformerToCamelCase, dataTransformerToSnakeCase } from "@/utils/data-transformer"
 
 
@@ -8,11 +8,22 @@ const getProfileByUseryId = async (id: string) => {
        
         const data = await response.json()
          if (!response.ok || !data.success) {
-            const errorMessage = data.message || 'Failed to fetch profile'
+            const errorMessage = data.data.message || 'Failed to fetch profile'
             throw new Error(errorMessage)
         }
-      
-        return data
+        const personalInfoDTO  = dataTransformerToCamelCase(data?.data?.personalInfo) ;
+        const experiencesDTO  = data?.data?.experiences?.map((experience: IWorkExperience) => dataTransformerToCamelCase(experience)) ;
+        const educationDTO  = data?.data?.education?.map((education: IEducation) => dataTransformerToCamelCase(education)) ;
+        const skillsDTO  = data?.data?.skills?.map((skill: ISkill) => dataTransformerToCamelCase(skill)) ;
+        const certificationsDTO  = data?.data?.certifications?.map((certification: ICertification) => dataTransformerToCamelCase(certification)) ;
+        
+        return {
+            personalInfo:personalInfoDTO,
+            experiences:experiencesDTO,
+            education:educationDTO,
+            skills:skillsDTO,
+            certifications:certificationsDTO
+        }
     } catch (error) {
         console.error('Error fetching profile:', error)
         return null
@@ -30,7 +41,6 @@ const updatePersonalInfo = async (id: string, formData: IPersonalInfo) => {
             body: JSON.stringify(formData)
         })
         const data = await response.json()
-        console.log(data)
         if (!response.ok || !data.success) {
             const errorMessage = data.message || 'Failed to update profile'
             throw new Error(errorMessage)
@@ -66,10 +76,10 @@ const addWorkExperience = async (id: string, formData: IWorkExperienceDTO) => {
     }
 }
 
-const updateWorkExperience = async (workExperienceId: string, formData: IWorkExperienceDTO) => {
+const updateWorkExperience = async (userId:string,workExperienceId: string, formData: IWorkExperienceDTO) => {
     try {
             const transformedData = dataTransformerToSnakeCase(formData) as IWorkExperience;
-        const response = await fetch(`/api/users/profile/work-experience/${workExperienceId}`, {
+        const response = await fetch(`/api/users/profile/${userId}/work-experience/${workExperienceId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
